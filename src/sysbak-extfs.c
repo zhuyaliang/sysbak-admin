@@ -37,7 +37,7 @@
 #ifndef EXT2_FLAG_64BITS
 #	define EXTFS_1_41 1.41
 #endif
-
+static ull copied_count;
 typedef struct 
 {
     // Source Data File Descriptor
@@ -48,6 +48,8 @@ typedef struct
     char *targer;
     sysbak_progress progress_callback;
     gpointer p_data;
+	GCancellable *cancellable;
+	file_system_info *fs_info;
 }sysdata;
 
 /// open device
@@ -367,6 +369,7 @@ static gboolean read_write_data (file_system_info *fs_info,
 		{
 	        goto ERROR;
 		}
+		copied_count += blocks_read;
 		block_id += blocks_read;
 		if (r_size + cs_added * fs_info->checksum_size != w_size)
 		{
@@ -394,6 +397,39 @@ ERROR:
 		free (write_buffer);
 	}
 	return FALSE;	
+}
+static progress_bar prog;
+static gboolean loop_check_progress (gpointer d)
+{
+	sysdata *data = (sysdata *)d;
+	progress_data progress_data;
+
+	if (g_cancellable_is_cancelled (data->cancellable))
+	{
+		return FALSE;
+	}
+    if (!progress_update(&prog, copied_count,&progress_data))
+	{
+        progress_data.percent=100.0;
+        progress_data.remained = (time_t)0;
+		data->progress_callback (&progress_data,data->p_data);
+		return FALSE;
+	}
+	data->progress_callback (&progress_data,data->p_data);
+	return TRUE;
+}
+static void load_progress_info (file_system_info *fs_info,
+								sysdata          *data)
+{
+	int		     start;
+	ull          stop;
+    g_return_if_fail (data->progress_callback != NULL);
+	
+	start = 0;              /// start number of progress bar
+    stop = (fs_info->usedblocks);        /// get the end of progress number, only used block
+    progress_init(&prog, start, stop, fs_info->block_size);
+	
+	g_timeout_add(800,(GSourceFunc)loop_check_progress,data);
 }
 static void start_sysbak_data (GTask         *task,
                                gpointer       source_object,
@@ -437,6 +473,10 @@ static void start_sysbak_data (GTask         *task,
     }    
     write_image_desc(&(data->dfw), fs_info);
 	write_image_bitmap(&(data->dfw), fs_info, bitmap);
+	copied_count = 0;
+	load_progress_info (&fs_info,
+					    data);
+
     if (!read_write_data (&fs_info,bitmap,&(data->dfr),&(data->dfw)))
     {
         goto ERROR;
@@ -446,6 +486,7 @@ static void start_sysbak_data (GTask         *task,
 	g_object_unref (task);
 	return;
 ERROR:
+	g_cancellable_cancel (cancellable);
 	free(bitmap);
 	g_task_return_error (task, error);
     g_object_unref (task);
@@ -501,12 +542,17 @@ gboolean sysbak_extfs_ptf_async (const char   *device,
 		return FALSE;
 	}
     
+	if (cancellable == NULL)
+	{
+		cancellable = g_cancellable_new (); 
+	}
     data = g_slice_new (sysdata);
     data->dfr = dfr;
     data->dfw = dfw;
     data->progress_callback = progress_callback;
     data->p_data = p_data;
-    data->device = g_strdup (device);
+    data->cancellable = cancellable;
+	data->device = g_strdup (device);
     data->targer = g_strdup (targer);
     
     task = g_task_new (NULL,cancellable,finished_callback,f_data);

@@ -3,6 +3,7 @@
 #include <unistd.h>
 
 #include "sysbak-extfs.h"
+
 static void test (GObject      *source_object,
            GAsyncResult *res,
            gpointer      user_data)
@@ -21,9 +22,9 @@ static void test (GObject      *source_object,
 	}
 }    
 
-void progress (uint a)
+void progress (progress_data *data,gpointer p_data)
 {
-    printf ("a ============%u\r\n",a);
+    printf ("p ============%f s================%f\r\n",data->percent,data->speed);
 }    
 int main(int argc, char **argv)
 {

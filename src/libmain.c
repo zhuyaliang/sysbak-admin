@@ -73,8 +73,6 @@ int main(int argc, char **argv) {
 	int			r_size, w_size;		/// read and write size
 	unsigned		cs_size = 0;		/// checksum_size
 	int			cs_reseed = 1;
-	int			start;
-	unsigned long long      stop;		/// start, range, stop number for progress bar
 	unsigned long *bitmap = NULL;		/// the point for bitmap data
 	int			debug = 0;		/// debug level
 	int			tui = 0;		/// text user interface
@@ -490,10 +488,5 @@ int main(int argc, char **argv) {
 
 void *thread_update_pui(void *arg) {
 
-	while (!done) {
-		if (!opt.quiet)
-			update_pui(&prog, copied, block_id, done);
-		sleep(opt.fresh);
-	}
 	pthread_exit("exit");
 }

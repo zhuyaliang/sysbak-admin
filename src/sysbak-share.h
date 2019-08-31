@@ -86,6 +86,13 @@ typedef struct
 
 typedef struct
 {
+	float  percent;
+    float  speed;
+    time_t remained;
+    time_t elapsed;
+}progress_data;
+typedef struct
+{
 	image_head       head;
 	file_system_info fs_info;
 	uint32_t            crc;
@@ -93,7 +100,7 @@ typedef struct
 
 typedef unsigned long long ull;
 typedef unsigned int       uint;
-typedef void (* sysbak_progress) (uint );
+typedef void (* sysbak_progress) (progress_data*,gpointer);
 
 int         open_source_device             (const char       *device, 
 		                                    int               mode);

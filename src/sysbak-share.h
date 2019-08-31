@@ -127,6 +127,8 @@ gboolean    write_image_bitmap             (int              *fd,
 
 ull         get_local_free_space           (const char       *path);
 
+ull         get_partition_free_space       (int              *fd); 
+
 int         write_read_io_all              (int              *fd, 
 		                                    char             *buf, 
 											ull               count, 

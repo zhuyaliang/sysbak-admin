@@ -36,11 +36,16 @@ int main(int argc, char **argv)
 	cancellable = g_cancellable_new ();
 	loop = g_main_loop_new (NULL, FALSE);
 
-	if (!sysbak_extfs_ptf_async ("/dev/sdd","sdc.img",0,cancellable,test,(gpointer)a,progress,(gpointer)b))
+	if (!sysbak_extfs_ptp_async ("/dev/sdc1","/dev/sdc2",0,cancellable,test,(gpointer)a,progress,(gpointer)b))
+	{
+		printf ("faild\r\n");
+	} 
+/*	
+	if (!sysbak_extfs_ptf_async ("/dev/sdc1","sdc.img",0,cancellable,test,(gpointer)a,progress,(gpointer)b))
 	{
 		printf ("faild\r\n");
 	}    
-   
+  */ 
 	g_main_loop_run (loop);
 	g_object_unref (cancellable);
 	g_main_loop_unref (loop);

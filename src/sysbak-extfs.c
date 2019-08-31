@@ -689,11 +689,11 @@ static void start_sysbak_data_ptp (GTask         *task,
     }
 	
 	read_bitmap_info(data->device, fs_info, bitmap);
-	free_space = get_local_free_space(data->targer);
-    if (free_space < fs_info.device_size)
+	free_space = get_partition_free_space(&(data->dfw));
+	if (free_space < fs_info.device_size)
     {
         goto ERROR;
-    }    
+    }   
 	copied_count = 0;
 	load_progress_info (&fs_info,
 					    data);

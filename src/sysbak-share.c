@@ -30,7 +30,12 @@
 #include "sysbak-share.h"
 #include "checksum.h"
 #include "bitmap.h"
-
+#if defined(linux) && defined(_IO) && !defined(BLKGETSIZE)
+#define BLKGETSIZE      _IO(0x12,96)  /* Get device size in 512-byte blocks. */
+#endif
+#if defined(linux) && defined(_IOR) && !defined(BLKGETSIZE64)
+#define BLKGETSIZE64    _IOR(0x12,114,size_t)   /* Get device size in bytes. */
+#endif
 /// the io function, reference from ntfsprogs(ntfsclone).
 int write_read_io_all(int *fd, char *buf, ull count, int do_write) 
 {
@@ -288,7 +293,6 @@ unsigned long long get_local_free_space(const char* path)
     {
 		return 0;
 	}
-
 	/* if file is a FIFO there is no point in checking the size */
 	if (!stat(path, &statP)) 
     {
@@ -305,7 +309,38 @@ unsigned long long get_local_free_space(const char* path)
     
     return dest_size;
 }
+/// get partition size
+ull get_partition_free_space (int *fd) 
+{
+    ull dest_size = 0;
+    unsigned long dest_block;
+    struct stat stat;
 
+    if (!fstat(*fd, &stat)) 
+	{
+        if (S_ISFIFO(stat.st_mode)) 
+		{
+            dest_size = 0;
+        } 
+		else if (S_ISREG(stat.st_mode)) 
+		{
+            dest_size = stat.st_size;
+        } 
+		else 
+		{
+#ifdef BLKGETSIZE64
+            ioctl(*fd, BLKGETSIZE64, &dest_size);
+            return dest_size;
+#endif
+#ifdef BLKGETSIZE
+            ioctl(*fd, BLKGETSIZE, &dest_block);
+            dest_size = (unsigned long long)(dest_block * 512);
+            return dest_size;
+#endif
+        }
+    } 
+    return dest_size;
+} 
 static void init_image_head(image_head* image_hdr) 
 {
 	memset(image_hdr, 0, sizeof(image_head));

@@ -295,10 +295,10 @@ static ull get_read_blocks_size (file_system_info *fs_info,ull *block_id,unsigne
     return blocks_read;
 
 }    
-static gboolean read_write_data (file_system_info *fs_info,
-                                 unsigned long    *bitmap,
-								 int              *dfr,
-								 int              *dfw)
+static gboolean read_write_data_ptf (file_system_info *fs_info,
+                                     unsigned long    *bitmap,
+								     int              *dfr,
+								     int              *dfw)
 {
 	const uint block_size = fs_info->block_size; //Data size per block
 	const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? DEFAULT_BUFFER_SIZE / block_size : 1; // in blocks
@@ -431,10 +431,10 @@ static void load_progress_info (file_system_info *fs_info,
 	
 	g_timeout_add(800,(GSourceFunc)loop_check_progress,data);
 }
-static void start_sysbak_data (GTask         *task,
-                               gpointer       source_object,
-                               gpointer       d,
-                               GCancellable  *cancellable)
+static void start_sysbak_data_ptf (GTask         *task,
+                                   gpointer       source_object,
+                                   gpointer       d,
+                                   GCancellable  *cancellable)
 {
     sysdata *data = (sysdata *)d;
 	file_system_info fs_info;   /// description of the file system
@@ -477,7 +477,7 @@ static void start_sysbak_data (GTask         *task,
 	load_progress_info (&fs_info,
 					    data);
 
-    if (!read_write_data (&fs_info,bitmap,&(data->dfr),&(data->dfw)))
+    if (!read_write_data_ptf (&fs_info,bitmap,&(data->dfr),&(data->dfw)))
     {
         goto ERROR;
     } 
@@ -499,6 +499,40 @@ static void sys_data_free (sysdata *data)
 	close(data->dfr);
 	close(data->dfw);
     g_slice_free (sysdata,data);
+}
+static sysdata *open_operation_data (const char   *device,
+		                             const char   *targer,
+							         int           mode,
+									 gboolean      overwrite,
+									 GCancellable *cancellable)
+{
+
+    int dfr,dfw;
+    sysdata *data;
+	
+	dfr = open_source_device(device,mode);
+	if (dfr <= 0 ) 
+    {
+		return NULL;
+	}
+	dfw = open_target_device(targer,mode,overwrite);
+	if (dfw <= 0 ) 
+    {
+		return NULL;
+	}
+    
+	if (cancellable == NULL)
+	{
+		cancellable = g_cancellable_new (); 
+	}
+    data = g_slice_new (sysdata);
+    data->dfr = dfr;
+    data->dfw = dfw;
+    data->cancellable = cancellable;
+	data->device = g_strdup (device);
+    data->targer = g_strdup (targer);
+
+	return data;
 }
 //Backup partition to image file 
 /******************************************************************************
@@ -529,35 +563,18 @@ gboolean sysbak_extfs_ptf_async (const char   *device,
     g_return_val_if_fail (finished_callback != NULL,FALSE);
     GTask *task;
     sysdata *data;
-    int dfr,dfw;
 
-	dfr = open_source_device(device,BACK_PTF);
-	if (dfr <= 0 ) 
-    {
-		return FALSE;
-	}
-	dfw = open_target_device(targer,BACK_PTF,overwrite);
-	if (dfw <= 0 ) 
-    {
-		return FALSE;
-	}
-    
-	if (cancellable == NULL)
+	data = open_operation_data (device,targer,BACK_PTF,overwrite,cancellable);
+	if (data == NULL)
 	{
-		cancellable = g_cancellable_new (); 
+		return FALSE;
 	}
-    data = g_slice_new (sysdata);
-    data->dfr = dfr;
-    data->dfw = dfw;
     data->progress_callback = progress_callback;
     data->p_data = p_data;
-    data->cancellable = cancellable;
-	data->device = g_strdup (device);
-    data->targer = g_strdup (targer);
     
     task = g_task_new (NULL,cancellable,finished_callback,f_data);
     g_task_set_task_data (task, data, (GDestroyNotify) sys_data_free);
-    g_task_run_in_thread (task, start_sysbak_data);
+    g_task_run_in_thread (task, start_sysbak_data_ptf);
     
     return TRUE;      /// finish
 }
@@ -570,11 +587,167 @@ file_system_info *sysbak_extfs_ptf_finish (GAsyncResult  *result,
 
 	return g_task_propagate_pointer (G_TASK (result), error);
 }
-//Backup partition to partition 
-gboolean sysbak_extfs_ptp (const char *s_device,
-                           const char *t_device,
-                           gboolean    overwrite)
+static gboolean read_write_data_ptp (file_system_info *fs_info,
+                                     unsigned long    *bitmap,
+								     int              *dfr,
+								     int              *dfw)
 {
+	const uint block_size = fs_info->block_size; //Data size per block
+	const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? DEFAULT_BUFFER_SIZE / block_size : 1; // in blocks
+	char *buffer;
+    ull   block_id = 0;	
+    int   r_size, w_size;	
+    
+	buffer = (char*)malloc(buffer_capacity * block_size);
+	if (buffer == NULL) 
+	{
+	    goto ERROR;
+    }
 
-    return TRUE;
-}    
+	// read data from the first block
+	if (lseek(*dfr, 0, SEEK_SET) == (off_t)-1)
+	{
+	    goto ERROR;
+	}
+	do 
+	{
+	    ull blocks_read;
+	    off_t offset;
+
+        blocks_read = get_read_blocks_size (fs_info,&block_id,bitmap);
+		if (blocks_read == 0)
+			break;
+
+		offset = (off_t)(block_id * block_size);
+		if (lseek(*dfr, offset, SEEK_SET) == (off_t)-1)
+		{
+	        goto ERROR;
+		}
+		if (lseek(*dfw, offset, SEEK_SET) == (off_t)-1)
+		{
+	        goto ERROR;
+		}
+		r_size = write_read_io_all (dfr, buffer, blocks_read * block_size,READ);
+		if (r_size != (int)(blocks_read * block_size)) 
+		{
+	        goto ERROR;
+		}
+		w_size = write_read_io_all(dfw, buffer, blocks_read * block_size,WRITE);
+		if (w_size != (int)(blocks_read * block_size))
+		{
+	        goto ERROR;
+		}
+		copied_count += blocks_read;
+		block_id += blocks_read;
+		if (r_size != w_size)
+		{
+	        goto ERROR;
+		}
+	} while (1);
+	free(buffer);
+	return TRUE;
+ERROR:
+	if (buffer != NULL)
+	{
+		free (buffer);
+	}
+	return FALSE;	
+}
+static void start_sysbak_data_ptp (GTask         *task,
+                                   gpointer       source_object,
+                                   gpointer       d,
+                                   GCancellable  *cancellable)
+{
+    sysdata *data = (sysdata *)d;
+	file_system_info fs_info;   /// description of the file system
+    unsigned long *bitmap = NULL;
+	ull free_space = 0;
+	GError *error = NULL;
+
+	init_file_system_info(&fs_info);
+     
+    // get Super Block information from partition
+	if (!read_super_blocks(data->device, &fs_info))
+	{
+		g_set_error_literal (&error,G_IO_ERROR ,G_IO_ERROR_NOT_SUPPORTED,"Couldn't find valid filesystem superblock");
+		goto ERROR;
+	}
+
+	const unsigned int buffer_capacity = DEFAULT_BUFFER_SIZE > fs_info.block_size
+				                        ? DEFAULT_BUFFER_SIZE / fs_info.block_size : 1; // in blocks
+	fs_info.blocks_per_checksum = buffer_capacity;
+   
+	if (!check_memory_size(fs_info,buffer_capacity))
+    {
+        goto ERROR;
+    }
+	// alloc a memory to store bitmap
+	bitmap = pc_alloc_bitmap(fs_info.totalblock);
+	if (bitmap == NULL) 
+    {
+	    goto ERROR;;
+    }
+	
+	read_bitmap_info(data->device, fs_info, bitmap);
+	free_space = get_local_free_space(data->targer);
+    if (free_space < fs_info.device_size)
+    {
+        goto ERROR;
+    }    
+	copied_count = 0;
+	load_progress_info (&fs_info,
+					    data);
+
+    if (!read_write_data_ptp (&fs_info,bitmap,&(data->dfr),&(data->dfw)))
+    {
+        goto ERROR;
+    } 
+
+	g_task_return_pointer (task,&fs_info,NULL);
+	g_object_unref (task);
+	return;
+ERROR:
+	g_cancellable_cancel (cancellable);
+	free(bitmap);
+	g_task_return_error (task, error);
+    g_object_unref (task);
+
+}   
+//Backup partition to partition 
+gboolean sysbak_extfs_ptp_async (const char   *device,
+                                 const char   *targer,
+                                 gboolean      overwrite,
+                                 GCancellable *cancellable,
+                                 GAsyncReadyCallback finished_callback,
+                                 gpointer      f_data,
+                                 sysbak_progress progress_callback,
+                                 gpointer      p_data)
+{
+    g_return_val_if_fail (device != NULL,FALSE);
+    g_return_val_if_fail (targer != NULL,FALSE);
+    g_return_val_if_fail (finished_callback != NULL,FALSE);
+    GTask *task;
+    sysdata *data;
+    
+	data = open_operation_data (device,targer,BACK_PTP,overwrite,cancellable);
+	if (data == NULL)
+	{
+		return FALSE;
+	}
+    data->progress_callback = progress_callback;
+    data->p_data = p_data;
+    
+	task = g_task_new (NULL,cancellable,finished_callback,f_data);
+    g_task_set_task_data (task, data, (GDestroyNotify) sys_data_free);
+    g_task_run_in_thread (task, start_sysbak_data_ptp);
+    
+    return TRUE;      /// finish
+}
+file_system_info *sysbak_extfs_ptp_finish (GAsyncResult  *result,
+                                           GError       **error) 
+{
+	g_return_val_if_fail (g_task_is_valid (result, NULL), NULL);
+	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+
+	return g_task_propagate_pointer (G_TASK (result), error);
+}

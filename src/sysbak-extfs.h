@@ -35,8 +35,17 @@ gboolean sysbak_extfs_ptf_async (const char   *device,
 file_system_info *sysbak_extfs_ptf_finish (GAsyncResult  *result,
                                            GError       **error); 
 //Backup partition to partition 
-gboolean sysbak_extfs_ptp (const char *s_device,
-                           const char *t_device,
-                           gboolean    overwrite);
+
+gboolean sysbak_extfs_ptp_async (const char   *device,
+                                 const char   *targer,
+                                 gboolean      overwrite,
+                                 GCancellable *cancellable,
+                                 GAsyncReadyCallback finished_callback,
+                                 gpointer      f_data,
+                                 sysbak_progress progress_callback,
+                                 gpointer      p_data);
+
+file_system_info *sysbak_extfs_ptp_finish (GAsyncResult  *result,
+                                           GError       **error); 
 
 #endif

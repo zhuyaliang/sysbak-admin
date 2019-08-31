@@ -1,0 +1,148 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AM_CFLAGS	Makefile	/^AM_CFLAGS=-D_FILE_OFFSET_BITS=64$/;"	m
+AM_CPPFLAGS	Makefile	/^AM_CPPFLAGS = -DLOCALEDIR=\\"$(localedir)\\" -D_FILE_OFFSET_BITS=64$/;"	m
+BACK_DD	sysbak-share.h	37;"	d
+BACK_PTF	sysbak-share.h	38;"	d
+BACK_PTP	sysbak-share.h	39;"	d
+BITS_TO_BYTES	bitmap.h	8;"	d
+BITS_TO_LONGS	bitmap.h	9;"	d
+CHECKSUM_H_	checksum.h	2;"	d
+CRC32_SEED	checksum.c	3;"	d	file:
+CRC32_SIZE	sysbak-share.h	29;"	d
+CSM_CRC32	checksum.h	/^	CSM_CRC32 = 0x20,$/;"	e	enum:__anon1
+CSM_CRC32_0001	checksum.h	/^	CSM_CRC32_0001 = 0xFF, \/\/ use crc32_0001() and watch for x64 bug$/;"	e	enum:__anon1
+CSM_NONE	checksum.h	/^	CSM_NONE  = 0x00,$/;"	e	enum:__anon1
+DEFAULT_BUFFER_SIZE	sysbak-share.h	28;"	d
+ENDIAN_MAGIC	sysbak-share.h	41;"	d
+EXTFS_1_41	sysbak-extfs.c	38;"	d	file:
+FS_MAGIC_SIZE	sysbak-share.h	33;"	d
+IMAGE_MAGIC	sysbak-share.h	30;"	d
+IMAGE_MAGIC_SIZE	sysbak-share.h	31;"	d
+IMAGE_VERSION_0002	sysbak-share.h	35;"	d
+IMAGE_VERSION_SIZE	sysbak-share.h	32;"	d
+LDADD	Makefile	/^LDADD = $(LIBINTL) -lcrypto$/;"	m
+PARTCLONE_VERSION_SIZE	sysbak-share.h	34;"	d
+PART_BITS_PER_BYTE	bitmap.h	6;"	d
+PART_BITS_PER_LONG	bitmap.h	7;"	d
+PART_BYTES_PER_LONG	bitmap.h	5;"	d
+READ	sysbak-share.h	43;"	d
+RESTORE	sysbak-share.h	40;"	d
+VERSION	sysbak-share.h	36;"	d
+WRITE	sysbak-share.h	42;"	d
+_GNU_SOURCE	libmain.c	15;"	d	file:
+_GNU_SOURCE	sysbak-share.c	17;"	d	file:
+_LARGEFILE64_SOURCE	libmain.c	16;"	d	file:
+_LARGEFILE64_SOURCE	sysbak-share.c	18;"	d	file:
+__SYSBAK_EXTFS_H__	sysbak-extfs.h	19;"	d
+__SYSBAK_SHARE_H__	sysbak-share.h	19;"	d
+block_id	libmain.c	/^unsigned long long block_id;$/;"	v
+block_size	progress.h	/^	int block_size;$/;"	m	struct:progress_bar
+block_size	sysbak-share.h	/^	unsigned int  block_size;$/;"	m	struct:__anon2
+blocks_per_checksum	sysbak-share.h	/^	uint32_t blocks_per_checksum;$/;"	m	struct:__anon2
+calculate_speed	progress.c	/^static void calculate_speed(progress_bar *prog, ull copied,progress_data *progress_data)$/;"	f	file:
+cancellable	sysbak-extfs.c	/^	GCancellable *cancellable;$/;"	m	struct:__anon6	file:
+check_memory_size	sysbak-share.c	/^gboolean check_memory_size(file_system_info fs_info,const uint32_t blkcs)$/;"	f
+check_mount	sysbak-share.c	/^static gboolean check_mount(const char* device)$/;"	f	file:
+check_system_space	sysbak-extfs.c	/^static gboolean check_system_space (file_system_info *fs_info,const char *targer)$/;"	f	file:
+checksum_mode	sysbak-share.h	/^	uint16_t checksum_mode;$/;"	m	struct:__anon2
+checksum_mode_enum	checksum.h	/^} checksum_mode_enum;$/;"	t	typeref:enum:__anon1
+checksum_size	sysbak-share.h	/^	uint16_t checksum_size;$/;"	m	struct:__anon2
+convert_blocks_to_bytes	sysbak-share.c	/^ull convert_blocks_to_bytes(ull  block_offset, $/;"	f
+copied	libmain.c	/^unsigned long long copied;$/;"	v
+copied_count	sysbak-extfs.c	/^static ull copied_count;$/;"	v	file:
+crc	sysbak-share.h	/^	uint32_t            crc;$/;"	m	struct:__anon5
+crc32	checksum.c	/^uint32_t crc32(uint32_t seed, void* buffer, int size) $/;"	f
+crc32_0001	checksum.c	/^static uint32_t crc32_0001(uint32_t seed, void* buffer, int size) {$/;"	f	file:
+crc_tab32	checksum.c	/^static uint32_t crc_tab32[256] = { 0 };$/;"	v	file:
+cs_mode	checksum.c	/^static int cs_mode = CSM_NONE;$/;"	v	file:
+device	sysbak-extfs.c	/^    char *device;$/;"	m	struct:__anon6	file:
+device_size	sysbak-share.h	/^	unsigned long long device_size;$/;"	m	struct:__anon2
+dfr	sysbak-extfs.c	/^    int  dfr;   $/;"	m	struct:__anon6	file:
+dfw	sysbak-extfs.c	/^    int  dfw;    $/;"	m	struct:__anon6	file:
+done	libmain.c	/^int done;$/;"	v
+elapsed	sysbak-share.h	/^    time_t elapsed;$/;"	m	struct:__anon4
+endianess	sysbak-share.h	/^    uint16_t endianess;$/;"	m	struct:__anon3
+file_system_info	sysbak-share.h	/^}file_system_info;$/;"	t	typeref:struct:__anon2
+fs_info	sysbak-extfs.c	/^	file_system_info *fs_info;$/;"	m	struct:__anon6	file:
+fs_info	sysbak-share.h	/^	file_system_info fs_info;$/;"	m	struct:__anon5
+fs_opt	libmain.c	/^fs_cmd_opt fs_opt;$/;"	v
+get_checksum_count	sysbak-share.c	/^static unsigned long get_checksum_count(unsigned long long block_count, $/;"	f	file:
+get_checksum_size	checksum.c	/^unsigned get_checksum_size(int checksum_mode, int debug) {$/;"	f
+get_checksum_str	checksum.c	/^const char *get_checksum_str(int checksum_mode) {$/;"	f
+get_local_free_space	sysbak-share.c	/^unsigned long long get_local_free_space(const char* path) $/;"	f
+get_read_blocks_size	sysbak-extfs.c	/^static ull get_read_blocks_size (file_system_info *fs_info,ull *block_id,unsigned long *bitmap)$/;"	f	file:
+head	sysbak-share.h	/^	image_head       head;$/;"	m	struct:__anon5
+image_desc	sysbak-share.h	/^}image_desc;$/;"	t	typeref:struct:__anon5
+image_head	sysbak-share.h	/^}image_head;$/;"	t	typeref:struct:__anon3
+in_use	sysbak-extfs.c	30;"	d	file:
+init_checksum	checksum.c	/^void init_checksum(int checksum_mode, unsigned char* seed)$/;"	f
+init_crc32	checksum.c	/^void init_crc32(uint32_t* seed) $/;"	f
+init_file_system_info	sysbak-share.c	/^void init_file_system_info(file_system_info *fs_info)$/;"	f
+init_image_head	sysbak-share.c	/^static void init_image_head(image_head* image_hdr) $/;"	f	file:
+initial_time	progress.h	/^	time_t initial_time;$/;"	m	struct:progress_bar
+is_block_type	sysbak-share.c	/^static int is_block_type (const char *device)$/;"	f	file:
+load_progress_info	sysbak-extfs.c	/^static void load_progress_info (file_system_info *fs_info,$/;"	f	file:
+localedir	Makefile	/^localedir = \/usr\/share\/locale$/;"	m
+loop_check_progress	sysbak-extfs.c	/^static gboolean loop_check_progress (gpointer d)$/;"	f	file:
+magic	sysbak-share.h	/^    char magic[IMAGE_MAGIC_SIZE+1];$/;"	m	struct:__anon3
+main	libmain.c	/^int main(int argc, char **argv) {$/;"	f
+main	main.c	/^int main(int argc, char **argv)$/;"	f
+main_files	Makefile	/^main_files=main.c  progress.c checksum.c progress.h checksum.h bitmap.h sysbak-share.c sysbak-share.h$/;"	m
+open_file_system	sysbak-extfs.c	/^static ext2_filsys open_file_system (const char* device)$/;"	f	file:
+open_source_device	sysbak-share.c	/^int open_source_device(const char *device,int mode) $/;"	f
+open_target_device	sysbak-share.c	/^int open_target_device(const char* target, int mode,gboolean overwrite) $/;"	f
+opt	libmain.c	/^cmd_opt opt;$/;"	v
+p_data	sysbak-extfs.c	/^    gpointer p_data;$/;"	m	struct:__anon6	file:
+partclone_extfs_SOURCES	Makefile	/^partclone_extfs_SOURCES=$(main_files) sysbak-extfs.c sysbak-extfs.h$/;"	m
+pc_alloc_bitmap	bitmap.h	/^static inline unsigned long* pc_alloc_bitmap(unsigned long bits)$/;"	f
+pc_clear_bit	bitmap.h	/^pc_clear_bit(unsigned long int nr, unsigned long *bitmap,$/;"	f
+pc_init_bitmap	bitmap.h	/^static inline void pc_init_bitmap(unsigned long* bitmap, char value, unsigned long bits)$/;"	f
+pc_set_bit	bitmap.h	/^pc_set_bit(unsigned long int nr, unsigned long *bitmap,$/;"	f
+pc_test_bit	bitmap.h	/^pc_test_bit(unsigned long int nr, unsigned long *bitmap,$/;"	f
+percent	sysbak-share.h	/^	float  percent;$/;"	m	struct:__anon4
+print_file_system_info	sysbak-share.c	/^void print_file_system_info(file_system_info fs_info) {$/;"	f
+print_readable_size_str	sysbak-share.c	/^void print_readable_size_str(unsigned long long size_byte, char *new_size_str) {$/;"	f
+prog	libmain.c	/^progress_bar prog;$/;"	v
+prog	sysbak-extfs.c	/^static progress_bar prog;$/;"	v	file:
+progress	main.c	/^void progress (progress_data *data,gpointer p_data)$/;"	f
+progress_bar	progress.h	/^typedef struct progress_bar $/;"	s
+progress_bar	progress.h	/^}progress_bar;$/;"	t	typeref:struct:progress_bar
+progress_callback	sysbak-extfs.c	/^    sysbak_progress progress_callback;$/;"	m	struct:__anon6	file:
+progress_data	sysbak-share.h	/^}progress_data;$/;"	t	typeref:struct:__anon4
+progress_init	progress.c	/^extern void progress_init(progress_bar *prog, int start, ull stop,int size)$/;"	f
+progress_update	progress.c	/^extern gboolean progress_update(progress_bar *prog, ull copied,progress_data *progress_data)$/;"	f
+ptc_version	sysbak-share.h	/^    char ptc_version[PARTCLONE_VERSION_SIZE];$/;"	m	struct:__anon3
+read_bitmap_info	sysbak-extfs.c	/^static gboolean read_bitmap_info (const char* device, file_system_info fs_info, unsigned long* bitmap) $/;"	f	file:
+read_super_blocks	sysbak-extfs.c	/^static gboolean read_super_blocks(const char* device, file_system_info* fs_info)$/;"	f	file:
+read_write_data	sysbak-extfs.c	/^static gboolean read_write_data (file_system_info *fs_info,$/;"	f	file:
+remained	sysbak-share.h	/^    time_t remained;$/;"	m	struct:__anon4
+speed	sysbak-share.h	/^    float  speed;$/;"	m	struct:__anon4
+start	progress.h	/^	int start;$/;"	m	struct:progress_bar
+start_sysbak_data	sysbak-extfs.c	/^static void start_sysbak_data (GTask         *task,$/;"	f	file:
+stop	progress.h	/^	unsigned long long stop;$/;"	m	struct:progress_bar
+sys_data_free	sysbak-extfs.c	/^static void sys_data_free (sysdata *data)$/;"	f	file:
+sysbak_extfs_ptf_async	sysbak-extfs.c	/^gboolean sysbak_extfs_ptf_async (const char   *device,$/;"	f
+sysbak_extfs_ptf_finish	sysbak-extfs.c	/^file_system_info *sysbak_extfs_ptf_finish (GAsyncResult  *result,$/;"	f
+sysbak_extfs_ptp	sysbak-extfs.c	/^gboolean sysbak_extfs_ptp (const char *s_device,$/;"	f
+sysbak_progress	sysbak-share.h	/^typedef void (* sysbak_progress) (progress_data*,gpointer);$/;"	t
+sysdata	sysbak-extfs.c	/^}sysdata;$/;"	t	typeref:struct:__anon6	file:
+targer	sysbak-extfs.c	/^    char *targer;$/;"	m	struct:__anon6	file:
+test	main.c	/^static void test (GObject      *source_object,$/;"	f	file:
+thread_update_pui	libmain.c	/^void *thread_update_pui(void *arg) {$/;"	f
+totalblock	sysbak-share.h	/^	unsigned long long totalblock;$/;"	m	struct:__anon2
+uint	sysbak-share.h	/^typedef unsigned int       uint;$/;"	t
+ull	sysbak-share.h	/^typedef unsigned long long ull;$/;"	t
+unit	progress.h	/^    float unit;$/;"	m	struct:progress_bar
+update_checksum	checksum.c	/^void update_checksum(unsigned char* checksum, char* buf, int size) {$/;"	f
+update_used_blocks_count	sysbak-share.c	/^void update_used_blocks_count(file_system_info* fs_info, unsigned long* bitmap) $/;"	f
+used_bitmap	sysbak-share.h	/^	unsigned long long used_bitmap;$/;"	m	struct:__anon2
+usedblocks	sysbak-share.h	/^	unsigned long long usedblocks;$/;"	m	struct:__anon2
+version	sysbak-share.h	/^    char version[IMAGE_VERSION_SIZE];$/;"	m	struct:__anon3
+write_image_bitmap	sysbak-share.c	/^gboolean write_image_bitmap(int *fd, $/;"	f
+write_image_desc	sysbak-share.c	/^gboolean write_image_desc(int* fd, file_system_info fs_info) $/;"	f
+write_read_io_all	sysbak-share.c	/^int write_read_io_all(int *fd, char *buf, ull count, int do_write) $/;"	f

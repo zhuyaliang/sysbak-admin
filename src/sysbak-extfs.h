@@ -32,7 +32,7 @@ gboolean sysbak_extfs_ptf_async (const char   *device,
                                  gpointer      f_data,
                                  sysbak_progress progress_callback,
                                  gpointer      p_data);
-file_system_info *sysbak_extfs_ptf_finish (GAsyncResult  *result,
+file_system_info *sysbak_extfs_finish (GAsyncResult  *result,
                                            GError       **error); 
 //Backup partition to partition 
 
@@ -44,8 +44,5 @@ gboolean sysbak_extfs_ptp_async (const char   *device,
                                  gpointer      f_data,
                                  sysbak_progress progress_callback,
                                  gpointer      p_data);
-
-file_system_info *sysbak_extfs_ptp_finish (GAsyncResult  *result,
-                                           GError       **error); 
 
 #endif

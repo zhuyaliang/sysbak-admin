@@ -210,11 +210,11 @@ static gboolean read_bitmap_info (const char* device, file_system_info fs_info, 
 
     return TRUE;
 }
-
 static gboolean read_super_blocks(const char* device, file_system_info* fs_info)
 {
     ext2_filsys extfs;
-    
+
+	strncpy(fs_info->fs, extfs_MAGIC, FS_MAGIC_SIZE);
     extfs = open_file_system (device);
     if (extfs == NULL)
     {
@@ -230,18 +230,19 @@ static gboolean read_super_blocks(const char* device, file_system_info* fs_info)
 
 	return TRUE;
 }
-static gboolean check_system_space (file_system_info *fs_info,const char *targer)
+static gboolean check_system_space (file_system_info *fs_info,
+									const char       *targer,
+									image_options    *img_opt)
 {
 	ull needed_space = 0;
 	ull free_space = 0;
 	
-    needed_space += sizeof(image_head) + sizeof(file_system_info);
+    needed_space += sizeof(image_head) + sizeof(file_system_info) + sizeof(image_options);
 	needed_space += BITS_TO_BYTES(fs_info->totalblock);
 	needed_space += convert_blocks_to_bytes(0, fs_info->usedblocks, 
 			                                   fs_info->block_size,
-											   fs_info->blocks_per_checksum,
-											   fs_info->checksum_size);
-
+											   img_opt->blocks_per_checksum,
+											   img_opt->checksum_size);
 	free_space = get_local_free_space(targer);
     if (free_space < needed_space)
     {
@@ -296,37 +297,37 @@ static ull get_read_blocks_size (file_system_info *fs_info,ull *block_id,unsigne
 
 }    
 static gboolean read_write_data_ptf (file_system_info *fs_info,
+									 image_options    *img_opt,
                                      unsigned long    *bitmap,
 								     int              *dfr,
 								     int              *dfw)
 {
 	const uint block_size = fs_info->block_size; //Data size per block
 	const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? DEFAULT_BUFFER_SIZE / block_size : 1; // in blocks
-	guchar checksum[fs_info->checksum_size];
+	guchar checksum[img_opt->checksum_size];
 	uint  blocks_in_cs = 0, blocks_per_cs, write_size;
 	char *read_buffer, *write_buffer;
     ull   block_id;	
     int   r_size, w_size;	
     
-    blocks_per_cs = fs_info->blocks_per_checksum;
+    blocks_per_cs = img_opt->blocks_per_checksum;
 	// Getting bytes of backup data
     write_size = convert_blocks_to_bytes(0, buffer_capacity, 
 			                                block_size,
-									        fs_info->blocks_per_checksum,
-											fs_info->checksum_size);
+									        img_opt->blocks_per_checksum,
+											img_opt->checksum_size);
 	read_buffer = (char*)malloc(buffer_capacity * block_size);
-	write_buffer = (char*)malloc(write_size + fs_info->checksum_size);
+	write_buffer = (char*)malloc(write_size + img_opt->checksum_size);
 	if (read_buffer == NULL || write_buffer == NULL) 
 	{
 	    goto ERROR;
     }
-
 	// read data from the first block
 	if (lseek(*dfr, 0, SEEK_SET) == (off_t)-1)
 	{
 	    goto ERROR;
 	}
-	init_checksum(fs_info->checksum_mode, checksum);
+	init_checksum(img_opt->checksum_mode, checksum);
 	block_id = 0;
 	do 
 	{
@@ -357,11 +358,11 @@ static gboolean read_write_data_ptf (file_system_info *fs_info,
 			update_checksum(checksum, read_buffer + i * block_size, block_size);
 			if (blocks_per_cs > 0 && ++blocks_in_cs == blocks_per_cs)
 			{
-				memcpy(write_buffer + write_offset, checksum, fs_info->checksum_size);
+				memcpy(write_buffer + write_offset, checksum, img_opt->checksum_size);
 				++cs_added;
-				write_offset += fs_info->checksum_size;
+				write_offset += img_opt->checksum_size;
 				blocks_in_cs = 0;
-				init_checksum(fs_info->checksum_mode, checksum);
+				init_checksum(img_opt->checksum_mode, checksum);
 			}
 		}
 		w_size = write_read_io_all(dfw, write_buffer, write_offset,WRITE);
@@ -371,15 +372,15 @@ static gboolean read_write_data_ptf (file_system_info *fs_info,
 		}
 		copied_count += blocks_read;
 		block_id += blocks_read;
-		if (r_size + cs_added * fs_info->checksum_size != w_size)
+		if (r_size + cs_added * img_opt->checksum_size != w_size)
 		{
 	        goto ERROR;
 		}
 	} while (1);
 	if (blocks_in_cs > 0) 
 	{
-		w_size = write_read_io_all(dfw, (char*)checksum, fs_info->checksum_size,WRITE);
-		if (w_size != fs_info->checksum_size)
+		w_size = write_read_io_all(dfw, (char*)checksum, img_opt->checksum_size,WRITE);
+		if (w_size != img_opt->checksum_size)
 		{
 			return FALSE;
 		}
@@ -438,10 +439,12 @@ static void start_sysbak_data_ptf (GTask         *task,
 {
     sysdata *data = (sysdata *)d;
 	file_system_info fs_info;   /// description of the file system
+	image_options    img_opt;
     unsigned long *bitmap = NULL;
 	GError *error = NULL;
 
 	init_file_system_info(&fs_info);
+    init_image_options(&img_opt);
      
     // get Super Block information from partition
 	if (!read_super_blocks(data->device, &fs_info))
@@ -452,9 +455,8 @@ static void start_sysbak_data_ptf (GTask         *task,
 
 	const unsigned int buffer_capacity = DEFAULT_BUFFER_SIZE > fs_info.block_size
 				                        ? DEFAULT_BUFFER_SIZE / fs_info.block_size : 1; // in blocks
-	fs_info.blocks_per_checksum = buffer_capacity;
-   
-	if (!check_memory_size(fs_info,buffer_capacity))
+	img_opt.blocks_per_checksum = buffer_capacity; 
+	if (!check_memory_size(fs_info,img_opt))
     {
         goto ERROR;
     }
@@ -467,21 +469,22 @@ static void start_sysbak_data_ptf (GTask         *task,
 	
 	read_bitmap_info(data->device, fs_info, bitmap);
 	update_used_blocks_count(&fs_info, bitmap);
-    if (!check_system_space (&fs_info,data->targer))
+    if (!check_system_space (&fs_info,data->targer,&img_opt))
     {
         goto ERROR;
     }    
-    write_image_desc(&(data->dfw), fs_info);
+    write_image_desc(&(data->dfw), fs_info,img_opt);
 	write_image_bitmap(&(data->dfw), fs_info, bitmap);
 	copied_count = 0;
 	load_progress_info (&fs_info,
 					    data);
 
-    if (!read_write_data_ptf (&fs_info,bitmap,&(data->dfr),&(data->dfw)))
+    if (!read_write_data_ptf (&fs_info,&img_opt,bitmap,&(data->dfr),&(data->dfw)))
     {
         goto ERROR;
     } 
 
+    fsync(data->dfw);
 	g_task_return_pointer (task,&fs_info,NULL);
 	g_object_unref (task);
 	return;
@@ -579,14 +582,6 @@ gboolean sysbak_extfs_ptf_async (const char   *device,
     return TRUE;      /// finish
 }
 
-file_system_info *sysbak_extfs_ptf_finish (GAsyncResult  *result,
-                                           GError       **error) 
-{
-	g_return_val_if_fail (g_task_is_valid (result, NULL), NULL);
-	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-
-	return g_task_propagate_pointer (G_TASK (result), error);
-}
 static gboolean read_write_data_ptp (file_system_info *fs_info,
                                      unsigned long    *bitmap,
 								     int              *dfr,
@@ -603,7 +598,6 @@ static gboolean read_write_data_ptp (file_system_info *fs_info,
 	{
 	    goto ERROR;
     }
-
 	// read data from the first block
 	if (lseek(*dfr, 0, SEEK_SET) == (off_t)-1)
 	{
@@ -660,12 +654,13 @@ static void start_sysbak_data_ptp (GTask         *task,
 {
     sysdata *data = (sysdata *)d;
 	file_system_info fs_info;   /// description of the file system
+	image_options    img_opt;
     unsigned long *bitmap = NULL;
 	ull free_space = 0;
 	GError *error = NULL;
 
 	init_file_system_info(&fs_info);
-     
+    init_image_options(&img_opt);
     // get Super Block information from partition
 	if (!read_super_blocks(data->device, &fs_info))
 	{
@@ -675,9 +670,9 @@ static void start_sysbak_data_ptp (GTask         *task,
 
 	const unsigned int buffer_capacity = DEFAULT_BUFFER_SIZE > fs_info.block_size
 				                        ? DEFAULT_BUFFER_SIZE / fs_info.block_size : 1; // in blocks
-	fs_info.blocks_per_checksum = buffer_capacity;
+	img_opt.blocks_per_checksum = buffer_capacity;
    
-	if (!check_memory_size(fs_info,buffer_capacity))
+	if (!check_memory_size(fs_info,img_opt))
     {
         goto ERROR;
     }
@@ -697,12 +692,11 @@ static void start_sysbak_data_ptp (GTask         *task,
 	copied_count = 0;
 	load_progress_info (&fs_info,
 					    data);
-
     if (!read_write_data_ptp (&fs_info,bitmap,&(data->dfr),&(data->dfw)))
     {
         goto ERROR;
     } 
-
+    fsync(data->dfw);
 	g_task_return_pointer (task,&fs_info,NULL);
 	g_object_unref (task);
 	return;
@@ -743,7 +737,7 @@ gboolean sysbak_extfs_ptp_async (const char   *device,
     
     return TRUE;      /// finish
 }
-file_system_info *sysbak_extfs_ptp_finish (GAsyncResult  *result,
+file_system_info *sysbak_extfs_finish (GAsyncResult  *result,
                                            GError       **error) 
 {
 	g_return_val_if_fail (g_task_is_valid (result, NULL), NULL);

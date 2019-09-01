@@ -1,4 +1,5 @@
 #include "checksum.h"
+#include <stdio.h>
 
 #define CRC32_SEED 0xFFFFFFFF
 
@@ -110,11 +111,9 @@ void init_checksum(int checksum_mode, unsigned char* seed)
 /// generate crc32 code
 uint32_t crc32(uint32_t seed, void* buffer, int size) 
 {
-
 	unsigned char * buf = (unsigned char *)buffer;
 	const unsigned char * end = buf + size;
 	uint32_t tmp, long_c, crc = seed;
-
 	while (buf != end) 
 	{
 		/// update crc

@@ -26,7 +26,7 @@
 #include <unistd.h>
 #include <mntent.h>
 #include <errno.h>
-
+#include <stdio.h>
 #include "sysbak-share.h"
 #include "checksum.h"
 #include "bitmap.h"
@@ -41,7 +41,6 @@ int write_read_io_all(int *fd, char *buf, ull count, int do_write)
 {
 	long long int i;
 	unsigned long long size = count;
-    char buf1[count];
 	// for sync I/O buffer, when use stdin or pipe.
 	while (count > 0) 
     {
@@ -51,7 +50,7 @@ int write_read_io_all(int *fd, char *buf, ull count, int do_write)
         } 
         else 
         {
-			i = read(*fd, buf1, count);
+			i = read(*fd, buf, count);
         }
 		if (i < 0) 
         {
@@ -207,18 +206,19 @@ int open_target_device(const char* target, int mode,gboolean overwrite)
 	return ret;
 }
 
-gboolean check_memory_size(file_system_info fs_info,const uint32_t blkcs)
+gboolean check_memory_size(file_system_info fs_info,image_options img_opt)
 {
-	const unsigned long long bitmap_size = BITS_TO_BYTES(fs_info.totalblock);
-
+	const ull bitmap_size = BITS_TO_BYTES(fs_info.totalblock);
+	const uint32_t blkcs = img_opt.blocks_per_checksum;
 	const uint32_t block_size = fs_info.block_size;
 	const unsigned int buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? DEFAULT_BUFFER_SIZE / block_size : 1;
-	const unsigned long long raw_io_size = buffer_capacity * block_size;
+	const ull raw_io_size = buffer_capacity * block_size;
     unsigned long long cs_size = 0;
 	void *test_bitmap, *test_read, *test_write;
     unsigned long long cs_in_buffer = buffer_capacity / blkcs;
     
-    cs_size = cs_in_buffer * 4;
+	cs_size = cs_in_buffer * img_opt.checksum_size;
+	
 	test_bitmap = malloc(bitmap_size);
 	test_read   = malloc(raw_io_size);
 	test_write  = malloc(raw_io_size + cs_size);
@@ -233,15 +233,30 @@ gboolean check_memory_size(file_system_info fs_info,const uint32_t blkcs)
 
     return TRUE;
 }
+static void set_image_options(image_options* img_opt)
+{
+    img_opt->feature_size = sizeof(image_options);
+    img_opt->image_version = 0x0002;
+    img_opt->checksum_mode = CSM_CRC32;
+    img_opt->checksum_size = CRC32_SIZE;
+    img_opt->blocks_per_checksum = 0;
+    img_opt->reseed_checksum = 1;
+    img_opt->bitmap_mode = BM_BIT;
+}
 
 void init_file_system_info(file_system_info *fs_info)
 {
 	memset(fs_info, 0, sizeof(file_system_info));
-
-	fs_info->checksum_mode = CSM_CRC32;
-	fs_info->checksum_size = CRC32_SIZE;
-	fs_info->blocks_per_checksum = 0;
 }
+void init_image_options(image_options* img_opt)
+{
+	char *p;
+
+    memset(img_opt, 0, sizeof(image_options));
+    img_opt->cpu_bits = sizeof (p) * 8;
+    set_image_options(img_opt);
+}
+
 void update_used_blocks_count(file_system_info* fs_info, unsigned long* bitmap) 
 {
 	unsigned long long used = 0;
@@ -343,23 +358,25 @@ ull get_partition_free_space (int *fd)
 } 
 static void init_image_head(image_head* image_hdr) 
 {
-	memset(image_hdr, 0, sizeof(image_head));
-	memcpy(image_hdr->magic, IMAGE_MAGIC,strlen(IMAGE_MAGIC));
-	memcpy(image_hdr->version, IMAGE_VERSION_0002, IMAGE_VERSION_SIZE);
-	memcpy(image_hdr->ptc_version, VERSION, PARTCLONE_VERSION_SIZE);
-	image_hdr->endianess = ENDIAN_MAGIC;
+	 memset(image_hdr, 0, sizeof(image_head));
+
+    strncpy(image_hdr->magic, IMAGE_MAGIC, IMAGE_MAGIC_SIZE);
+    strncpy(image_hdr->version, IMAGE_VERSION_0002, IMAGE_VERSION_SIZE);
+    strncpy(image_hdr->ptc_version, VERSION, PARTCLONE_VERSION_SIZE);
+
+    image_hdr->endianess = ENDIAN_MAGIC;
 }
 
-gboolean write_image_desc(int* fd, file_system_info fs_info) 
+gboolean write_image_desc(int* fd, file_system_info fs_info,image_options img_opt) 
 {
 	image_desc image;
 	init_image_head(&image.head);
-
+	
 	memcpy(&image.fs_info, &fs_info, sizeof(file_system_info));
+	memcpy(&image.options, &img_opt, sizeof(image_options));
 
 	init_crc32(&image.crc);
 	image.crc = crc32(image.crc, &image, sizeof(image_desc) - CRC32_SIZE);
-
 	if (write_read_io_all (fd, (char*)&image, sizeof(image_desc),WRITE) != sizeof(image_desc))
     {
         return FALSE;
@@ -367,11 +384,11 @@ gboolean write_image_desc(int* fd, file_system_info fs_info)
     return TRUE;
 }
 gboolean write_image_bitmap(int *fd, 
-                            file_system_info fs_info, 
+                            file_system_info fs_info,
                             unsigned long* bitmap) 
 {
 	uint32_t crc;
-
+	
 	if (write_read_io_all(fd, (char*)bitmap, BITS_TO_BYTES(fs_info.totalblock),WRITE) == -1)
     {
         return FALSE;

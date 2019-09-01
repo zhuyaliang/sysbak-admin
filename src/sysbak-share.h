@@ -41,34 +41,41 @@
 #define ENDIAN_MAGIC 0xC0DE
 #define WRITE         1 
 #define READ          0 
+#define extfs_MAGIC "EXTFS"
+#define ext2_MAGIC "EXT2"
+#define ext3_MAGIC "EXT3"
+#define ext4_MAGIC "EXT4"
+
+typedef enum
+{
+    BM_NONE = 0x00,
+    BM_BIT  = 0x01,
+    BM_BYTE = 0x08,
+
+}bitmap_mode_t;
+#pragma pack(push, 1)
+typedef struct
+{
+	char fs[FS_MAGIC_SIZE+1];
+    unsigned long long device_size;
+    unsigned long long totalblock;
+    unsigned long long usedblocks;
+    unsigned long long used_bitmap;
+    unsigned int  block_size;
+}file_system_info;
 
 typedef struct
 {
-    // Size of the source device, in bytes
-	unsigned long long device_size;
+    uint32_t feature_size;
+    uint16_t image_version;
+    uint16_t cpu_bits;
+    uint16_t checksum_mode;
+    uint16_t checksum_size;
+    uint32_t blocks_per_checksum;
+    uint8_t reseed_checksum;
+    uint8_t bitmap_mode;
 
-	// Number of blocks in the file system
-	unsigned long long totalblock;
-
-	// Number of blocks in use as reported by the file system
-	unsigned long long usedblocks;
-
-	// Number of blocks in use in the bitmap
-	unsigned long long used_bitmap;
-
-	// Number of bytes in each block
-	unsigned int  block_size;
-
-	// checksum algorithm used (see checksum_mode_enum)
-	uint16_t checksum_mode;
-
-	// Size of one checksum, in bytes. 0 when NONE, 4 with CRC32, etc.
-	uint16_t checksum_size;
-
-	// How many consecutive blocks are checksumed together.
-	uint32_t blocks_per_checksum;
-}file_system_info;
-
+} image_options;
 typedef struct
 {
     char magic[IMAGE_MAGIC_SIZE+1];
@@ -95,6 +102,7 @@ typedef struct
 {
 	image_head       head;
 	file_system_info fs_info;
+	image_options    options;
 	uint32_t            crc;
 }image_desc;
 
@@ -110,7 +118,7 @@ int         open_target_device             (const char       *target,
 											gboolean          overwrite); 
 
 gboolean    check_memory_size              (file_system_info  fs_info,
-		                                    const uint32_t    blkcs);
+		                                    image_options     img_opt);
 
 void        update_used_blocks_count       (file_system_info *fs_info, 
 		                                    unsigned long     *bitmap); 
@@ -136,8 +144,11 @@ int         write_read_io_all              (int              *fd,
 
 void        init_file_system_info          (file_system_info *fs_info);
 
+void        init_image_options             (image_options    *img_opt);
+
 gboolean    write_image_desc               (int              *fd, 
-		                                    file_system_info  fs_info); 
+		                                    file_system_info  fs_info,
+											image_options     img_opt); 
 
 void        print_file_system_info         (file_system_info  fs_info);
 #endif

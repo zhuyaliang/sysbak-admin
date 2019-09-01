@@ -448,3 +448,65 @@ void print_file_system_info(file_system_info fs_info) {
 
 	printf(("Block size:   %i Byte\n"), block_s);
 }
+gboolean read_image_desc(int              *fd,
+		                 image_head       *img_head, 
+					     file_system_info *fs_info, 
+					     image_options    *img_opt) 
+{
+
+    image_desc image;
+    int r_size;
+    uint32_t crc;
+
+    r_size = write_read_io_all (fd, (char*)&image, sizeof(image), READ);
+    if (r_size != sizeof(image))
+	{
+		return FALSE;
+	}
+    // check the image magic
+    if (memcmp(image.head.magic, IMAGE_MAGIC, IMAGE_MAGIC_SIZE))
+	{
+		return FALSE;
+	}
+
+    init_crc32(&crc);
+    crc = crc32(crc, &image, sizeof(image) - CRC32_SIZE);
+    if (crc != image.crc)
+	{
+		return FALSE;
+	}
+    if (image.head.endianess != ENDIAN_MAGIC)
+	{
+		return FALSE;
+	}
+    memcpy(fs_info, &(image.fs_info), sizeof(file_system_info));
+    memcpy(img_opt, &(image.options), sizeof(image_options));
+	memcpy(img_head, &(image.head),   sizeof(image_head));
+
+	return TRUE;
+}
+gboolean load_image_bitmap_bits(int *fd,file_system_info fs_info, unsigned long *bitmap) 
+{
+    ull r_size, bitmap_size = BITS_TO_BYTES(fs_info.totalblock);
+    uint32_t r_crc, crc;
+
+    r_size = write_read_io_all (fd, (char*)bitmap, bitmap_size, READ);
+    if (r_size != bitmap_size)
+	{
+		return FALSE;
+	}
+
+    r_size = write_read_io_all (fd, (char*)&r_crc, sizeof(r_crc), READ);
+    if (r_size != sizeof(r_crc))
+	{
+		return FALSE;
+	}
+    init_crc32(&crc);
+    crc = crc32(crc, bitmap, bitmap_size);
+    if (crc != r_crc)
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}

@@ -745,3 +745,256 @@ file_system_info *sysbak_extfs_finish (GAsyncResult  *result,
 
 	return g_task_propagate_pointer (G_TASK (result), error);
 }
+static gboolean read_write_data_restore (file_system_info *fs_info,
+									     image_options    *img_opt,
+                                         unsigned long    *bitmap,
+								         int              *dfr,
+								         int              *dfw)
+{
+	const ull  blocks_total = fs_info->totalblock;
+	const uint block_size = fs_info->block_size; //Data size per block
+	const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? DEFAULT_BUFFER_SIZE / block_size : 1; // in blocks
+	const uint blocks_per_cs = img_opt->blocks_per_checksum;
+	ull    blocks_used = fs_info->usedblocks;
+	uint   blocks_in_cs = 0, buffer_size, read_offset;
+	guchar checksum[img_opt->checksum_size];
+	char  *read_buffer, *write_buffer;
+    ull    block_id;	
+    ull    blocks_used_fix = 0, test_block = 0;
+	int    r_size, w_size;	
+    
+	// fix some super block record incorrect
+    for (test_block = 0; test_block < blocks_total; ++test_block)
+        if (pc_test_bit(test_block, bitmap, fs_info->totalblock))
+            blocks_used_fix++;
+
+    if (blocks_used_fix != blocks_used) 
+	{
+		blocks_used = blocks_used_fix;
+    }
+
+    buffer_size = convert_blocks_to_bytes(0, buffer_capacity, 
+			                              block_size,
+									      img_opt->blocks_per_checksum,
+									      img_opt->checksum_size);
+
+
+	read_buffer = (char*)malloc(buffer_size);
+	#define BSIZE 512
+    posix_memalign((void**)&write_buffer, BSIZE, buffer_capacity * block_size);
+    if (read_buffer == NULL || write_buffer == NULL) 
+	{
+	    goto ERROR;
+	}
+
+	// read data from the first block
+	if (lseek(*dfw, 0, SEEK_SET) == (off_t)-1)
+	{
+	    goto ERROR;
+	}
+	init_checksum(img_opt->checksum_mode, checksum);
+	block_id = 0;
+	do 
+	{
+		unsigned int i;
+        ull blocks_written, bytes_skip;
+        uint read_size;
+        // max chunk to read using one read(2) syscall
+        uint blocks_read = copied_count + buffer_capacity < blocks_used ?
+                           buffer_capacity : blocks_used - copied_count;
+        if (!blocks_read)
+            break;
+        if (blocks_read < 0)
+		{
+			goto ERROR;
+		}
+		read_size = convert_blocks_to_bytes(copied_count, 
+				                            blocks_read, 
+											block_size,
+									        img_opt->blocks_per_checksum,
+									        img_opt->checksum_size);
+
+		// increase read_size to make room for the oversized checksum
+        if (blocks_per_cs && blocks_read < buffer_capacity &&
+                 (blocks_read % blocks_per_cs) && (blocks_used % blocks_per_cs))
+		{
+             read_size += img_opt->checksum_size;
+        }
+		r_size = write_read_io_all (dfr, read_buffer, read_size,READ);
+		if (r_size != read_size)
+		{
+	        goto ERROR;
+		}
+		read_offset = 0;	
+		for (i = 0; i < blocks_read; ++i) 
+		{
+		
+			memcpy(write_buffer + i * block_size,
+                   read_buffer + read_offset, 
+				   block_size);
+			update_checksum(checksum, read_buffer + read_offset, block_size);
+			if (++blocks_in_cs == blocks_per_cs)
+			{
+				guchar checksum_orig[img_opt->checksum_size];
+                memcpy(checksum_orig, read_buffer + read_offset + block_size, img_opt->checksum_size);
+                if (memcmp(read_buffer + read_offset + block_size, checksum, img_opt->checksum_size)) 
+				{
+					goto ERROR;
+                }
+
+                read_offset += img_opt->checksum_size;
+				blocks_in_cs = 0;
+                init_checksum(img_opt->checksum_mode, checksum);
+            }
+
+             read_offset += block_size;
+		}
+		if (blocks_in_cs && blocks_per_cs && blocks_read < buffer_capacity &&
+			(blocks_read % blocks_per_cs)) 
+		{
+            if (memcmp(read_buffer + read_offset, checksum, img_opt->checksum_size))
+			{
+				goto ERROR;
+            }
+        }
+        blocks_written = 0;
+		do 
+		{
+			uint blocks_write = 0;
+
+            // count bytes to skip
+            for (bytes_skip = 0;
+                 block_id < blocks_total &&
+                !pc_test_bit(block_id, bitmap, fs_info->totalblock);
+                 block_id++, bytes_skip += block_size);
+
+            // skip empty blocks
+            if (blocks_write == 0) 
+			{
+                if (bytes_skip > 0 && lseek(*dfw, (off_t)bytes_skip, SEEK_CUR) == (off_t)-1) 
+				{
+					goto ERROR;
+				}
+			}
+            // blocks to write
+            for (blocks_write = 0;
+                 block_id + blocks_write < blocks_total &&
+                 blocks_written + blocks_write < blocks_read &&
+                 pc_test_bit(block_id + blocks_write, bitmap, fs_info->totalblock);
+                 blocks_write++);
+
+            // write blocks
+            if (blocks_write > 0) 
+			{
+				w_size = write_read_io_all (dfw, 
+						                    write_buffer + blocks_written * block_size,
+                                            blocks_write * block_size, 
+											WRITE);
+                if (w_size != blocks_write * block_size) 
+				{
+					goto ERROR;
+				}
+			}
+            blocks_written += blocks_write;
+            block_id += blocks_write;
+            copied_count += blocks_write;
+            } while (blocks_written < blocks_read);
+
+        } while(1);
+
+        free(write_buffer);
+        free(read_buffer);
+	return TRUE;
+ERROR:
+    if (read_buffer != NULL)
+	{
+		free (read_buffer);
+	}
+	if (write_buffer != NULL)
+	{
+		free (write_buffer);
+	}
+	return FALSE;	
+}
+static void start_sysbak_data_restore (GTask         *task,
+                                       gpointer       source_object,
+                                       gpointer       d,
+                                       GCancellable  *cancellable)
+{
+    sysdata *data = (sysdata *)d;
+	file_system_info fs_info;   /// description of the file system
+	image_options    img_opt;
+	image_head img_head;
+    unsigned long *bitmap = NULL;
+	ull     free_space;
+	GError *error = NULL;
+
+	init_file_system_info(&fs_info);
+    init_image_options(&img_opt);
+	read_image_desc(&(data->dfr), &img_head, &fs_info, &img_opt);
+
+	if (!check_memory_size(fs_info,img_opt))
+    {
+        goto ERROR;
+    }
+	// alloc a memory to store bitmap
+	bitmap = pc_alloc_bitmap(fs_info.totalblock);
+	if (bitmap == NULL) 
+    {
+	    goto ERROR;;
+    }
+	load_image_bitmap_bits(&(data->dfr), fs_info, bitmap);
+	free_space = get_partition_free_space(&(data->dfw));
+	if (free_space < fs_info.device_size)
+    {
+        goto ERROR;
+    }   
+	copied_count = 0;
+	load_progress_info (&fs_info,
+					    data);
+
+    if (!read_write_data_restore (&fs_info,&img_opt,bitmap,&(data->dfr),&(data->dfw)))
+    {
+        goto ERROR;
+    } 
+
+    fsync(data->dfw);
+	g_task_return_pointer (task,&fs_info,NULL);
+	g_object_unref (task);
+	return;
+ERROR:
+	g_cancellable_cancel (cancellable);
+	free(bitmap);
+	g_task_return_error (task, error);
+    g_object_unref (task);
+
+}   
+gboolean sysbak_extfs_restore_async (const char   *device,
+                                     const char   *targer,
+                                     gboolean      overwrite,
+                                     GCancellable *cancellable,
+                                     GAsyncReadyCallback finished_callback,
+                                     gpointer      f_data,
+                                     sysbak_progress progress_callback,
+                                     gpointer      p_data)
+{
+    g_return_val_if_fail (device != NULL,FALSE);
+    g_return_val_if_fail (targer != NULL,FALSE);
+    g_return_val_if_fail (finished_callback != NULL,FALSE);
+    GTask *task;
+    sysdata *data;
+    
+	data = open_operation_data (device,targer,RESTORE,overwrite,cancellable);
+	if (data == NULL)
+	{
+		return FALSE;
+	}
+    data->progress_callback = progress_callback;
+    data->p_data = p_data;
+    
+	task = g_task_new (NULL,cancellable,finished_callback,f_data);
+    g_task_set_task_data (task, data, (GDestroyNotify) sys_data_free);
+    g_task_run_in_thread (task, start_sysbak_data_restore);
+    
+    return TRUE;      /// finish
+}

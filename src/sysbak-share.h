@@ -133,6 +133,10 @@ gboolean    write_image_bitmap             (int              *fd,
                                             file_system_info  fs_info, 
                                             unsigned long    *bitmap); 
 
+gboolean    load_image_bitmap_bits         (int              *fd,
+		                                    file_system_info  fs_info, 
+										    unsigned long    *bitmap); 
+
 ull         get_local_free_space           (const char       *path);
 
 ull         get_partition_free_space       (int              *fd); 
@@ -149,6 +153,11 @@ void        init_image_options             (image_options    *img_opt);
 gboolean    write_image_desc               (int              *fd, 
 		                                    file_system_info  fs_info,
 											image_options     img_opt); 
+
+gboolean    read_image_desc                (int              *fd,
+		                                    image_head       *img_head, 
+					                        file_system_info *fs_info, 
+					                        image_options    *img_opt); 
 
 void        print_file_system_info         (file_system_info  fs_info);
 #endif

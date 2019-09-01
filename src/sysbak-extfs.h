@@ -45,4 +45,12 @@ gboolean sysbak_extfs_ptp_async (const char   *device,
                                  sysbak_progress progress_callback,
                                  gpointer      p_data);
 
+gboolean sysbak_extfs_restore_async (const char   *device,
+                                     const char   *targer,
+                                     gboolean      overwrite,
+                                     GCancellable *cancellable,
+                                     GAsyncReadyCallback finished_callback,
+                                     gpointer      f_data,
+                                     sysbak_progress progress_callback,
+                                     gpointer      p_data);
 #endif

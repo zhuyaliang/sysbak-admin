@@ -296,6 +296,63 @@ static ull get_read_blocks_size (file_system_info *fs_info,ull *block_id,unsigne
     return blocks_read;
 
 }    
+static progress_bar prog;
+static gboolean loop_check_progress (gpointer d)
+{
+	sysdata *data = (sysdata *)d;
+	progress_data progress_data;
+
+	if (g_cancellable_is_cancelled (data->cancellable))
+	{
+		return FALSE;
+	}
+    if (!progress_update(&prog, copied_count,&progress_data))
+	{
+        progress_data.percent=100.0;
+        progress_data.remained = (time_t)0;
+		data->progress_callback (&progress_data,data->p_data);
+		return FALSE;
+	}
+	data->progress_callback (&progress_data,data->p_data);
+	return TRUE;
+}
+static void load_progress_info (file_system_info *fs_info,
+								sysdata          *data)
+{
+	int		     start;
+	ull          stop;
+    g_return_if_fail (data->progress_callback != NULL);
+	
+	start = 0;              /// start number of progress bar
+    stop = (fs_info->usedblocks);        /// get the end of progress number, only used block
+    progress_init(&prog, start, stop, fs_info->block_size);
+	
+	g_timeout_add(800,(GSourceFunc)loop_check_progress,data);
+}
+static device_info *fill_device_info (file_system_info *fs)
+{
+    device_info *dev_info;
+    
+    dev_info = g_slice_new (device_info);
+    dev_info->totalblock = fs->totalblock;
+    dev_info->usedblocks = fs->usedblocks;
+    dev_info->block_size = fs->block_size;
+    memcpy (dev_info->fs,fs->fs,FS_MAGIC_SIZE);
+
+    return dev_info;
+}    
+static void sys_data_free (sysdata *data)
+{
+	free(data->device);
+	free(data->targer);
+	close(data->dfr);
+	close(data->dfw);
+    g_slice_free (sysdata,data);
+}
+static void destory_dev_info (device_info *dev_info)
+{
+    g_slice_free(device_info,dev_info);
+}    
 static gboolean read_write_data_ptf (file_system_info *fs_info,
 									 image_options    *img_opt,
                                      unsigned long    *bitmap,
@@ -303,7 +360,8 @@ static gboolean read_write_data_ptf (file_system_info *fs_info,
 								     int              *dfw)
 {
 	const uint block_size = fs_info->block_size; //Data size per block
-	const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? DEFAULT_BUFFER_SIZE / block_size : 1; // in blocks
+	const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? 
+                                 DEFAULT_BUFFER_SIZE / block_size : 1; // in blocks
 	guchar checksum[img_opt->checksum_size];
 	uint  blocks_in_cs = 0, blocks_per_cs, write_size;
 	char *read_buffer, *write_buffer;
@@ -399,39 +457,6 @@ ERROR:
 	}
 	return FALSE;	
 }
-static progress_bar prog;
-static gboolean loop_check_progress (gpointer d)
-{
-	sysdata *data = (sysdata *)d;
-	progress_data progress_data;
-
-	if (g_cancellable_is_cancelled (data->cancellable))
-	{
-		return FALSE;
-	}
-    if (!progress_update(&prog, copied_count,&progress_data))
-	{
-        progress_data.percent=100.0;
-        progress_data.remained = (time_t)0;
-		data->progress_callback (&progress_data,data->p_data);
-		return FALSE;
-	}
-	data->progress_callback (&progress_data,data->p_data);
-	return TRUE;
-}
-static void load_progress_info (file_system_info *fs_info,
-								sysdata          *data)
-{
-	int		     start;
-	ull          stop;
-    g_return_if_fail (data->progress_callback != NULL);
-	
-	start = 0;              /// start number of progress bar
-    stop = (fs_info->usedblocks);        /// get the end of progress number, only used block
-    progress_init(&prog, start, stop, fs_info->block_size);
-	
-	g_timeout_add(800,(GSourceFunc)loop_check_progress,data);
-}
 static void start_sysbak_data_ptf (GTask         *task,
                                    gpointer       source_object,
                                    gpointer       d,
@@ -440,8 +465,9 @@ static void start_sysbak_data_ptf (GTask         *task,
     sysdata *data = (sysdata *)d;
 	file_system_info fs_info;   /// description of the file system
 	image_options    img_opt;
-    unsigned long *bitmap = NULL;
-	GError *error = NULL;
+    device_info     *dev_info;
+    unsigned long   *bitmap = NULL;
+	GError          *error = NULL;
 
 	init_file_system_info(&fs_info);
     init_image_options(&img_opt);
@@ -483,26 +509,18 @@ static void start_sysbak_data_ptf (GTask         *task,
     {
         goto ERROR;
     } 
-
+    
+    dev_info = fill_device_info (&fs_info);
     fsync(data->dfw);
-	g_task_return_pointer (task,&fs_info,NULL);
-	g_object_unref (task);
+	free(bitmap);
+    g_task_return_pointer (task,dev_info,(GDestroyNotify)destory_dev_info);
 	return;
 ERROR:
 	g_cancellable_cancel (cancellable);
 	free(bitmap);
 	g_task_return_error (task, error);
-    g_object_unref (task);
 
 }   
-static void sys_data_free (sysdata *data)
-{
-	free(data->device);
-	free(data->targer);
-	close(data->dfr);
-	close(data->dfw);
-    g_slice_free (sysdata,data);
-}
 static sysdata *open_operation_data (const char   *device,
 		                             const char   *targer,
 							         int           mode,
@@ -578,7 +596,7 @@ gboolean sysbak_extfs_ptf_async (const char   *device,
     task = g_task_new (NULL,cancellable,finished_callback,f_data);
     g_task_set_task_data (task, data, (GDestroyNotify) sys_data_free);
     g_task_run_in_thread (task, start_sysbak_data_ptf);
-    
+    g_object_unref (task);
     return TRUE;      /// finish
 }
 
@@ -655,7 +673,8 @@ static void start_sysbak_data_ptp (GTask         *task,
     sysdata *data = (sysdata *)d;
 	file_system_info fs_info;   /// description of the file system
 	image_options    img_opt;
-    unsigned long *bitmap = NULL;
+    device_info     *dev_info;
+    unsigned long   *bitmap = NULL;
 	ull free_space = 0;
 	GError *error = NULL;
 
@@ -697,7 +716,9 @@ static void start_sysbak_data_ptp (GTask         *task,
         goto ERROR;
     } 
     fsync(data->dfw);
-	g_task_return_pointer (task,&fs_info,NULL);
+	free(bitmap);
+    dev_info = fill_device_info (&fs_info);
+    g_task_return_pointer (task,dev_info,(GDestroyNotify)destory_dev_info);
 	g_object_unref (task);
 	return;
 ERROR:
@@ -737,13 +758,16 @@ gboolean sysbak_extfs_ptp_async (const char   *device,
     
     return TRUE;      /// finish
 }
-file_system_info *sysbak_extfs_finish (GAsyncResult  *result,
-                                           GError       **error) 
+device_info *sysbak_extfs_finish (GAsyncResult  *result,
+                                  GError       **error) 
 {
-	g_return_val_if_fail (g_task_is_valid (result, NULL), NULL);
+    device_info *dev_info;
+    g_return_val_if_fail (g_task_is_valid (result, NULL), NULL);
 	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-
-	return g_task_propagate_pointer (G_TASK (result), error);
+        
+    dev_info = g_task_propagate_pointer (G_TASK (result), error);
+    
+    return dev_info;
 }
 static gboolean read_write_data_restore (file_system_info *fs_info,
 									     image_options    *img_opt,
@@ -924,8 +948,9 @@ static void start_sysbak_data_restore (GTask         *task,
     sysdata *data = (sysdata *)d;
 	file_system_info fs_info;   /// description of the file system
 	image_options    img_opt;
-	image_head img_head;
-    unsigned long *bitmap = NULL;
+    device_info     *dev_info;
+	image_head       img_head;
+    unsigned long    *bitmap = NULL;
 	ull     free_space;
 	GError *error = NULL;
 
@@ -959,7 +984,9 @@ static void start_sysbak_data_restore (GTask         *task,
     } 
 
     fsync(data->dfw);
-	g_task_return_pointer (task,&fs_info,NULL);
+	free(bitmap);
+    dev_info = fill_device_info (&fs_info);
+    g_task_return_pointer (task,dev_info,(GDestroyNotify)destory_dev_info);
 	g_object_unref (task);
 	return;
 ERROR:

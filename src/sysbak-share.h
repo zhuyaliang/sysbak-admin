@@ -57,6 +57,14 @@ typedef enum
 typedef struct
 {
 	char fs[FS_MAGIC_SIZE+1];
+    unsigned long long totalblock;
+    unsigned long long usedblocks;
+    unsigned int  block_size;
+}device_info;
+
+typedef struct
+{
+	char fs[FS_MAGIC_SIZE+1];
     unsigned long long device_size;
     unsigned long long totalblock;
     unsigned long long usedblocks;
@@ -147,7 +155,6 @@ int         write_read_io_all              (int              *fd,
 											int               do_write);
 
 void        init_file_system_info          (file_system_info *fs_info);
-
 void        init_image_options             (image_options    *img_opt);
 
 gboolean    write_image_desc               (int              *fd, 

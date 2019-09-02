@@ -246,7 +246,7 @@ static void set_image_options(image_options* img_opt)
 
 void init_file_system_info(file_system_info *fs_info)
 {
-	memset(fs_info, 0, sizeof(file_system_info));
+    memset(fs_info, 0, sizeof(file_system_info));
 }
 void init_image_options(image_options* img_opt)
 {

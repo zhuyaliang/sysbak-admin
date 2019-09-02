@@ -8,23 +8,23 @@ static void test (GObject      *source_object,
            GAsyncResult *res,
            gpointer      user_data)
 {
-    file_system_info *fs_info;
+    device_info *dev_info;
 	GError *error = NULL;
 
-	fs_info = sysbak_extfs_finish (res,&error);
-	if (fs_info == NULL)
+	dev_info = sysbak_extfs_finish (res,&error);
+	if (dev_info == NULL)
 	{
 		g_print ("NULLLLLLLLLLL %s\r\n",error->message);
 	}
 	else
 	{
-		g_print ("fs_info->totalblock = %llu",fs_info->totalblock);
+		g_print ("dev_info->fs = %s\r\n",dev_info->fs);
 	}
 }    
 
 void progress (progress_data *data,gpointer p_data)
 {
-    printf ("p ============%f s================%f\r\n",data->percent,data->speed);
+    printf ("Percentile ============%.2f speed ================%.2f KB/S\r\n",data->percent,data->speed);
 }    
 int main(int argc, char **argv)
 {
@@ -40,16 +40,17 @@ int main(int argc, char **argv)
 	{
 		printf ("faild\r\n");
 	} 
-
-	if (!sysbak_extfs_ptf_async ("/dev/sdc1","sdc1.img",1,cancellable,test,(gpointer)a,progress,(gpointer)b))
+*/
+	if (!sysbak_extfs_ptf_async ("/dev/sdb1","sdb1.img",1,cancellable,test,(gpointer)a,progress,(gpointer)b))
 	{
 		printf ("faild\r\n");
 	}    
-*/  
+/*  
 	if (!sysbak_extfs_restore_async ("sdc1.img","/dev/sdc1",1,cancellable,test,(gpointer)a,progress,(gpointer)b))
 	{
 		printf ("faild\r\n");
-	}    
+	}   
+*/    
 	g_main_loop_run (loop);
 	g_object_unref (cancellable);
 	g_main_loop_unref (loop);

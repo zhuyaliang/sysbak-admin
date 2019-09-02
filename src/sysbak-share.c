@@ -358,10 +358,10 @@ ull get_partition_free_space (int *fd)
 } 
 static void init_image_head(image_head* image_hdr) 
 {
-	 memset(image_hdr, 0, sizeof(image_head));
+	memset(image_hdr, 0, sizeof(image_head));
 
-    strncpy(image_hdr->magic, IMAGE_MAGIC, IMAGE_MAGIC_SIZE);
-    strncpy(image_hdr->version, IMAGE_VERSION_0002, IMAGE_VERSION_SIZE);
+    memcpy(image_hdr->magic, IMAGE_MAGIC, IMAGE_MAGIC_SIZE);
+    memcpy(image_hdr->version, IMAGE_VERSION_0002, IMAGE_VERSION_SIZE);
     strncpy(image_hdr->ptc_version, VERSION, PARTCLONE_VERSION_SIZE);
 
     image_hdr->endianess = ENDIAN_MAGIC;

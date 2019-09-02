@@ -40,17 +40,17 @@ int main(int argc, char **argv)
 	{
 		printf ("faild\r\n");
 	} 
-*/
+
 	if (!sysbak_extfs_ptf_async ("/dev/sdb1","sdb1.img",1,cancellable,test,(gpointer)a,progress,(gpointer)b))
 	{
 		printf ("faild\r\n");
 	}    
-/*  
-	if (!sysbak_extfs_restore_async ("sdc1.img","/dev/sdc1",1,cancellable,test,(gpointer)a,progress,(gpointer)b))
+*/  
+	if (!sysbak_extfs_restore_async ("sdb1.img","/dev/sdb1",1,cancellable,test,(gpointer)a,progress,(gpointer)b))
 	{
 		printf ("faild\r\n");
 	}   
-*/    
+    
 	g_main_loop_run (loop);
 	g_object_unref (cancellable);
 	g_main_loop_unref (loop);

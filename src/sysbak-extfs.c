@@ -357,7 +357,8 @@ static gboolean read_write_data_ptf (file_system_info *fs_info,
 									 image_options    *img_opt,
                                      unsigned long    *bitmap,
 								     int              *dfr,
-								     int              *dfw)
+								     int              *dfw,
+                                     GError          **error)
 {
 	const uint block_size = fs_info->block_size; //Data size per block
 	const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? 
@@ -378,11 +379,19 @@ static gboolean read_write_data_ptf (file_system_info *fs_info,
 	write_buffer = (char*)malloc(write_size + img_opt->checksum_size);
 	if (read_buffer == NULL || write_buffer == NULL) 
 	{
+		g_set_error_literal (error,
+                             G_IO_ERROR ,
+                             G_IO_ERROR_NO_SPACE,
+                             "There is not enough free memory");
 	    goto ERROR;
     }
 	// read data from the first block
 	if (lseek(*dfr, 0, SEEK_SET) == (off_t)-1)
-	{
+	{  
+		g_set_error_literal (error,
+                             G_IO_ERROR ,
+                             G_IO_ERROR_NOT_SUPPORTED,
+                            "source seek ERROR");
 	    goto ERROR;
 	}
 	init_checksum(img_opt->checksum_mode, checksum);
@@ -400,11 +409,19 @@ static gboolean read_write_data_ptf (file_system_info *fs_info,
 		offset = (off_t)(block_id * block_size);
 		if (lseek(*dfr, offset, SEEK_SET) == (off_t)-1)
 		{
+		    g_set_error_literal (error,
+                                 G_IO_ERROR ,
+                                 G_IO_ERROR_NOT_SUPPORTED,
+                                "source seek ERROR");
 	        goto ERROR;
 		}
 		r_size = write_read_io_all (dfr, read_buffer, blocks_read * block_size,READ);
 		if (r_size != (int)(blocks_read * block_size)) 
 		{
+		    g_set_error_literal (error,
+                                 G_IO_ERROR ,
+                                 G_IO_ERROR_NOT_SUPPORTED,
+                                "read source data ERROR");
 	        goto ERROR;
 		}
 		for (i = 0; i < blocks_read; ++i) 
@@ -426,6 +443,10 @@ static gboolean read_write_data_ptf (file_system_info *fs_info,
 		w_size = write_read_io_all(dfw, write_buffer, write_offset,WRITE);
 		if (w_size != write_offset)
 		{
+		    g_set_error_literal (error,
+                                 G_IO_ERROR ,
+                                 G_IO_ERROR_NOT_SUPPORTED,
+                                "write targer data ERROR");
 	        goto ERROR;
 		}
 		copied_count += blocks_read;
@@ -440,7 +461,7 @@ static gboolean read_write_data_ptf (file_system_info *fs_info,
 		w_size = write_read_io_all(dfw, (char*)checksum, img_opt->checksum_size,WRITE);
 		if (w_size != img_opt->checksum_size)
 		{
-			return FALSE;
+			goto ERROR;
 		}
 	}
 	free(write_buffer);
@@ -484,12 +505,20 @@ static void start_sysbak_data_ptf (GTask         *task,
 	img_opt.blocks_per_checksum = buffer_capacity; 
 	if (!check_memory_size(fs_info,img_opt))
     {
+		g_set_error_literal (&error,
+                              G_IO_ERROR ,
+                              G_IO_ERROR_NO_SPACE,
+                             "There is not enough free memory");
         goto ERROR;
     }
 	// alloc a memory to store bitmap
 	bitmap = pc_alloc_bitmap(fs_info.totalblock);
 	if (bitmap == NULL) 
     {
+		g_set_error_literal (&error,
+                              G_IO_ERROR ,
+                              G_IO_ERROR_NO_SPACE,
+                             "There is not enough free memory");
 	    goto ERROR;;
     }
 	
@@ -497,6 +526,10 @@ static void start_sysbak_data_ptf (GTask         *task,
 	update_used_blocks_count(&fs_info, bitmap);
     if (!check_system_space (&fs_info,data->targer,&img_opt))
     {
+		g_set_error_literal (&error,
+                              G_IO_ERROR ,
+                              G_IO_ERROR_NO_SPACE,
+                             "There is not enough free memory");
         goto ERROR;
     }    
     write_image_desc(&(data->dfw), fs_info,img_opt);
@@ -505,7 +538,7 @@ static void start_sysbak_data_ptf (GTask         *task,
 	load_progress_info (&fs_info,
 					    data);
 
-    if (!read_write_data_ptf (&fs_info,&img_opt,bitmap,&(data->dfr),&(data->dfw)))
+    if (!read_write_data_ptf (&fs_info,&img_opt,bitmap,&(data->dfr),&(data->dfw),&error))
     {
         goto ERROR;
     } 
@@ -555,55 +588,12 @@ static sysdata *open_operation_data (const char   *device,
 
 	return data;
 }
-//Backup partition to image file 
-/******************************************************************************
-* Function:              sysbak_extfs_ptf      
-*        
-* Explain: Backup partition to image file eg: /dev/sda1 ---> sda1.img
-*        
-* Input:   @device       Partitions to be backed up
-*          @targer       Name after backup
-*          @overwrite    Overwrite existing backups
-*        
-* Output:  success      :TRUE
-*          fail         :FALSE
-*        
-* Author:  zhuyaliang  29/08/2019
-******************************************************************************/
-gboolean sysbak_extfs_ptf_async (const char   *device,
-                                 const char   *targer,
-                                 gboolean      overwrite,
-                                 GCancellable *cancellable,
-                                 GAsyncReadyCallback finished_callback,
-                                 gpointer      f_data,
-                                 sysbak_progress progress_callback,
-                                 gpointer      p_data)
-{
-    g_return_val_if_fail (device != NULL,FALSE);
-    g_return_val_if_fail (targer != NULL,FALSE);
-    g_return_val_if_fail (finished_callback != NULL,FALSE);
-    GTask *task;
-    sysdata *data;
-
-	data = open_operation_data (device,targer,BACK_PTF,overwrite,cancellable);
-	if (data == NULL)
-	{
-		return FALSE;
-	}
-    data->progress_callback = progress_callback;
-    data->p_data = p_data;
-    
-    task = g_task_new (NULL,cancellable,finished_callback,f_data);
-    g_task_set_task_data (task, data, (GDestroyNotify) sys_data_free);
-    g_task_run_in_thread (task, start_sysbak_data_ptf);
-    g_object_unref (task);
-    return TRUE;      /// finish
-}
 
 static gboolean read_write_data_ptp (file_system_info *fs_info,
                                      unsigned long    *bitmap,
 								     int              *dfr,
-								     int              *dfw)
+								     int              *dfw,
+	                                 GError          **error)
 {
 	const uint block_size = fs_info->block_size; //Data size per block
 	const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? DEFAULT_BUFFER_SIZE / block_size : 1; // in blocks
@@ -614,11 +604,19 @@ static gboolean read_write_data_ptp (file_system_info *fs_info,
 	buffer = (char*)malloc(buffer_capacity * block_size);
 	if (buffer == NULL) 
 	{
+		g_set_error_literal (error,
+                             G_IO_ERROR ,
+                             G_IO_ERROR_NO_SPACE,
+                            "There is not enough free memory");
 	    goto ERROR;
     }
 	// read data from the first block
 	if (lseek(*dfr, 0, SEEK_SET) == (off_t)-1)
 	{
+		g_set_error_literal (error,
+                             G_IO_ERROR ,
+                             G_IO_ERROR_NOT_SUPPORTED,
+                            "source seek ERROR");
 	    goto ERROR;
 	}
 	do 
@@ -633,28 +631,40 @@ static gboolean read_write_data_ptp (file_system_info *fs_info,
 		offset = (off_t)(block_id * block_size);
 		if (lseek(*dfr, offset, SEEK_SET) == (off_t)-1)
 		{
+		    g_set_error_literal (error,
+                                 G_IO_ERROR ,
+                                 G_IO_ERROR_NOT_SUPPORTED,
+                                "source seek ERROR");
 	        goto ERROR;
 		}
 		if (lseek(*dfw, offset, SEEK_SET) == (off_t)-1)
 		{
+		    g_set_error_literal (error,
+                                 G_IO_ERROR ,
+                                 G_IO_ERROR_NOT_SUPPORTED,
+                                "source seek ERROR");
 	        goto ERROR;
 		}
 		r_size = write_read_io_all (dfr, buffer, blocks_read * block_size,READ);
 		if (r_size != (int)(blocks_read * block_size)) 
 		{
+		    g_set_error_literal (error,
+                                 G_IO_ERROR ,
+                                 G_IO_ERROR_NOT_SUPPORTED,
+                                "read source data ERROR");
 	        goto ERROR;
 		}
 		w_size = write_read_io_all(dfw, buffer, blocks_read * block_size,WRITE);
 		if (w_size != (int)(blocks_read * block_size))
 		{
+		    g_set_error_literal (error,
+                                 G_IO_ERROR ,
+                                 G_IO_ERROR_NOT_SUPPORTED,
+                                "write targer data ERROR");
 	        goto ERROR;
 		}
 		copied_count += blocks_read;
 		block_id += blocks_read;
-		if (r_size != w_size)
-		{
-	        goto ERROR;
-		}
 	} while (1);
 	free(buffer);
 	return TRUE;
@@ -683,7 +693,10 @@ static void start_sysbak_data_ptp (GTask         *task,
     // get Super Block information from partition
 	if (!read_super_blocks(data->device, &fs_info))
 	{
-		g_set_error_literal (&error,G_IO_ERROR ,G_IO_ERROR_NOT_SUPPORTED,"Couldn't find valid filesystem superblock");
+		g_set_error_literal (&error,
+                              G_IO_ERROR ,
+                              G_IO_ERROR_NOT_SUPPORTED,
+                             "Couldn't find valid filesystem superblock");
 		goto ERROR;
 	}
 
@@ -693,6 +706,10 @@ static void start_sysbak_data_ptp (GTask         *task,
    
 	if (!check_memory_size(fs_info,img_opt))
     {
+		g_set_error_literal (&error,
+                              G_IO_ERROR ,
+                              G_IO_ERROR_NO_SPACE,
+                             "There is not enough free memory");
         goto ERROR;
     }
 	// alloc a memory to store bitmap
@@ -706,15 +723,24 @@ static void start_sysbak_data_ptp (GTask         *task,
 	free_space = get_partition_free_space(&(data->dfw));
 	if (free_space < fs_info.device_size)
     {
+		g_set_error_literal (&error,
+                              G_IO_ERROR ,
+                              G_IO_ERROR_NO_SPACE,
+                             "There is not enough free memory");
         goto ERROR;
     }   
 	copied_count = 0;
 	load_progress_info (&fs_info,
 					    data);
-    if (!read_write_data_ptp (&fs_info,bitmap,&(data->dfr),&(data->dfw)))
+    if (!read_write_data_ptp (&fs_info,
+                               bitmap,
+                             &(data->dfr),
+                             &(data->dfw),
+                             &error))
     {
         goto ERROR;
-    } 
+    }
+
     fsync(data->dfw);
 	free(bitmap);
     dev_info = fill_device_info (&fs_info);
@@ -728,47 +754,6 @@ ERROR:
     g_object_unref (task);
 
 }   
-//Backup partition to partition 
-gboolean sysbak_extfs_ptp_async (const char   *device,
-                                 const char   *targer,
-                                 gboolean      overwrite,
-                                 GCancellable *cancellable,
-                                 GAsyncReadyCallback finished_callback,
-                                 gpointer      f_data,
-                                 sysbak_progress progress_callback,
-                                 gpointer      p_data)
-{
-    g_return_val_if_fail (device != NULL,FALSE);
-    g_return_val_if_fail (targer != NULL,FALSE);
-    g_return_val_if_fail (finished_callback != NULL,FALSE);
-    GTask *task;
-    sysdata *data;
-    
-	data = open_operation_data (device,targer,BACK_PTP,overwrite,cancellable);
-	if (data == NULL)
-	{
-		return FALSE;
-	}
-    data->progress_callback = progress_callback;
-    data->p_data = p_data;
-    
-	task = g_task_new (NULL,cancellable,finished_callback,f_data);
-    g_task_set_task_data (task, data, (GDestroyNotify) sys_data_free);
-    g_task_run_in_thread (task, start_sysbak_data_ptp);
-    
-    return TRUE;      /// finish
-}
-device_info *sysbak_extfs_finish (GAsyncResult  *result,
-                                  GError       **error) 
-{
-    device_info *dev_info;
-    g_return_val_if_fail (g_task_is_valid (result, NULL), NULL);
-	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-        
-    dev_info = g_task_propagate_pointer (G_TASK (result), error);
-    
-    return dev_info;
-}
 static gboolean read_write_data_restore (file_system_info *fs_info,
 									     image_options    *img_opt,
                                          unsigned long    *bitmap,
@@ -966,12 +951,20 @@ static void start_sysbak_data_restore (GTask         *task,
 	bitmap = pc_alloc_bitmap(fs_info.totalblock);
 	if (bitmap == NULL) 
     {
+		g_set_error_literal (&error,
+                              G_IO_ERROR ,
+                              G_IO_ERROR_NO_SPACE,
+                             "There is not enough free memory");
 	    goto ERROR;;
     }
 	load_image_bitmap_bits(&(data->dfr), fs_info, bitmap);
 	free_space = get_partition_free_space(&(data->dfw));
 	if (free_space < fs_info.device_size)
     {
+		g_set_error_literal (&error,
+                              G_IO_ERROR ,
+                              G_IO_ERROR_NO_SPACE,
+                             "There is not enough free memory");
         goto ERROR;
     }   
 	copied_count = 0;
@@ -996,6 +989,117 @@ ERROR:
     g_object_unref (task);
 
 }   
+//Backup partition to image file 
+/******************************************************************************
+* Function:              sysbak_extfs_ptf      
+*        
+* Explain: Backup partition to image file eg: /dev/sda1 ---> sda1.img
+*        
+* Input:   @device       Partitions to be backed up
+*          @targer       Name after backup
+*          @overwrite    Overwrite existing backups
+*          @finished_ca  Callback function after successful backup
+*          @f_data       function data;
+*          @progress_ca  Backup process callback function
+*          @p_data       function data;
+* Output:  success      :TRUE
+*          fail         :FALSE
+*        
+* Author:  zhuyaliang  29/08/2019
+******************************************************************************/
+gboolean sysbak_extfs_ptf_async (const char   *device,
+                                 const char   *targer,
+                                 gboolean      overwrite,
+                                 GCancellable *cancellable,
+                                 GAsyncReadyCallback finished_callback,
+                                 gpointer      f_data,
+                                 sysbak_progress progress_callback,
+                                 gpointer      p_data)
+{
+    g_return_val_if_fail (device != NULL,FALSE);
+    g_return_val_if_fail (targer != NULL,FALSE);
+    g_return_val_if_fail (finished_callback != NULL,FALSE);
+    GTask *task;
+    sysdata *data;
+
+	data = open_operation_data (device,targer,BACK_PTF,overwrite,cancellable);
+	if (data == NULL)
+	{
+		return FALSE;
+	}
+    data->progress_callback = progress_callback;
+    data->p_data = p_data;
+    
+    task = g_task_new (NULL,cancellable,finished_callback,f_data);
+    g_task_set_task_data (task, data, (GDestroyNotify) sys_data_free);
+    g_task_run_in_thread (task, start_sysbak_data_ptf);
+    g_object_unref (task);
+    return TRUE;      /// finish
+}
+//Backup partition to partition 
+/******************************************************************************
+* Function:              sysbak_extfs_ptp      
+*        
+* Explain: Backup partition to image file eg: /dev/sda1 ---> /dev/sdc1
+*        
+* Input:   @device       Partitions to be backed up
+*          @targer       Name after backup
+*          @overwrite    Overwrite existing backups
+*          @finished_ca  Callback function after successful backup
+*          @f_data       function data;
+*          @progress_ca  Backup process callback function
+*          @p_data       function data;
+* Output:  success      :TRUE
+*          fail         :FALSE
+*        
+* Author:  zhuyaliang  29/08/2019
+******************************************************************************/
+gboolean sysbak_extfs_ptp_async (const char   *device,
+                                 const char   *targer,
+                                 gboolean      overwrite,
+                                 GCancellable *cancellable,
+                                 GAsyncReadyCallback finished_callback,
+                                 gpointer      f_data,
+                                 sysbak_progress progress_callback,
+                                 gpointer      p_data)
+{
+    g_return_val_if_fail (device != NULL,FALSE);
+    g_return_val_if_fail (targer != NULL,FALSE);
+    g_return_val_if_fail (finished_callback != NULL,FALSE);
+    GTask *task;
+    sysdata *data;
+    
+	data = open_operation_data (device,targer,BACK_PTP,overwrite,cancellable);
+	if (data == NULL)
+	{
+		return FALSE;
+	}
+    data->progress_callback = progress_callback;
+    data->p_data = p_data;
+    
+	task = g_task_new (NULL,cancellable,finished_callback,f_data);
+    g_task_set_task_data (task, data, (GDestroyNotify) sys_data_free);
+    g_task_run_in_thread (task, start_sysbak_data_ptp);
+    
+    return TRUE;      /// finish
+}
+/******************************************************************************
+* Function:              sysbak_extfs_restore      
+*        
+* Explain: Restore backup data eg: sda1.img ----> /dev/sda1
+*        
+* Input:   @device       image name  sda1.img
+*          @targer       device name /dev/sda1
+*          @overwrite    Overwrite existing restore
+*          @finished_ca  Callback function after successful restore
+*          @f_data       function data;
+*          @progress_ca  restore process callback function
+*          @p_data       function data;
+* Output:  success      :TRUE
+*          fail         :FALSE
+*        
+* Author:  zhuyaliang  29/08/2019
+******************************************************************************/
 gboolean sysbak_extfs_restore_async (const char   *device,
                                      const char   *targer,
                                      gboolean      overwrite,
@@ -1024,4 +1128,15 @@ gboolean sysbak_extfs_restore_async (const char   *device,
     g_task_run_in_thread (task, start_sysbak_data_restore);
     
     return TRUE;      /// finish
+}
+device_info *sysbak_extfs_finish (GAsyncResult  *result,
+                                  GError       **error) 
+{
+    device_info *dev_info;
+    g_return_val_if_fail (g_task_is_valid (result, NULL), NULL);
+	g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+        
+    dev_info = g_task_propagate_pointer (G_TASK (result), error);
+    
+    return dev_info;
 }

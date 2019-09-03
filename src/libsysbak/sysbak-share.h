@@ -106,6 +106,7 @@ typedef struct
     time_t remained;
     time_t elapsed;
 }progress_data;
+
 typedef struct
 {
 	image_head       head;
@@ -166,5 +167,4 @@ gboolean    read_image_desc                (int              *fd,
 					                        file_system_info *fs_info, 
 					                        image_options    *img_opt); 
 
-void        print_file_system_info         (file_system_info  fs_info);
 #endif

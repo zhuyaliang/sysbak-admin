@@ -10,52 +10,54 @@
 #define BITS_TO_LONGS(bits) (((bits)+PART_BITS_PER_LONG-1)/PART_BITS_PER_LONG)
 
 static inline int
-pc_test_bit(unsigned long int nr, unsigned long *bitmap,
-	    unsigned long long total)
+pc_test_bit(ull nr, unsigned long *bitmap,ull total)
 {
+    unsigned long offset,bit;
 	if (!bitmap)
 		return -1;
 	if (nr >= total)
     {
-	    g_warning("test block %lu out of boundary(%llu)\n", nr, total);
+	    g_warning("test block %llu out of boundary(%llu)\n", nr, total);
 		return -1;
 	}
-	unsigned long offset = nr / PART_BITS_PER_LONG;
-	unsigned long bit = nr & (PART_BITS_PER_LONG - 1);
+	offset = nr / PART_BITS_PER_LONG;
+	bit = nr & (PART_BITS_PER_LONG - 1);
 	return (bitmap[offset] >> bit) & 1;
 }
 
 static inline gboolean
-pc_set_bit(unsigned long int nr, unsigned long *bitmap,
-	   unsigned long long total)
+pc_set_bit(ull nr, unsigned long *bitmap,ull total)
 {
-	if (!bitmap)
+    unsigned long offset,bit;
+	
+    if (!bitmap)
 		return FALSE;
 	if (nr >= total)
     {
-	    g_warning("test block %lu out of boundary(%llu)\n", nr, total);
+	    g_warning("test block %llu out of boundary(%llu)\n", nr, total);
 		return FALSE;
 	}
-	unsigned long offset = nr / PART_BITS_PER_LONG;
-	unsigned long bit = nr & (PART_BITS_PER_LONG - 1);
+	offset = nr / PART_BITS_PER_LONG;
+	bit = nr & (PART_BITS_PER_LONG - 1);
 	bitmap[offset] |= 1UL << bit;
 
     return TRUE;
 }
 
 static inline gboolean
-pc_clear_bit(unsigned long int nr, unsigned long *bitmap,
-	     unsigned long long total)
+pc_clear_bit(ull nr, unsigned long *bitmap,ull total)
 {
-	if (!bitmap)
+    unsigned long offset,bit;
+	
+    if (!bitmap)
 		return  FALSE;
 	if (nr >= total)
     {
-	    g_warning("test block %lu out of boundary(%llu)\n", nr, total);
+	    g_warning("test block %llu out of boundary(%llu)\n", nr, total);
 		return FALSE;
 	}
-	unsigned long offset = nr / PART_BITS_PER_LONG;
-	unsigned long bit = nr & (PART_BITS_PER_LONG - 1);
+	offset = nr / PART_BITS_PER_LONG;
+	bit = nr & (PART_BITS_PER_LONG - 1);
 	bitmap[offset] &= ~(1UL << bit);
 
     return TRUE;

@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "progress.h"
+#include "sysbak-share.h"
 
 
 /// initial progress bar

@@ -123,6 +123,7 @@ gio_unix_dep = dependency('gio-unix-2.0')
 glib_dep = dependency('glib-2.0', version: '>= 2.44')
 polkit_gobject_dep = dependency('polkit-gobject-1')
 crypt_dep = cc.find_library('crypt')
+ext2fs_dep = dependency('ext2fs')
 # Configure data
 policy_dir = polkit_gobject_dep.get_pkgconfig_variable('policydir', define_variable: ['prefix', sysbak_prefix])
 conf = configuration_data()

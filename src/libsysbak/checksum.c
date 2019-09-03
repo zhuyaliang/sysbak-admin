@@ -175,6 +175,8 @@ void update_checksum(unsigned char* checksum, char* buf, int size) {
 		// Nothing to do
 		// Leave checksum alone as it may be NULL or point to a zero-sized array.
 		break;
+    default:
+        break;
 	}
 
 }

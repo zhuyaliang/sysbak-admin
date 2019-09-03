@@ -57,4 +57,4 @@ executable(
   install_dir: sysbak_libexecdir,
 )
 
-#subdir('libgroupservice')
+subdir('libsysbak')

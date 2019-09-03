@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "sysbak-extfs.h"
+#include <libsysbak/sysbak-extfs.h>
 
 static void test (GObject      *source_object,
            GAsyncResult *res,

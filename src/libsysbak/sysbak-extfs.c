@@ -306,20 +306,20 @@ static progress_bar prog;
 static gboolean loop_check_progress (gpointer d)
 {
 	sysdata *data = (sysdata *)d;
-	progress_data progress_data;
+	progress_data progressdata;
 
 	if (g_cancellable_is_cancelled (data->cancellable))
 	{
 		return FALSE;
 	}
-    if (!progress_update(&prog, copied_count,&progress_data))
+    if (!progress_update(&prog, copied_count,&progressdata))
 	{
-        progress_data.percent=100.0;
-        progress_data.remained = (time_t)0;
-		data->progress_callback (&progress_data,data->p_data);
+        progressdata.percent=100.0;
+        progressdata.remained = (time_t)0;
+		data->progress_callback (&progressdata,data->p_data);
 		return FALSE;
 	}
-	data->progress_callback (&progress_data,data->p_data);
+	data->progress_callback (&progressdata,data->p_data);
 	return TRUE;
 }
 static void load_progress_info (file_system_info *fs_info,
@@ -405,7 +405,7 @@ static gboolean read_write_data_ptf (file_system_info *fs_info,
 	do 
 	{
 	    ull i,blocks_read;
-	    unsigned int cs_added = 0, write_offset = 0;
+	    int cs_added = 0, write_offset = 0;
 	    off_t offset;
 
         blocks_read = get_read_blocks_size (fs_info,&block_id,bitmap);
@@ -494,6 +494,7 @@ static void start_sysbak_data_ptf (GTask         *task,
 	image_options    img_opt;
     device_info     *dev_info;
     unsigned long   *bitmap = NULL;
+	uint             buffer_capacity;
 	GError          *error = NULL;
 
 	init_file_system_info(&fs_info);
@@ -506,8 +507,8 @@ static void start_sysbak_data_ptf (GTask         *task,
 		goto ERROR;
 	}
 
-	const unsigned int buffer_capacity = DEFAULT_BUFFER_SIZE > fs_info.block_size
-				                        ? DEFAULT_BUFFER_SIZE / fs_info.block_size : 1; // in blocks
+	buffer_capacity = DEFAULT_BUFFER_SIZE > fs_info.block_size
+	                ? DEFAULT_BUFFER_SIZE / fs_info.block_size : 1; // in blocks
 	img_opt.blocks_per_checksum = buffer_capacity; 
 	if (!check_memory_size(fs_info,img_opt))
     {
@@ -691,7 +692,8 @@ static void start_sysbak_data_ptp (GTask         *task,
 	image_options    img_opt;
     device_info     *dev_info;
     unsigned long   *bitmap = NULL;
-	ull free_space = 0;
+	uint             buffer_capacity;
+    ull free_space = 0;
 	GError *error = NULL;
 
 	init_file_system_info(&fs_info);
@@ -706,8 +708,8 @@ static void start_sysbak_data_ptp (GTask         *task,
 		goto ERROR;
 	}
 
-	const unsigned int buffer_capacity = DEFAULT_BUFFER_SIZE > fs_info.block_size
-				                        ? DEFAULT_BUFFER_SIZE / fs_info.block_size : 1; // in blocks
+	buffer_capacity = DEFAULT_BUFFER_SIZE > fs_info.block_size
+                    ? DEFAULT_BUFFER_SIZE / fs_info.block_size : 1; // in blocks
 	img_opt.blocks_per_checksum = buffer_capacity;
    
 	if (!check_memory_size(fs_info,img_opt))
@@ -773,7 +775,7 @@ static gboolean read_write_data_restore (file_system_info *fs_info,
 	ull    blocks_used = fs_info->usedblocks;
 	uint   blocks_in_cs = 0, buffer_size, read_offset;
 	guchar checksum[img_opt->checksum_size];
-	char  *read_buffer, *write_buffer;
+	char  *read_buffer = NULL, *write_buffer = NULL;
     ull    block_id;	
     ull    blocks_used_fix = 0, test_block = 0;
 	int    r_size, w_size;	
@@ -813,7 +815,7 @@ static gboolean read_write_data_restore (file_system_info *fs_info,
 	{
 		unsigned int i;
         ull blocks_written, bytes_skip;
-        uint read_size;
+        int read_size;
         // max chunk to read using one read(2) syscall
         uint blocks_read = copied_count + buffer_capacity < blocks_used ?
                            buffer_capacity : blocks_used - copied_count;
@@ -901,7 +903,7 @@ static gboolean read_write_data_restore (file_system_info *fs_info,
 						                    write_buffer + blocks_written * block_size,
                                             blocks_write * block_size, 
 											WRITE);
-                if (w_size != blocks_write * block_size) 
+                if (w_size != (int)blocks_write * (int)block_size) 
 				{
 					goto ERROR;
 				}
@@ -1018,11 +1020,12 @@ gboolean sysbak_extfs_ptf_async (const char   *device,
                                  sysbak_progress progress_callback,
                                  gpointer      p_data)
 {
+    GTask *task;
+    sysdata *data;
+    
     g_return_val_if_fail (device != NULL,FALSE);
     g_return_val_if_fail (targer != NULL,FALSE);
     g_return_val_if_fail (finished_callback != NULL,FALSE);
-    GTask *task;
-    sysdata *data;
 
 	data = open_operation_data (device,targer,BACK_PTF,overwrite,cancellable);
 	if (data == NULL)
@@ -1065,11 +1068,12 @@ gboolean sysbak_extfs_ptp_async (const char   *device,
                                  sysbak_progress progress_callback,
                                  gpointer      p_data)
 {
+    GTask *task;
+    sysdata *data;
+    
     g_return_val_if_fail (device != NULL,FALSE);
     g_return_val_if_fail (targer != NULL,FALSE);
     g_return_val_if_fail (finished_callback != NULL,FALSE);
-    GTask *task;
-    sysdata *data;
     
 	data = open_operation_data (device,targer,BACK_PTP,overwrite,cancellable);
 	if (data == NULL)
@@ -1111,11 +1115,12 @@ gboolean sysbak_extfs_restore_async (const char   *device,
                                      sysbak_progress progress_callback,
                                      gpointer      p_data)
 {
+    GTask *task;
+    sysdata *data;
+    
     g_return_val_if_fail (device != NULL,FALSE);
     g_return_val_if_fail (targer != NULL,FALSE);
     g_return_val_if_fail (finished_callback != NULL,FALSE);
-    GTask *task;
-    sysdata *data;
     
 	data = open_operation_data (device,targer,RESTORE,overwrite,cancellable);
 	if (data == NULL)

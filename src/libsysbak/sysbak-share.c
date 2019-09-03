@@ -37,7 +37,6 @@
 #define BLKGETSIZE64    _IOR(0x12,114,size_t)   /* Get device size in bytes. */
 #endif
 
-extern int errno;
 /// the io function, reference from ntfsprogs(ntfsclone).
 int write_read_io_all(int *fd, char *buf, ull count, int do_write) 
 {
@@ -448,52 +447,6 @@ gboolean write_image_bitmap(int *fd,
     }
 
     return TRUE;
-}
-void print_readable_size_str(unsigned long long size_byte, char *new_size_str) {
-
-	float new_size = 1.0;
-	memset(new_size_str, 0, 11);
-	uint64_t tbyte=1000000000000.0;
-	uint64_t gbyte=1000000000;
-	uint64_t mbyte=1000000;
-	uint64_t kbyte=1000;
-
-	if (size_byte == 0)
-		snprintf(new_size_str, 11, "%llu", size_byte);
-
-	if (size_byte >= tbyte) {
-		new_size = (float)size_byte / (float)tbyte;
-		snprintf(new_size_str, 11, "%5.1f TB", new_size);
-	} else if (size_byte >= gbyte) {
-		new_size = (float)size_byte / (float)gbyte;
-		snprintf(new_size_str, 11, "%5.1f GB", new_size);
-	} else if (size_byte >= mbyte) {
-		new_size = (float)size_byte / (float)mbyte;
-		snprintf(new_size_str, 11, "%5.1f MB", new_size);
-	} else if (size_byte >= kbyte) {
-		new_size = (float)size_byte / (float)kbyte;
-		snprintf(new_size_str, 11, "%5.1f KB", new_size);
-	} else {
-		snprintf(new_size_str, 11, "%3i Byte", (int)size_byte);
-	}
-}
-void print_file_system_info(file_system_info fs_info) {
-
-	unsigned int     block_s = fs_info.block_size;
-	unsigned long long total = fs_info.totalblock;
-	unsigned long long used  = fs_info.usedblocks;
-	char size_str[11];
-
-	print_readable_size_str(total*block_s, size_str);
-	printf("Device size:  %s = %llu Blocks\n", size_str, total);
-
-	print_readable_size_str(used*block_s, size_str);
-	printf(("Space in use: %s = %llu Blocks\n"), size_str, used);
-
-	print_readable_size_str((total-used)*block_s, size_str);
-	printf(("Free Space:   %s = %llu Blocks\n"), size_str, (total-used));
-
-	printf(("Block size:   %i Byte\n"), block_s);
 }
 gboolean read_image_desc(int              *fd,
 		                 image_head       *img_head, 

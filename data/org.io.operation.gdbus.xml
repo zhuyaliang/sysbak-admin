@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node>
+    <interface name="org.io.operation.gdbus">
+
+    <method name="OpenFile">
+        <arg name="filename" direction="in" type="s">
+        </arg>
+        <arg name="flag" direction="in" type="u">
+        </arg>
+        <arg name="mode" direction="in" type="u">
+        </arg>
+        <arg name="fd" direction="out" type="i">
+        </arg>
+    </method>
+    <method name="WriteFile">
+        <arg name="fd" direction="in" type="i">
+        </arg>
+        <arg name="data" direction="in" type="s">
+        </arg>
+        <arg name="size" direction="in" type="u">
+        </arg>
+        <arg name="size" direction="out" type="i">
+        </arg>
+    </method>
+    <method name="ReadFile">
+        <arg name="fd" direction="in" type="i">
+        </arg>
+        <arg name="size" direction="in" type="u">
+        </arg>
+        <arg name="size" direction="out" type="i">
+        </arg>
+    </method>
+
+    <property name="ReadDate" type="s" access="read">
+    </property>
+
+  </interface>
+</node>

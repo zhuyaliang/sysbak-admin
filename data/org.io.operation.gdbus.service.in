@@ -1,0 +1,5 @@
+[D-BUS Service]
+Name=org.io.operation.gdbus
+Exec=@libexecdir@/io-daemon
+User=root
+SystemdService=io-operation-daemon.service

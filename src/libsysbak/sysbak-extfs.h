@@ -20,7 +20,7 @@
 
 #include <glib.h>
 #include <gio/gio.h>
-#include <sysbak-share.h>
+#include "sysbak-share.h"
 
 //Backup partition to image file 
     

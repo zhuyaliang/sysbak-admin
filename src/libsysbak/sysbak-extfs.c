@@ -568,7 +568,7 @@ static sysdata *open_operation_data (const char   *device,
 
     int dfr,dfw;
     sysdata *data;
-
+    
     dfr = open_source_device(device,mode);
     if (dfr <= 0 ) 
     {

@@ -1,16 +1,19 @@
-/**
- * progress.c - part of Partclone project
- *
- * Copyright (c) 2007~ Thomas Tsai <thomas at nchc org tw>
- *
- * progress bar
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- */
+/*  sysbak-admin 
+*   Copyright (C) 2019  zhuyaliang https://github.com/zhuyaliang/
+*
+*   This program is free software: you can redistribute it and/or modify
+*   it under the terms of the GNU General Public License as published by
+*   the Free Software Foundation, either version 3 of the License, or
+*   (at your option) any later version.
 
+*   This program is distributed in the hope that it will be useful,
+*   but WITHOUT ANY WARRANTY; without even the implied warranty of
+*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*   GNU General Public License for more details.
+
+*   You should have received a copy of the GNU General Public License
+*   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
 #include <stdio.h>
 #include <locale.h>
 #include <time.h>
@@ -20,8 +23,7 @@
 #include "progress.h"
 #include "sysbak-share.h"
 
-
-/// initial progress bar
+// initial progress bar
 extern void progress_init(progress_bar *prog, int start, ull stop,int size)
 {
     memset(prog, 0, sizeof(progress_bar));
@@ -32,7 +34,7 @@ extern void progress_init(progress_bar *prog, int start, ull stop,int size)
     prog->block_size = size;
 }
 
-static void calculate_speed(progress_bar *prog, ull copied,progress_data *progress_data)
+static void calculate_speed(progress_bar *prog, ull copied,progress_data *progressdata)
 {
     uint64_t speedps = 1;
     double dspeed = 1.0;
@@ -43,38 +45,38 @@ static void calculate_speed(progress_bar *prog, ull copied,progress_data *progre
 
     percent  = prog->unit * copied;
     if (percent <= 0)
-		percent = 1;
+        percent = 1;
     else if (percent >= 100)
-		percent = 99.99;
+        percent = 99.99;
 
     elapsed  = (time(0) - prog->initial_time);
     if (elapsed <= 0)
-		elapsed = 1;
+        elapsed = 1;
 
-    speedps  = prog->block_size * copied / elapsed;
-    progress_data->percent   = percent;
-	if (speedps >= kbyte)
-	{
-		dspeed = (double)speedps / (double)kbyte;
+    speedps = prog->block_size * copied / elapsed;
+    progressdata->percent   = percent;
+    if (speedps >= kbyte)
+    {
+        dspeed = (double)speedps / (double)kbyte;
     }
-	else
-	{
-		dspeed = speedps;
+    else
+    {
+        dspeed = speedps;
     }
 
-    progress_data->speed = dspeed;
-    progress_data->remained = (time_t)((elapsed/percent*100) - elapsed);
-	progress_data->elapsed = elapsed;
+    progressdata->speed = dspeed;
+    progressdata->remained = (time_t)((elapsed/percent*100) - elapsed);
+    progressdata->elapsed = elapsed;
 }
 
-/// update information at progress bar
-extern gboolean progress_update(progress_bar *prog, ull copied,progress_data *progress_data)
+// update information at progress bar
+extern gboolean progress_update(progress_bar *prog, ull copied,progress_data *progressdata)
 {
-	if (copied >= prog->stop)
-	{
-		return FALSE;
-	}
-    calculate_speed(prog, copied, progress_data);
-	
-	return TRUE;
+    if (copied >= prog->stop)
+    {
+        return FALSE;
+    }
+    calculate_speed(prog, copied, progressdata);
+
+    return TRUE;
 }

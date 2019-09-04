@@ -1,7 +1,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sysbak-share.h>
 
 #define PART_BYTES_PER_LONG ((int)sizeof(unsigned long))
 #define PART_BITS_PER_BYTE  (8)
@@ -9,6 +8,7 @@
 #define BITS_TO_BYTES(bits) (((bits)+PART_BITS_PER_BYTE-1)/PART_BITS_PER_BYTE)
 #define BITS_TO_LONGS(bits) (((bits)+PART_BITS_PER_LONG-1)/PART_BITS_PER_LONG)
 
+typedef unsigned long long ull;
 static inline int
 pc_test_bit(ull nr, unsigned long *bitmap,ull total)
 {
@@ -63,7 +63,7 @@ pc_clear_bit(ull nr, unsigned long *bitmap,ull total)
     return TRUE;
 }
 
-static inline unsigned long* pc_alloc_bitmap(unsigned long bits)
+static inline unsigned long* pc_alloc_bitmap(ull bits)
 {
 	return (unsigned long*)calloc(PART_BYTES_PER_LONG, BITS_TO_LONGS(bits));
 }

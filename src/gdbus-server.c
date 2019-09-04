@@ -19,70 +19,13 @@
 #include <glib.h>
 #include <fcntl.h>
 #include <assert.h>
-#include <io-generated.h>
+#include "gdbus-extfs.h"
 
 #define ORG_NAME  "org.io.operation.gdbus"
 #define DBS_NAME  "/org/io/operation/gdbus"
 
 static GMainLoop* loop = NULL;
-static gboolean gdbus_write_file(IoGdbus               *object,
-                                 GDBusMethodInvocation *invocation,
-                                 gint                   fd,
-                                 const gchar           *data,
-                                 guint                  size)
-{   
-    int len;
-    g_return_val_if_fail (fd   >= 0,FALSE);
-    g_return_val_if_fail (data != NULL,FALSE);
-
-    len = write(fd,data,size);
-    if(len <= 0 )
-    {
-        return FALSE;
-    }    
-    io_gdbus_complete_write_file (object,invocation,len);
-    return TRUE;
-}    
-static gboolean gdbus_read_file (IoGdbus               *object,
-                                 GDBusMethodInvocation *invocation,
-                                 gint                   fd,
-                                 guint                  size)
-{   
-    int  len;
-    char *ReadBuf = NULL; 
-    g_return_val_if_fail (fd >= 0,FALSE);
-    g_return_val_if_fail (fd >= 0,FALSE);
-    
-    ReadBuf = (char*)malloc(size);
-    len = read (fd,ReadBuf,size);
-    if(len <= 0 )
-    {
-        return FALSE;
-    }    
-    io_gdbus_complete_read_file (object,invocation,len);
-    io_gdbus_set_read_date (object,ReadBuf);
-    free (ReadBuf);
-    return TRUE;
-}    
  
-static gboolean gdbus_open_file (IoGdbus               *object,
-                                 GDBusMethodInvocation *invocation,
-                                 const gchar           *filename,
-                                 guint                  flag,
-                                 guint                  mode)
-{   
-    int fd;
-
-    g_return_val_if_fail (filename != NULL,FALSE);
-    fd = open (filename,flag,mode);
-    if(fd <= 0 )
-    {
-        return FALSE;
-    }    
-    io_gdbus_complete_open_file (object,invocation,fd);
-
-    return TRUE;
-}    
 static void AcquiredCallback (GDBusConnection *Connection,
                               const gchar     *name,
                               gpointer         data)
@@ -93,10 +36,12 @@ static void AcquiredCallback (GDBusConnection *Connection,
 
     io_gdbus = io_gdbus_skeleton_new ();
     iface = IO_GDBUS_GET_IFACE (io_gdbus);
-    iface->handle_write_file = gdbus_write_file;
-    iface->handle_read_file  = gdbus_read_file;
-    iface->handle_open_file  = gdbus_open_file;
-    if(!g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(io_gdbus), 
+    iface->handle_open_file         = gdbus_open_file;
+    iface->handle_sysbak_extfs_ptf  = gdbus_sysbak_extfs_ptf;
+	iface->handle_sysbak_extfs_ptp  = gdbus_sysbak_extfs_ptp;
+	iface->handle_sysbak_restore    = gdbus_sysbak_restore;
+	iface->handle_get_extfs_device_info   = gdbus_get_extfs_device_info;
+	if(!g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(io_gdbus), 
                                          Connection, 
                                          DBS_NAME, 
                                          &error))

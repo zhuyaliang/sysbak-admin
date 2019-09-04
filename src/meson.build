@@ -39,6 +39,9 @@ libaccounts_generated_dep = declare_dependency(
 
 sources = files(
   'gdbus-server.c',
+  'gdbus-checksum.c',  
+  'gdbus-extfs.c',
+  'gdbus-share.c',
 )
 
 deps = [
@@ -46,6 +49,7 @@ deps = [
   glib_dep,
   libaccounts_generated_dep,
   polkit_gobject_dep,
+  ext2fs_dep,
 ]
 
 executable(
@@ -57,4 +61,4 @@ executable(
   install_dir: sysbak_libexecdir,
 )
 
-subdir('libsysbak')
+#subdir('libsysbak')

@@ -12,26 +12,54 @@
         <arg name="fd" direction="out" type="i">
         </arg>
     </method>
-    <method name="WriteFile">
-        <arg name="fd" direction="in" type="i">
+    <method name="GetExtfsDeviceInfo">
+        <arg name="filename" direction="in" type="s">
         </arg>
-        <arg name="data" direction="in" type="s">
+        <arg name="totalblock" direction="out" type="t">
         </arg>
-        <arg name="size" direction="in" type="u">
+        <arg name="usedblocks" direction="out" type="t">
         </arg>
-        <arg name="size" direction="out" type="i">
+        <arg name="block_size" direction="out" type="u">
         </arg>
     </method>
-    <method name="ReadFile">
-        <arg name="fd" direction="in" type="i">
+    <method name="SysbakExtfsPtf">
+        <arg name="dfr" direction="in" type="i">
         </arg>
-        <arg name="size" direction="in" type="u">
+        <arg name="dfw" direction="in" type="i">
         </arg>
-        <arg name="size" direction="out" type="i">
+        <arg name="source" direction="in" type="s">
+        </arg>
+        <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="state" direction="out" type="i">
+        </arg>
+    </method>
+    <method name="SysbakExtfsPtp">
+        <arg name="dfr" direction="in" type="i">
+        </arg>
+        <arg name="dfw" direction="in" type="i">
+        </arg>
+        <arg name="source" direction="in" type="s">
+        </arg>
+        <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="state" direction="out" type="i">
+        </arg>
+    </method>
+    <method name="SysbakRestore">
+        <arg name="dfr" direction="in" type="i">
+        </arg>
+        <arg name="dfw" direction="in" type="i">
+        </arg>
+        <arg name="source" direction="in" type="s">
+        </arg>
+        <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="state" direction="out" type="i">
         </arg>
     </method>
 
-    <property name="ReadDate" type="s" access="read">
+    <property name="ReadSize" type="t" access="read">
     </property>
 
   </interface>

@@ -4,8 +4,6 @@ libsysbak_dir = meson.current_source_dir()
 subdir = 'libsysbak'
 
 headers = files(
-  'bitmap.h',  
-  'checksum.h', 
   'progress.h',  
   'sysbak-share.h',
 )
@@ -16,8 +14,6 @@ install_headers(
 )
 
 sources = files(
-  'checksum.c',
-  'progress.c',  
   'sysbak-extfs.c',  
   'sysbak-share.c',
 )

@@ -326,7 +326,6 @@ static gboolean read_write_data_ptf (IoGdbus          *object,
         ull i,blocks_read;
         int cs_added = 0, write_offset = 0;
         off_t offset;
-
         blocks_read = get_read_blocks_size (fs_info,&block_id,bitmap);
         if (blocks_read == 0)
             break;
@@ -405,6 +404,7 @@ gboolean gdbus_sysbak_extfs_ptf (IoGdbus               *object,
     int              e_code = 0;
 	gint             dfr,dfw;
 
+    io_gdbus_emit_sysbak_finish (object,0,1,2);
     dfr = open_source_device(source,BACK_PTF);
     if (dfr <= 0 ) 
     {
@@ -705,7 +705,7 @@ static gboolean read_write_data_restore (IoGdbus          *object,
                 block_size,
                 img_opt->blocks_per_checksum,
                 img_opt->checksum_size);
-
+        g_print ("read_size = %d\r\n",read_size);
         // increase read_size to make room for the oversized checksum
         if (blocks_per_cs && blocks_read < buffer_capacity &&
                 (blocks_read % blocks_per_cs) && (blocks_used % blocks_per_cs))
@@ -865,9 +865,7 @@ gboolean gdbus_sysbak_restore (IoGdbus               *object,
         e_code = -7;
         goto ERROR;
     }  
-    g_print ("free_space      = %llu !!!!\r\n",free_space);
     //copied_count = 0;
-    
     if (!read_write_data_restore (object,
 				                  &fs_info,
 								  &img_opt,
@@ -878,10 +876,9 @@ gboolean gdbus_sysbak_restore (IoGdbus               *object,
         e_code = -8;
         goto ERROR;
     } 
-  
-    g_print ("wait fsync !!!!\r\n");
-    fsync(dfw);
+    
 	io_gdbus_complete_sysbak_restore (object,invocation,1);
+    fsync(dfw);
     free(bitmap);
     close (dfw);
     close (dfr);

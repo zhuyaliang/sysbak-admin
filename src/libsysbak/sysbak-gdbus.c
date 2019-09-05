@@ -33,6 +33,10 @@
 #define DBS_NAME  "/org/io/operation/gdbus"
 
 IoGdbus   *proxy;
+static void error_cb (IoGdbus *proxy,int state,int state1,int state2,gpointer data)
+{
+    g_print ("ssssssss %d %d %d\r\n",state,state1,state2);
+}    
 gboolean init_sysbak_gdbus (GError **error)
 {
 	GDBusConnection *connection;
@@ -53,6 +57,8 @@ gboolean init_sysbak_gdbus (GError **error)
 	{
 		return FALSE;
 	}
+    g_signal_connect_object (proxy, "sysbak-finish", G_CALLBACK(error_cb), NULL, G_CONNECT_SWAPPED);
+
     g_object_set (proxy,"g-default-timeout", G_MAXINT,NULL);
 	return TRUE;
 }
@@ -82,7 +88,6 @@ device_info *get_extfs_device_info (const char *dev_name)
     dev_info->usedblocks = usedblocks;
     dev_info->block_size = block_size;
     memcpy (dev_info->fs,extfs_MAGIC,strlen (extfs_MAGIC) +1);
-    g_print ("totalblock = %llu,usedblocks = %llu,block_size = %u\r\n",totalblock,usedblocks,block_size);
     return dev_info;
 }    
 

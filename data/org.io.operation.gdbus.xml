@@ -57,6 +57,15 @@
         </arg>
     </method>
 
+    <signal name="SysbakFinish">
+       <arg name="state0" type="t">
+       </arg>
+       <arg name="state1" type="t">
+       </arg>
+       <arg name="state2" type="t">
+       </arg>
+    </signal>
+
     <property name="ReadSize" type="t" access="read">
     </property>
 

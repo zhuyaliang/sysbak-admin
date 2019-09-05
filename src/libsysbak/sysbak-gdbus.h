@@ -20,7 +20,9 @@
 
 #include <glib.h>
 #include <gio/gio.h>
+#include "io-generated.h"
 #include "sysbak-share.h"
+
 
 device_info     *get_extfs_device_info        (const char   *dev_name);
 
@@ -44,4 +46,5 @@ gboolean         libgdbus_sysbak_extfs_restore (const char   *source,
                                                 const char   *target,
                                                 gboolean      overwrite,
                                                 GError      **error);
+G_END_DECLS
 #endif

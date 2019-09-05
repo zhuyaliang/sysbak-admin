@@ -31,12 +31,14 @@
 #define     ext3_MAGIC "EXT3"
 #define     ext4_MAGIC "EXT4"
 
+typedef guint64 ull;
+typedef unsigned int       uint;
 typedef struct
 {
 	char fs[FS_MAGIC_SIZE+1];
-    unsigned long long totalblock;
-    unsigned long long usedblocks;
-    unsigned int  block_size;
+    ull totalblock;
+    ull usedblocks;
+    uint  block_size;
 }device_info;
 
 
@@ -49,8 +51,8 @@ typedef struct
 }progress_data;
 
 
-typedef unsigned long long ull;
-typedef unsigned int       uint;
+//typedef unsigned long long ull;
+//typedef unsigned int       uint;
 typedef void (* sysbak_progress) (progress_data*,gpointer);
 
 

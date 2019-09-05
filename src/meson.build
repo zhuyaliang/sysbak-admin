@@ -42,6 +42,7 @@ sources = files(
   'checksum.c',  
   'gdbus-extfs.c',
   'gdbus-share.c',
+  'progress.c',
 )
 
 deps = [

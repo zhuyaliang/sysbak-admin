@@ -18,11 +18,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include <libsysbak/sysbak-gdbus.h>
 #include <libsysbak/sysbak-extfs.h>
 
 #define   TESTCONFIG     "./test.ini"
 #define   TESTMAX         3
-
+/*
 typedef void (*test_func) (char *,char *);
 typedef struct 
 {
@@ -122,11 +123,42 @@ static void start_test_restore (char *source,char *targer)
     free (source);
     free (targer);
     g_object_unref (cancellable);
-}    
+} 
+*/
+
+void finished_cb (guint64 totalblock,guint64 usedblocks,uint block_size,gpointer data)
+{
+
+}
+void progress_cb (double percent,double speed,guint64 remained, guint64 elapsed,gpointer data)
+{
+
+}
+
+void error_cb (int e_code,const char *error_message,gpointer data)
+{
+
+}
 int main(int argc, char **argv)
 {
-    GKeyFile     *kconfig = NULL;
     GMainLoop    *loop;
+	SysbakAdmin *sysbak;
+    
+	loop = g_main_loop_new (NULL, FALSE);
+	sysbak = sysbak_admin_new ();
+	sysbak_admin_set_source (sysbak,"/dev/sdc1");
+	sysbak_admin_set_target (sysbak,"/tmp/xxx.img");
+	sysbak_admin_set_option (sysbak,TRUE);
+	
+	sysbak_admin_extfs_ptf_async (sysbak);
+	sysbak_admin_extfs_ptp_async (sysbak);
+	sysbak_admin_extfs_restore_async (sysbak);
+
+	sysbak_admin_finished_signal (sysbak,finished_cb,NULL);
+	sysbak_admin_progress_signal (sysbak,progress_cb,NULL);
+	sysbak_admin_error_signal (sysbak,error_cb,NULL);
+	/*
+	GKeyFile     *kconfig = NULL;
     GError       *error = NULL;
     g_auto(GStrv) test_groups = NULL;
     gsize         length = 0;
@@ -141,7 +173,6 @@ int main(int argc, char **argv)
         {"enable_restore",start_test_restore}
     };
 
-    loop = g_main_loop_new (NULL, FALSE);
     if (!init_sysbak_gdbus (&error))
     {
         g_warning ("init_sysbak_gdbus faild %s\r\n",error->message);
@@ -201,13 +232,16 @@ int main(int argc, char **argv)
     if (mode == 0 )
     {
         g_print ("You haven't done anything. Please configure the test.ini file to open the test options.\r\n");
-    }    
+    }
+	*/
     g_main_loop_run (loop);
+/*
 ERROR:
     if (kconfig != NULL)
     {
         g_key_file_free (kconfig);
-    }    
+    }
+*/	
     g_main_loop_unref (loop);
     g_main_loop_quit (loop);
 }    

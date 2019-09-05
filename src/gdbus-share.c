@@ -457,7 +457,7 @@ int open_source_device(const char *device,int mode)
     { 
         if (check_mount(device)) 
         {
-            return 0;
+            return -2;
         }
         fd = open(device, flags, S_IRUSR);
     } 

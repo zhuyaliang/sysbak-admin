@@ -15,13 +15,16 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include <stdio.h>
+#include <glib.h>
 #include <locale.h>
 #include <time.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdarg.h>
 #include "progress.h"
-#include "sysbak-share.h"
 
 // initial progress bar
 extern void progress_init(progress_bar *prog, int start, ull stop,int size)
@@ -34,7 +37,7 @@ extern void progress_init(progress_bar *prog, int start, ull stop,int size)
     prog->block_size = size;
 }
 
-static void calculate_speed(progress_bar *prog, ull copied,progress_data *progressdata)
+static void calculate_speed(progress_bar *prog, ull copied, progress_data *progressdata)
 {
     uint64_t speedps = 1;
     double dspeed = 1.0;

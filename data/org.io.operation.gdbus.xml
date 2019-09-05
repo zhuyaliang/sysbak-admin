@@ -22,18 +22,12 @@
         <arg name="block_size" direction="out" type="u">
         </arg>
     </method>
-    <method name="GetExtfsReadSzie">
-        <arg name="read_size" direction="out" type="t">
-        </arg>
-    </method>
     <method name="SysbakExtfsPtf">
         <arg name="source" direction="in" type="s">
         </arg>
         <arg name="target" direction="in" type="s">
         </arg>
         <arg name="overwrite" direction="in" type="b">
-        </arg>
-        <arg name="state" direction="out" type="i">
         </arg>
     </method>
     <method name="SysbakExtfsPtp">
@@ -43,8 +37,6 @@
         </arg>
         <arg name="overwrite" direction="in" type="b">
         </arg>
-        <arg name="state" direction="out" type="i">
-        </arg>
     </method>
     <method name="SysbakRestore">
         <arg name="source" direction="in" type="s">
@@ -53,21 +45,35 @@
         </arg>
         <arg name="overwrite" direction="in" type="b">
         </arg>
-        <arg name="state" direction="out" type="i">
-        </arg>
     </method>
 
-    <signal name="SysbakFinish">
-       <arg name="state0" type="t">
+    <signal name="SysbakFinished">
+       <arg name="fstype" type="s">
        </arg>
-       <arg name="state1" type="t">
+       <arg name="totalblock" type="t">
        </arg>
-       <arg name="state2" type="t">
+       <arg name="usedblocks" type="t">
+       </arg>
+       <arg name="block_size" type="u">
        </arg>
     </signal>
-
-    <property name="ReadSize" type="t" access="read">
-    </property>
+	
+	<signal name="SysbakError">
+       <arg name="message" type="s">
+       </arg>
+       <arg name="ecode" type="i">
+       </arg>
+    </signal>
+    <signal name="SysbakProgress">
+       <arg name="percent" type="d">
+       </arg>
+       <arg name="speed" type="d">
+       </arg>
+       <arg name="remained" type="t">
+       </arg>
+       <arg name="elapsed" type="t">
+       </arg>
+    </signal>
 
   </interface>
 </node>

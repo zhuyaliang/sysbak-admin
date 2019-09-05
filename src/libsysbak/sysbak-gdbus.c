@@ -32,162 +32,145 @@
 #define ORG_NAME  "org.io.operation.gdbus"
 #define DBS_NAME  "/org/io/operation/gdbus"
 
-IoGdbus   *proxy;
-static void error_cb (IoGdbus *proxy,int state,int state1,int state2,gpointer data)
+typedef struct
 {
-    g_print ("ssssssss %d %d %d\r\n",state,state1,state2);
-}    
-gboolean init_sysbak_gdbus (GError **error)
+   gboolean	   overwrite;
+   char       *source; 
+   char       *target;
+   IoGdbus    *proxy;
+} SysbakAdminPrivate;
+ 
+G_DEFINE_TYPE_WITH_PRIVATE (SysbakAdmin, sysbak_admin, G_TYPE_OBJECT)
+
+static void     sysbak_admin_class_init (SysbakAdminClass *klass);
+static void     sysbak_admin_init       (SysbakAdmin      *sysbak);
+static void     sysbak_admin_finalize   (GObject          *object);
+
+
+static void sysbak_admin_finalize  (GObject *object)
+{
+	SysbakAdmin *sysbak = SYSBAK_ADMIN (object);
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+	
+	g_free (priv->source);
+	g_free (priv->target);
+}
+static void sysbak_admin_init (SysbakAdmin *sysbak)
 {
 	GDBusConnection *connection;
+	g_autoptr(GError) error = NULL;
 
-    connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, error);
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+    connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &error);
     if (connection == NULL)
     {
-        return FALSE;
+		g_warning ("g_bus_get_sync failed %s\r\n",error->message);
+        return;
     }
-	proxy = io_gdbus_proxy_new_sync (connection,
-                                     G_DBUS_PROXY_FLAGS_NONE,
-                                     ORG_NAME,
-                                     DBS_NAME,
-                                     NULL,
-                                     error);
-
-	if (!proxy)
+	priv->proxy = io_gdbus_proxy_new_sync (connection,
+                                           G_DBUS_PROXY_FLAGS_NONE,
+                                           ORG_NAME,
+                                           DBS_NAME,
+                                           NULL,
+                                          &error);
+	if (!priv->proxy)
 	{
-		return FALSE;
-	}
-    g_signal_connect_object (proxy, "sysbak-finish", G_CALLBACK(error_cb), NULL, G_CONNECT_SWAPPED);
+		g_warning ("proxy_new_sync failed %s\r\n",error->message);
 
-    g_object_set (proxy,"g-default-timeout", G_MAXINT,NULL);
-	return TRUE;
+	}
 }
-device_info *get_extfs_device_info (const char *dev_name)
+static void sysbak_admin_class_init (SysbakAdminClass *klass)
 {
-    device_info *dev_info;
-	g_autoptr(GError) error = NULL;
-	ull  totalblock;
-	ull  usedblocks;
-	uint block_size;
-    g_return_val_if_fail (dev_name != NULL,FALSE);
-
-
-	if (!io_gdbus_call_get_extfs_device_info_sync (proxy,
-			                                       dev_name,
-											      &totalblock,
-											      &usedblocks,
-											      &block_size,
-											       NULL,
-											      &error))
-	{
-		g_warning ("get_extfs_device_info faild %s\r\n",error->message);
-		return NULL;
-	}
-    dev_info = g_slice_new (device_info);
-    dev_info->totalblock = totalblock;
-    dev_info->usedblocks = usedblocks;
-    dev_info->block_size = block_size;
-    memcpy (dev_info->fs,extfs_MAGIC,strlen (extfs_MAGIC) +1);
-    return dev_info;
-}    
-
-device_info *get_extfs_image_info (const char *image_name)
-{
-
-    device_info *dev_info;
-	g_autoptr(GError) error = NULL;
-	ull  totalblock;
-	ull  usedblocks;
-	uint block_size;
-
-	if (!io_gdbus_call_get_extfs_image_info_sync (proxy,
-			                                      image_name,
-											      &totalblock,
-											      &usedblocks,
-											      &block_size,
-											      NULL,
-											      &error))
-	{
-		g_warning ("get_extfs_image_info faild %s\r\n",error->message);
-		return NULL;
-	}
-    dev_info = g_slice_new (device_info);
-    dev_info->totalblock = totalblock;
-    dev_info->usedblocks = usedblocks;
-    dev_info->block_size = block_size;
-    memcpy (dev_info->fs,extfs_MAGIC,strlen (extfs_MAGIC) +1);
-
-    return dev_info;
-}    
-
-gboolean libgdbus_sysbak_extfs_ptf (const char *source,
-		                            const char *target,
-								    gboolean    overwrite,
-                                    GError    **error)
-{
-	int state;
-    
-	if (!io_gdbus_call_sysbak_extfs_ptf_sync (proxy,
-                                              source,
-                                              target,
-                                              overwrite,
-											 &state,
-											  NULL,
-											  error))
-	{
-		return FALSE;
-	}
-    return TRUE;
-}
-gboolean libgdbus_sysbak_extfs_restore (const char *source,
-                                        const char *target,
-                                        gboolean    overwrite,
-                                        GError    **error)
-{
-    int state;
-	if (!io_gdbus_call_sysbak_restore_sync (proxy,
-				                            source,
-										    target,
-                                            overwrite,
-											&state,
-											NULL,
-											error))
-	{
-		return FALSE;
-	}
-    g_print ("state ==================%d\r\n",state);
-	return TRUE;
-}    
-gboolean gdbus_sysbak_extfs_ptp (const char *source,
-		                         const char *target,
-								 gboolean    overwrite,
-                                 GError    **error)
-{
-	int state;
-
-	if (!io_gdbus_call_sysbak_extfs_ptp_sync (proxy,
-											  source,
-											  target,
-                                              overwrite,
-											 &state,
-											  NULL,
-											  error))
-	{
-		return FALSE;
-	}
-	return TRUE;
+	GObjectClass   *object_class = G_OBJECT_CLASS (klass);
+    object_class->finalize = sysbak_admin_finalize;
 }
 
-ull libgdbus_get_extfs_read_size (void)
+const char *sysbak_admin_get_source (SysbakAdmin *sysbak)
 {
-	ull len;
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+	
+	return priv->source;
+}
+const char *sysbak_admin_get_target (SysbakAdmin *sysbak)
+{
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+	
+	return priv->target;
+}
 
-	if (!io_gdbus_call_get_extfs_read_szie_sync (proxy,
-									            &len,
-									             NULL,
-									             NULL))
-	{
-		return 0;
-	}
-	return len;
+gboolean sysbak_admin_get_option (SysbakAdmin *sysbak)
+{
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+	
+	return priv->overwrite;
+}
+
+gpointer sysbak_admin_get_proxy (SysbakAdmin *sysbak)
+{
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+	return priv->proxy;
+}
+void sysbak_admin_set_source (SysbakAdmin *sysbak,const char *source)
+{
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+	
+	priv->source = g_strdup (source);
+}
+
+void sysbak_admin_set_target (SysbakAdmin *sysbak,const char *target)
+{
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+	
+	priv->source = g_strdup (target);
+}
+
+void sysbak_admin_set_option (SysbakAdmin *sysbak,gboolean overwrite)
+{
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+	
+	priv->overwrite = overwrite;
+}
+
+void sysbak_admin_finished_signal  (SysbakAdmin   *sysbak,
+		                            finished_func  function,
+									gpointer       user_data)
+{
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+	IoGdbus *proxy;
+	proxy = priv->proxy;
+	g_signal_connect_object (proxy, 
+			                "sysbak-finished", 
+							 G_CALLBACK(function), 
+							 user_data, 
+							 G_CONNECT_SWAPPED);
+}
+void sysbak_admin_progress_signal  (SysbakAdmin   *sysbak,
+		                            progress_func  function,
+									gpointer       user_data)
+{
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+	IoGdbus *proxy;
+	proxy = priv->proxy;
+	g_signal_connect_object (proxy, 
+			                "sysbak-progress", 
+							 G_CALLBACK(function), 
+							 user_data, 
+							 G_CONNECT_SWAPPED);
+}	
+void sysbak_admin_error_signal  (SysbakAdmin   *sysbak,
+		                         error_func     function,
+								 gpointer       user_data)
+{
+	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
+	IoGdbus *proxy;
+	proxy = priv->proxy;
+	g_signal_connect_object (proxy, 
+			                "sysbak-error", 
+							 G_CALLBACK(function), 
+							 user_data, 
+							 G_CONNECT_SWAPPED);
+}	
+SysbakAdmin *sysbak_admin_new (void)
+{
+	return g_object_new (SYSBAK_TYPE_ADMIN,NULL);
 }

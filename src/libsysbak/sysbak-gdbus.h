@@ -20,31 +20,61 @@
 
 #include <glib.h>
 #include <gio/gio.h>
-#include "io-generated.h"
-#include "sysbak-share.h"
+
+G_BEGIN_DECLS
+
+#define SYSBAK_TYPE_ADMIN         (sysbak_admin_get_type ())
+#define SYSBAK_ADMIN(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), SYSBAK_TYPE_ADMIN, SysbakAdmin))
+#define SYSBAK_ADMIN_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), SYSBAK_TYPE_ADMIN, SysbakAdminClass))
+#define IS_SYSBAK_ADMIN(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), SYSBAK_TYPE_ADMIN))
+#define IS_SYSBAK_ADMIN_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), SYSBAK_TYPE_ADMIN))
+#define SYSBAK_ADMIN_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), SYSBAK_TYPE_ADMIN, SysbakAdminClass))
 
 
-device_info     *get_extfs_device_info        (const char   *dev_name);
+typedef struct  
+{
+    GObject   parent;
+}SysbakAdmin;
+typedef struct  
+{
+    GObjectClass   parent_class;
+}SysbakAdminClass;
 
-device_info     *get_extfs_image_info         (const char   *image_name);
+typedef void (*finished_func) (guint64,guint64,uint,gpointer);
+typedef void (*progress_func) (double,double,guint64, guint64,gpointer);
+typedef void (*error_func)    (int, const char*,gpointer);
 
-gboolean         init_sysbak_gdbus            (GError      **error);
+GType            sysbak_admin_get_type         (void) G_GNUC_CONST;
 
-ull              libgdbus_get_extfs_read_size (void);
+SysbakAdmin     *sysbak_admin_new              (void);
 
-gboolean         libgdbus_sysbak_extfs_ptf    (const char   *source,
-		                                       const char   *target,
-								               gboolean      overwrite,
-								               GError      **error);
+const char      *sysbak_admin_get_source       (SysbakAdmin    *sysbak);
 
-gboolean         gdbus_sysbak_extfs_ptp       (const char   *source,
-		                                       const char   *target,
-                                               gboolean      overwrite,
-								               GError      **error);
+const char      *sysbak_admin_get_target       (SysbakAdmin    *sysbak);
 
-gboolean         libgdbus_sysbak_extfs_restore (const char   *source,
-                                                const char   *target,
-                                                gboolean      overwrite,
-                                                GError      **error);
+gboolean         sysbak_admin_get_option       (SysbakAdmin    *sysbak);
+
+gpointer         sysbak_admin_get_proxy        (SysbakAdmin    *sysbak);
+
+void             sysbak_admin_set_source       (SysbakAdmin    *sysbak,
+		                                        const char     *source);
+
+void             sysbak_admin_set_target       (SysbakAdmin    *sysbak,
+		                                        const char     *target);
+
+void             sysbak_admin_set_option       (SysbakAdmin    *sysbak,
+		                                        gboolean       overwrite);
+
+void             sysbak_admin_finished_signal  (SysbakAdmin   *sysbak,
+		                                        finished_func  function,
+												gpointer       user_data);
+
+void             sysbak_admin_progress_signal  (SysbakAdmin   *sysbak,
+		                                        progress_func  function,
+												gpointer       user_data);
+
+void             sysbak_admin_error_signal     (SysbakAdmin   *sysbak,
+		                                        error_func     function,
+												gpointer       user_data);
 G_END_DECLS
 #endif

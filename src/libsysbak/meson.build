@@ -4,8 +4,6 @@ libsysbak_dir = meson.current_source_dir()
 subdir = 'libsysbak'
 
 headers = files(
-  'progress.h',  
-  'sysbak-share.h',
   'sysbak-gdbus.h',
 )
 
@@ -15,9 +13,8 @@ install_headers(
 )
 
 sources = files(
-  'sysbak-extfs.c',  
   'sysbak-gdbus.c',
-  'progress.c',
+  'sysbak-extfs.c',
 )
 
 dbus_sources = []

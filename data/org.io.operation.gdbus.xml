@@ -2,16 +2,6 @@
 <node>
     <interface name="org.io.operation.gdbus">
 
-    <method name="OpenFile">
-        <arg name="filename" direction="in" type="s">
-        </arg>
-        <arg name="flag" direction="in" type="u">
-        </arg>
-        <arg name="mode" direction="in" type="u">
-        </arg>
-        <arg name="fd" direction="out" type="i">
-        </arg>
-    </method>
     <method name="GetExtfsDeviceInfo">
         <arg name="filename" direction="in" type="s">
         </arg>
@@ -22,38 +12,46 @@
         <arg name="block_size" direction="out" type="u">
         </arg>
     </method>
+    <method name="GetExtfsImageInfo">
+        <arg name="filename" direction="in" type="s">
+        </arg>
+        <arg name="totalblock" direction="out" type="t">
+        </arg>
+        <arg name="usedblocks" direction="out" type="t">
+        </arg>
+        <arg name="block_size" direction="out" type="u">
+        </arg>
+    </method>
+    <method name="GetExtfsReadSzie">
+        <arg name="read_size" direction="out" type="t">
+        </arg>
+    </method>
     <method name="SysbakExtfsPtf">
-        <arg name="dfr" direction="in" type="i">
-        </arg>
-        <arg name="dfw" direction="in" type="i">
-        </arg>
         <arg name="source" direction="in" type="s">
         </arg>
         <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="overwrite" direction="in" type="b">
         </arg>
         <arg name="state" direction="out" type="i">
         </arg>
     </method>
     <method name="SysbakExtfsPtp">
-        <arg name="dfr" direction="in" type="i">
-        </arg>
-        <arg name="dfw" direction="in" type="i">
-        </arg>
         <arg name="source" direction="in" type="s">
         </arg>
         <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="overwrite" direction="in" type="b">
         </arg>
         <arg name="state" direction="out" type="i">
         </arg>
     </method>
     <method name="SysbakRestore">
-        <arg name="dfr" direction="in" type="i">
-        </arg>
-        <arg name="dfw" direction="in" type="i">
-        </arg>
         <arg name="source" direction="in" type="s">
         </arg>
         <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="overwrite" direction="in" type="b">
         </arg>
         <arg name="state" direction="out" type="i">
         </arg>

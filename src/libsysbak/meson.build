@@ -6,6 +6,7 @@ subdir = 'libsysbak'
 headers = files(
   'progress.h',  
   'sysbak-share.h',
+  'sysbak-gdbus.h',
 )
 
 install_headers(
@@ -15,7 +16,8 @@ install_headers(
 
 sources = files(
   'sysbak-extfs.c',  
-  'sysbak-share.c',
+  'sysbak-gdbus.c',
+  'progress.c',
 )
 
 dbus_sources = []
@@ -24,6 +26,7 @@ deps = [
   crypt_dep,
   gio_unix_dep,
   glib_dep,
+  libaccounts_generated_dep,
   ext2fs_dep,
 ]
 

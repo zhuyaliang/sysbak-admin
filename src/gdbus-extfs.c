@@ -30,12 +30,13 @@
 #define in_use(m, x)    (ext2fs_test_bit ((x), (m)))
 #include "gdbus-extfs.h"
 #include "gdbus-share.h"
-#include "gdbus-checksum.h"
+#include "checksum.h"
 #include "gdbus-bitmap.h"
 
 #ifndef EXT2_FLAG_64BITS
 #	define EXTFS_1_41 1.41
 #endif
+static ull copied_count;
 // open device
 static ext2_filsys open_file_system (const char* device)
 {
@@ -319,7 +320,7 @@ static gboolean read_write_data_ptf (IoGdbus          *object,
     {  
         goto ERROR;
     }
-	init_crc32((uint32_t*)checksum);
+    init_checksum(img_opt->checksum_mode, checksum);
     do 
     {
         ull i,blocks_read;
@@ -353,7 +354,7 @@ static gboolean read_write_data_ptf (IoGdbus          *object,
                 ++cs_added;
                 write_offset += img_opt->checksum_size;
                 blocks_in_cs = 0;
-				init_crc32((uint32_t*)checksum);
+                init_checksum(img_opt->checksum_mode, checksum);
             }
         }
         w_size = write_read_io_all(dfw, write_buffer, write_offset,WRITE);
@@ -362,11 +363,12 @@ static gboolean read_write_data_ptf (IoGdbus          *object,
             goto ERROR;
         }
         block_id += blocks_read;
+        copied_count += blocks_read;
         if (r_size + cs_added * img_opt->checksum_size != w_size)
         {
             goto ERROR;
         }
-		io_gdbus_set_read_size (object,block_id);
+		//io_gdbus_set_read_size (object,block_id);
     } while (1);
     if (blocks_in_cs > 0) 
     {
@@ -392,22 +394,36 @@ ERROR:
 }
 gboolean gdbus_sysbak_extfs_ptf (IoGdbus               *object,
                                  GDBusMethodInvocation *invocation,
-							     gint                   dfr,
-								 gint                   dfw,
 								 const gchar           *source,
-								 const gchar           *target)
+								 const gchar           *target,
+                                 gboolean               overwrite)
 {
     file_system_info fs_info;   /// description of the file system
     image_options    img_opt;
     unsigned long   *bitmap = NULL;
     uint             buffer_capacity;
+    int              e_code = 0;
+	gint             dfr,dfw;
 
+    dfr = open_source_device(source,BACK_PTF);
+    if (dfr <= 0 ) 
+    {
+        e_code = -1;
+        goto ERROR;;
+    }
+    dfw = open_target_device(target,BACK_PTF,overwrite);
+    if (dfw <= 0 ) 
+    {
+        e_code = -2;
+        goto ERROR;;
+    }
     init_file_system_info(&fs_info);
     init_image_options(&img_opt);
 
     // get Super Block information from partition
     if (!read_super_blocks(source, &fs_info))
     {
+        e_code = -3;
         goto ERROR;
     }
 
@@ -416,36 +432,53 @@ gboolean gdbus_sysbak_extfs_ptf (IoGdbus               *object,
     img_opt.blocks_per_checksum = buffer_capacity; 
     if (!check_memory_size(fs_info,img_opt))
     {
+        e_code = -4;
         goto ERROR;
     }
     // alloc a memory to store bitmap
     bitmap = pc_alloc_bitmap(fs_info.totalblock);
     if (bitmap == NULL) 
     {
+        e_code = -5;
         goto ERROR;
     }
     read_bitmap_info(source, fs_info, bitmap);
     update_used_blocks_count(&fs_info, bitmap);
     if (!check_system_space (&fs_info,target,&img_opt))
     {
+        e_code = -6;
         goto ERROR;
     }    
-    write_image_desc(&dfw, fs_info,img_opt);
+    if (!write_image_desc(&dfw, fs_info,img_opt))
+    {
+        e_code = -7;
+        goto ERROR;
+    }    
     write_image_bitmap(&dfw, fs_info, bitmap);
-
+    copied_count = 0;
     if (!read_write_data_ptf (object,&fs_info,&img_opt,bitmap,&dfr,&dfw))
 	{
-
+        e_code = -8;
         goto ERROR;
     } 
 
     fsync(dfw);
 	io_gdbus_complete_sysbak_extfs_ptf (object,invocation,1); 
 	free(bitmap);
+    close (dfw);
+    close (dfr);
     return TRUE;
 ERROR:
-	io_gdbus_complete_sysbak_extfs_ptf (object,invocation,-1); 
+	io_gdbus_complete_sysbak_extfs_ptf (object,invocation,e_code); 
     free(bitmap);
+    if (dfr > 0)
+    {    
+        close (dfr);
+    }    
+    if (dfw > 0) 
+    {    
+        close (dfw);
+    }    
 	return FALSE;
 }   
 
@@ -501,7 +534,8 @@ static gboolean read_write_data_ptp (IoGdbus          *object,
             goto ERROR;
         }
         block_id += blocks_read;
-		io_gdbus_set_read_size (object,block_id);
+        //copied_count += blocks_read;
+	//	io_gdbus_set_read_size (object,block_id);
     } while (1);
 
     free(buffer);
@@ -516,22 +550,37 @@ ERROR:
 
 gboolean gdbus_sysbak_extfs_ptp (IoGdbus               *object,
                                  GDBusMethodInvocation *invocation,
-							     gint                   dfr,
-								 gint                   dfw,
 								 const gchar           *source,
-								 const gchar           *target)
+								 const gchar           *target,
+                                 gboolean               overwrite)
 {
     file_system_info fs_info;   /// description of the file system
     image_options    img_opt;
     ul              *bitmap = NULL;
     uint             buffer_capacity;
     ull free_space = 0;
+    gint             e_code;
+	gint             dfr,dfw;
+
+    dfr = open_source_device(source,BACK_PTP);
+    if (dfr <= 0 ) 
+    {
+        e_code = -1;
+        goto ERROR;;
+    }
+    dfw = open_target_device(target,BACK_PTP,overwrite);
+    if (dfw <= 0 ) 
+    {
+        e_code = -2;
+        goto ERROR;;
+    }
 
     init_file_system_info(&fs_info);
     init_image_options(&img_opt);
     // get Super Block information from partition
     if (!read_super_blocks(source, &fs_info))
     {
+        e_code = -3;
         goto ERROR;
     }
 
@@ -541,37 +590,56 @@ gboolean gdbus_sysbak_extfs_ptp (IoGdbus               *object,
 
     if (!check_memory_size(fs_info,img_opt))
     {
+        e_code = -4;
         goto ERROR;
     }
     // alloc a memory to store bitmap
     bitmap = pc_alloc_bitmap(fs_info.totalblock);
     if (bitmap == NULL) 
     {
+        e_code = -5;
         goto ERROR;
     }
 
-    read_bitmap_info(source, fs_info, bitmap);
+    if (!read_bitmap_info(source, fs_info, bitmap))
+    {
+        e_code = -6;
+        goto ERROR;
+    }    
     free_space = get_partition_free_space(&dfw);
     if (free_space < fs_info.device_size)
     {
+        e_code = -7;
         goto ERROR;
     }   
+    //copied_count = 0;
     if (!read_write_data_ptp (object,
 				              &fs_info,
                               bitmap,
                               &dfr,
                               &dfw))
     {
+        e_code = -8;
         goto ERROR;
     }
 
     fsync(dfw);
 	io_gdbus_complete_sysbak_extfs_ptp (object,invocation,1); 
     free(bitmap);
+    close (dfr);
+    close (dfw);
     return TRUE;
 ERROR:
-	io_gdbus_complete_sysbak_extfs_ptp (object,invocation,-1); 
+	io_gdbus_complete_sysbak_extfs_ptp (object,invocation,e_code); 
     free(bitmap);
+    if (dfr > 0)
+    {    
+        close (dfr);
+    }    
+    if (dfw > 0)   
+    {    
+        close (dfw);
+    }    
 	return FALSE;
 }   
 static gboolean read_write_data_restore (IoGdbus          *object,
@@ -589,30 +657,28 @@ static gboolean read_write_data_restore (IoGdbus          *object,
     uint   blocks_in_cs = 0, buffer_size, read_offset;
     guchar checksum[img_opt->checksum_size];
     char  *read_buffer = NULL, *write_buffer = NULL;
-    ull    block_id = 0;	
+    ull    block_id;    
     ull    blocks_used_fix = 0, test_block = 0;
-    int    r_size, w_size;	
+    int    r_size, w_size;  
 
     // fix some super block record incorrect
     for (test_block = 0; test_block < blocks_total; ++test_block)
         if (pc_test_bit(test_block, bitmap, fs_info->totalblock))
             blocks_used_fix++;
 
-    if (blocks_used_fix != blocks_used) 
-    {
+    if (blocks_used_fix != blocks_used)
+    {    
         blocks_used = blocks_used_fix;
     }
 
-    buffer_size = convert_blocks_to_bytes(0, buffer_capacity, 
+    buffer_size = convert_blocks_to_bytes(0, buffer_capacity,
             block_size,
             img_opt->blocks_per_checksum,
             img_opt->checksum_size);
-
-
     read_buffer = (char*)malloc(buffer_size);
 #define BSIZE 512
     posix_memalign((void**)&write_buffer, BSIZE, buffer_capacity * block_size);
-    if (read_buffer == NULL || write_buffer == NULL) 
+    if (read_buffer == NULL || write_buffer == NULL)
     {
         goto ERROR;
     }
@@ -622,19 +688,20 @@ static gboolean read_write_data_restore (IoGdbus          *object,
     {
         goto ERROR;
     }
-	init_crc32((uint32_t*)checksum);
-    do 
+    init_checksum(img_opt->checksum_mode, checksum);
+    block_id = 0;
+    do
     {
-        uint i;
-        ull  blocks_written, bytes_skip;
-        int  read_size;
+        unsigned int i;
+        ull blocks_written, bytes_skip;
+        int read_size;
         // max chunk to read using one read(2) syscall
-        uint blocks_read = block_id + buffer_capacity < blocks_used ?
-                           buffer_capacity : blocks_used - block_id;
+        uint blocks_read = copied_count + buffer_capacity < blocks_used ?
+            buffer_capacity : blocks_used - copied_count;
         if (!blocks_read)
             break;
-        read_size = convert_blocks_to_bytes(block_id, 
-                blocks_read, 
+        read_size = convert_blocks_to_bytes(copied_count,
+                blocks_read,
                 block_size,
                 img_opt->blocks_per_checksum,
                 img_opt->checksum_size);
@@ -650,31 +717,31 @@ static gboolean read_write_data_restore (IoGdbus          *object,
         {
             goto ERROR;
         }
-        read_offset = 0;	
-        for (i = 0; i < blocks_read; ++i) 
+        read_offset = 0;
+        for (i = 0; i < blocks_read; ++i)
         {
+
             memcpy(write_buffer + i * block_size,
-                    read_buffer + read_offset, 
+                    read_buffer + read_offset,
                     block_size);
             update_checksum(checksum, read_buffer + read_offset, block_size);
             if (++blocks_in_cs == blocks_per_cs)
             {
                 guchar checksum_orig[img_opt->checksum_size];
                 memcpy(checksum_orig, read_buffer + read_offset + block_size, img_opt->checksum_size);
-                if (memcmp(read_buffer + read_offset + block_size, checksum, img_opt->checksum_size)) 
+                if (memcmp(read_buffer + read_offset + block_size, checksum, img_opt->checksum_size))
                 {
                     goto ERROR;
                 }
-
-                read_offset += img_opt->checksum_size;
+             read_offset += img_opt->checksum_size;
                 blocks_in_cs = 0;
-				init_crc32((uint32_t*)checksum);
+                init_checksum(img_opt->checksum_mode, checksum);
             }
 
             read_offset += block_size;
         }
         if (blocks_in_cs && blocks_per_cs && blocks_read < buffer_capacity &&
-                (blocks_read % blocks_per_cs)) 
+                (blocks_read % blocks_per_cs))
         {
             if (memcmp(read_buffer + read_offset, checksum, img_opt->checksum_size))
             {
@@ -682,7 +749,7 @@ static gboolean read_write_data_restore (IoGdbus          *object,
             }
         }
         blocks_written = 0;
-        do 
+        do
         {
             uint blocks_write = 0;
 
@@ -693,9 +760,9 @@ static gboolean read_write_data_restore (IoGdbus          *object,
                     block_id++, bytes_skip += block_size);
 
             // skip empty blocks
-            if (blocks_write == 0) 
+           if (blocks_write == 0)
             {
-                if (bytes_skip > 0 && lseek(*dfw, (off_t)bytes_skip, SEEK_CUR) == (off_t)-1) 
+                if (bytes_skip > 0 && lseek(*dfw, (off_t)bytes_skip, SEEK_CUR) == (off_t)-1)
                 {
                     goto ERROR;
                 }
@@ -708,22 +775,21 @@ static gboolean read_write_data_restore (IoGdbus          *object,
                     blocks_write++);
 
             // write blocks
-            if (blocks_write > 0) 
+            if (blocks_write > 0)
             {
-                w_size = write_read_io_all (dfw, 
+                w_size = write_read_io_all (dfw,
                         write_buffer + blocks_written * block_size,
-                        blocks_write * block_size, 
+                        blocks_write * block_size,
                         WRITE);
-                if (w_size != (int)blocks_write * (int)block_size) 
+                if (w_size != (int)blocks_write * (int)block_size)
                 {
                     goto ERROR;
                 }
             }
             blocks_written += blocks_write;
             block_id += blocks_write;
-			io_gdbus_set_read_size (object,block_id);
-		} while (blocks_written < blocks_read);
-
+            copied_count += blocks_write;
+        } while (blocks_written < blocks_read);
     } while(1);
 
     free(write_buffer);
@@ -738,42 +804,70 @@ ERROR:
     {
         free (write_buffer);
     }
-    return FALSE;	
+    return FALSE;
 }
 
 gboolean gdbus_sysbak_restore (IoGdbus               *object,
                                GDBusMethodInvocation *invocation,
-							   gint                   dfr,
-							   gint                   dfw,
-							   const gchar           *source,
-							   const gchar           *target)
+							   const char            *source,
+							   const char            *target,
+                               gboolean               overwrite)
 {
     file_system_info fs_info;   /// description of the file system
     image_options    img_opt;
     image_head       img_head;
     ul              *bitmap = NULL;
     ull              free_space;
+    int              e_code;
+    gint             dfr,dfw;
 
+    dfr = open_source_device(source,RESTORE);
+    if (dfr <= 0 ) 
+    {
+        e_code = -1;
+        goto ERROR;;
+    }
+    dfw = open_target_device(target,RESTORE,overwrite);
+    if (dfw <= 0 ) 
+    {
+        e_code = -2;
+        goto ERROR;;
+    }
+    
     init_file_system_info(&fs_info);
     init_image_options(&img_opt);
-    read_image_desc(&dfr, &img_head, &fs_info, &img_opt);
+    if (!read_image_desc(&dfr, &img_head, &fs_info, &img_opt))
+    {
+        e_code = -3;
+        goto ERROR;
+    }
 
     if (!check_memory_size(fs_info,img_opt))
     {
+        e_code = -4;
         goto ERROR;
     }
     // alloc a memory to store bitmap
     bitmap = pc_alloc_bitmap(fs_info.totalblock);
     if (bitmap == NULL) 
     {
+        e_code = -5;
         goto ERROR;;
     }
-    load_image_bitmap_bits(&dfr, fs_info, bitmap);
+    if (!load_image_bitmap_bits(&dfr, fs_info, bitmap))
+    {
+        e_code = -6;
+        goto ERROR;
+    }    
     free_space = get_partition_free_space(&dfw);
     if (free_space < fs_info.device_size)
     {
+        e_code = -7;
         goto ERROR;
-    }   
+    }  
+    g_print ("free_space      = %llu !!!!\r\n",free_space);
+    //copied_count = 0;
+    
     if (!read_write_data_restore (object,
 				                  &fs_info,
 								  &img_opt,
@@ -781,36 +875,31 @@ gboolean gdbus_sysbak_restore (IoGdbus               *object,
 								  &dfr,
 								  &dfw))
     {
+        e_code = -8;
         goto ERROR;
     } 
-
+  
+    g_print ("wait fsync !!!!\r\n");
     fsync(dfw);
 	io_gdbus_complete_sysbak_restore (object,invocation,1);
     free(bitmap);
+    close (dfw);
+    close (dfr);
     return TRUE;
 ERROR:
-	io_gdbus_complete_sysbak_restore (object,invocation,-1);
+    g_print ("wait eRRor  fsync !!!!\r\n");
+	io_gdbus_complete_sysbak_restore (object,invocation,e_code);
     free(bitmap);
+    if (dfr > 0)
+    {    
+        close (dfr);
+    }    
+    if (dfw > 0)    
+    {    
+        close (dfw);
+    }    
 	return FALSE;
 }   
-gboolean gdbus_open_file (IoGdbus               *object,
-                          GDBusMethodInvocation *invocation,
-                          const gchar           *filename,
-                          guint                  flag,
-						  guint                  mode)
-{   
-    int fd;
-
-    g_return_val_if_fail (filename != NULL,FALSE);
-    fd = open (filename,flag,mode);
-    if(fd <= 0 )
-    {
-        return FALSE;
-    }    
-    io_gdbus_complete_open_file (object,invocation,fd);
-
-    return TRUE;
-}    
 gboolean gdbus_get_extfs_device_info (IoGdbus               *object,
 		                              GDBusMethodInvocation *invocation,
 									  const char            *device)
@@ -837,3 +926,42 @@ gboolean gdbus_get_extfs_device_info (IoGdbus               *object,
 											 block_size);	
     return TRUE;
 }	
+gboolean gdbus_get_extfs_image_info (IoGdbus               *object,
+		                             GDBusMethodInvocation *invocation,
+									 const char            *image_name)
+{
+    file_system_info fs_info;   /// description of the file system
+    image_options    img_opt;
+    image_head       img_head;
+    int fd;
+
+    fd  = open_source_device(image_name,RESTORE);
+    if (fd <= 0 ) 
+    {
+        return FALSE;
+    }
+    init_file_system_info(&fs_info);
+    init_image_options(&img_opt);
+    if (!read_image_desc(&fd, 
+                         &img_head, 
+                         &fs_info, 
+                         &img_opt))
+    {
+        close (fd);
+        return FALSE;
+    }    
+ 
+	io_gdbus_complete_get_extfs_image_info (object,
+			                                invocation,
+										    fs_info.totalblock,
+										    fs_info.usedblocks,
+										    fs_info.block_size);	
+    close (fd);
+    return TRUE;
+}	
+gboolean gdbus_get_extfs_read_szie (IoGdbus               *object,
+		                            GDBusMethodInvocation *invocation)
+{
+    io_gdbus_complete_get_extfs_read_szie (object,invocation,copied_count);
+    return TRUE;
+}    

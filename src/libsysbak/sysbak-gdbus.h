@@ -22,15 +22,26 @@
 #include <gio/gio.h>
 #include "sysbak-share.h"
 
-device_info *get_extfs_device_info (const char *dev_name);
-gboolean gdbus_sysbak_extfs_ptf (const char *source,
-		                         const char *target,
-								 int         dfr,
-								 int         dfw,
-								 GError    **error);
-gboolean gdbus_sysbak_extfs_ptp (const char *source,
-		                         const char *target,
-								 int         dfr,
-								 int         dfw,
-								 GError    **error);
+device_info     *get_extfs_device_info        (const char   *dev_name);
+
+device_info     *get_extfs_image_info         (const char   *image_name);
+
+gboolean         init_sysbak_gdbus            (GError      **error);
+
+ull              libgdbus_get_extfs_read_size (void);
+
+gboolean         libgdbus_sysbak_extfs_ptf    (const char   *source,
+		                                       const char   *target,
+								               gboolean      overwrite,
+								               GError      **error);
+
+gboolean         gdbus_sysbak_extfs_ptp       (const char   *source,
+		                                       const char   *target,
+                                               gboolean      overwrite,
+								               GError      **error);
+
+gboolean         libgdbus_sysbak_extfs_restore (const char   *source,
+                                                const char   *target,
+                                                gboolean      overwrite,
+                                                GError      **error);
 #endif

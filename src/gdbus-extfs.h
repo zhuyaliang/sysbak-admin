@@ -20,37 +20,35 @@
 
 #include <glib.h>
 #include <gio/gio.h>
-#include <io-generated.h>
+#include "io-generated.h"
 
-
-gboolean      gdbus_open_file             (IoGdbus               *object,
-                                           GDBusMethodInvocation *invocation,
-                                           const gchar           *filename,
-                                           guint                  flag,
-					                       guint                  mode);
 
 gboolean      gdbus_sysbak_extfs_ptf      (IoGdbus               *object,
                                            GDBusMethodInvocation *invocation,
-										   gint                   dfr,
-										   gint                   dfw,
 										   const gchar           *source,
-										   const gchar           *target);
+										   const gchar           *target,
+                                           gboolean               overwrite);
 
 gboolean      gdbus_sysbak_extfs_ptp      (IoGdbus               *object,
                                            GDBusMethodInvocation *invocation,
-										   gint                   dfr,
-										   gint                   dfw,
 										   const gchar           *source,
-										   const gchar           *target);
+										   const gchar           *target,
+                                           gboolean               overwrite);
 
 gboolean      gdbus_sysbak_restore        (IoGdbus               *object,
                                            GDBusMethodInvocation *invocation,
-										   gint                   dfr,
-										   gint                   dfw,
-										   const gchar           *source,
-										   const gchar           *target);
+                                           const gchar           *source,
+                                           const gchar           *target,
+                                           gboolean               overwrite);
 
 gboolean      gdbus_get_extfs_device_info (IoGdbus               *object,
 		                                   GDBusMethodInvocation *invocation,
 									       const char            *device);
+
+gboolean      gdbus_get_extfs_image_info  (IoGdbus               *object,
+		                                   GDBusMethodInvocation *invocation,
+									       const char            *image_name);
+
+gboolean      gdbus_get_extfs_read_szie   (IoGdbus               *object,
+		                                   GDBusMethodInvocation *invocation);
 #endif

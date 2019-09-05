@@ -36,12 +36,13 @@ static void AcquiredCallback (GDBusConnection *Connection,
 
     io_gdbus = io_gdbus_skeleton_new ();
     iface = IO_GDBUS_GET_IFACE (io_gdbus);
-    iface->handle_open_file         = gdbus_open_file;
     iface->handle_sysbak_extfs_ptf  = gdbus_sysbak_extfs_ptf;
 	iface->handle_sysbak_extfs_ptp  = gdbus_sysbak_extfs_ptp;
 	iface->handle_sysbak_restore    = gdbus_sysbak_restore;
+	iface->handle_get_extfs_read_szie     = gdbus_get_extfs_read_szie;
 	iface->handle_get_extfs_device_info   = gdbus_get_extfs_device_info;
-	if(!g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(io_gdbus), 
+    iface->handle_get_extfs_image_info = gdbus_get_extfs_image_info; 
+    if(!g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(io_gdbus), 
                                          Connection, 
                                          DBS_NAME, 
                                          &error))

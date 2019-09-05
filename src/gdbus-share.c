@@ -28,7 +28,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include "gdbus-share.h"
-#include "gdbus-checksum.h"
+#include "checksum.h"
 #include "gdbus-bitmap.h"
 
 #if defined(linux) && defined(_IO) && !defined(BLKGETSIZE)
@@ -242,9 +242,9 @@ gboolean write_image_desc(int* fd, file_system_info fs_info,image_options img_op
 
     memcpy(&image.fs_info, &fs_info, sizeof(file_system_info));
     memcpy(&image.options, &img_opt, sizeof(image_options));
-
     init_crc32(&image.crc);
     image.crc = crc32(image.crc, &image, sizeof(image_desc) - CRC32_SIZE);
+    g_print ("image = %s\r\n",(char*)&image);
     if (write_read_io_all (fd, (char*)&image, sizeof(image_desc),WRITE) != sizeof(image_desc))
     {
         return FALSE;
@@ -295,6 +295,7 @@ gboolean read_image_desc(int              *fd,
     crc = crc32(crc, &image, sizeof(image) - CRC32_SIZE);
     if (crc != image.crc)
     {
+        g_print ("crc = %08x \r\n",crc);
         return FALSE;
     }
     if (image.head.endianess != ENDIAN_MAGIC)
@@ -331,4 +332,180 @@ gboolean load_image_bitmap_bits(int *fd,file_system_info fs_info, unsigned long 
     }
 
     return TRUE;
+}
+static int is_block_type (const char *device)
+{
+    struct stat st_dev;
+    int ddd_block_device;
+
+    if (stat(device, &st_dev) != -1) 
+    {
+        if (S_ISBLK(st_dev.st_mode)) 
+            ddd_block_device = 1;
+        else
+            ddd_block_device = 0;
+    }
+    else
+    {
+        ddd_block_device = 0;   
+    }
+
+    return ddd_block_device;
+}    
+
+static gboolean check_file_type (const char *filename)
+{
+    struct stat s_stat;
+    int fd;
+    image_desc image;
+    int r_size;
+    uint32_t crc;
+
+    if (stat(filename,&s_stat) != 0)
+    {
+        return TRUE;
+    }    
+    if (s_stat.st_size <= 0)
+    {
+        return TRUE;
+    }    
+
+    fd = open(filename,O_RDONLY |O_LARGEFILE,S_IRWXU);
+    if (fd <= 0)
+    {
+        return FALSE;
+    }    
+    r_size = read(fd, (char*)&image, sizeof(image));
+    if (r_size != sizeof(image))
+    {
+        return FALSE;
+    }
+    // check the image magic
+    if (memcmp(image.head.magic, IMAGE_MAGIC, IMAGE_MAGIC_SIZE))
+    {
+        return FALSE;
+    }
+    init_crc32(&crc);
+    crc = crc32(crc, &image, sizeof(image) - CRC32_SIZE);
+    if (crc != image.crc)
+    {
+        return FALSE;
+    }
+    close (fd);
+    return TRUE;
+}    
+static gboolean check_mount(const char* device)
+{
+    char *real_file = NULL, *real_fsname = NULL;
+    FILE * f;
+    struct mntent * mnt;
+    gboolean isMounted = FALSE;
+
+    real_file = malloc(PATH_MAX + 1);
+    if (!real_file) 
+    {
+        goto EXIT;
+    }
+    real_fsname = malloc(PATH_MAX + 1);
+    if (!real_fsname) 
+    {
+        goto EXIT;
+    }
+
+    if (!realpath(device, real_file)) 
+    {
+        goto EXIT;
+    }
+    if ((f = setmntent(MOUNTED, "r")) == 0) 
+    {
+        goto EXIT;
+    }
+    while ((mnt = getmntent (f)) != 0) 
+    {
+        if (!realpath(mnt->mnt_fsname, real_fsname))
+            continue;
+        if (strcmp(real_file, real_fsname) == 0) 
+        {
+            isMounted = 1;
+        }
+    }
+    endmntent(f);
+EXIT:
+    if (real_file)
+    { 
+        free(real_file); 
+        real_file = NULL;
+    }
+    if (real_fsname)
+    { 
+        free(real_fsname); 
+        real_fsname = NULL;
+    }
+    return isMounted;
+}
+int open_source_device(const char *device,int mode) 
+{
+    int fd = 0;
+    int flags = O_RDONLY | O_LARGEFILE;
+    int ddd_block_device = -1;
+
+    if (mode == BACK_DD) 
+    {
+        ddd_block_device = is_block_type (device);
+    }
+    if (mode == BACK_PTF || mode == BACK_PTP || ddd_block_device == 1) 
+    { 
+        if (check_mount(device)) 
+        {
+            return 0;
+        }
+        fd = open(device, flags, S_IRUSR);
+    } 
+    else if (mode == RESTORE || ddd_block_device == 0) 
+    {
+        fd = open (device, flags, S_IRWXU);
+    }
+    return fd;
+}
+int open_target_device(const char* target, int mode,gboolean overwrite) 
+{
+    int ret = 0;
+    struct stat st_dev;
+    int flags = O_WRONLY | O_LARGEFILE;
+    int ddd_block_device = -1;
+
+    if(!check_file_type (target))
+    {   
+        return 0;
+    }
+    
+    if (mode == BACK_DD) 
+    {
+        ddd_block_device = is_block_type (target);
+    }
+
+    if (mode == BACK_PTF || ddd_block_device == 0)  //back-up parct to file
+    {
+        flags |= O_CREAT | O_TRUNC;
+        if (!overwrite)
+            flags |= O_EXCL;
+        ret = open(target, flags, S_IRUSR|S_IWUSR);
+    }
+    // back-up parct to parct or restore or dd to block
+    else if (mode == RESTORE || mode == BACK_PTP || (ddd_block_device == 1)) 
+    {    
+        if (check_mount(target)) 
+        {
+            return -1;
+        }
+        stat(target, &st_dev);
+        if (!S_ISBLK(st_dev.st_mode)) 
+        {
+            flags |= O_CREAT;
+            if (!overwrite)
+                flags |= O_EXCL;
+        }
+        ret = open (target, flags, S_IRUSR);
+    } 
+    return ret;
 }

@@ -142,6 +142,11 @@ int main(int argc, char **argv)
     };
 
     loop = g_main_loop_new (NULL, FALSE);
+    if (!init_sysbak_gdbus (&error))
+    {
+        g_warning ("init_sysbak_gdbus faild %s\r\n",error->message);
+        goto ERROR;
+    }    
     kconfig = g_key_file_new();
     if(kconfig == NULL)
     {

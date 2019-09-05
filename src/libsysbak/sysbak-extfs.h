@@ -21,6 +21,7 @@
 #include <glib.h>
 #include <gio/gio.h>
 #include "sysbak-share.h"
+#include "sysbak-gdbus.h"
 
 //Backup partition to image file 
     

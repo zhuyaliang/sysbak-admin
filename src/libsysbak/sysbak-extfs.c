@@ -41,8 +41,8 @@ typedef struct
     char   *target;
     sysbak_progress progress_callback;
     gpointer p_data;
+    gboolean overwrite;
     GCancellable *cancellable;
-    file_system_info *fs_info;
 }sysdata;
 
 static progress_bar prog;
@@ -50,7 +50,10 @@ static gboolean loop_check_progress (gpointer d)
 {
     sysdata *data = (sysdata *)d;
     progress_data progressdata;
+    ull copied_count;
 
+    //copied_count = libgdbus_get_extfs_read_size ();
+    g_print ("copied_count = %llu\r\n",copied_count);
     if (g_cancellable_is_cancelled (data->cancellable))
     {
         return FALSE;
@@ -76,51 +79,14 @@ static void load_progress_info (ull      usedblocks,
 }
 static void sys_data_free (sysdata *data)
 {
-    free(data->device);
-    free(data->targer);
-    close(data->dfr);
-    close(data->dfw);
+    free(data->source);
+    free(data->target);
     g_slice_free (sysdata,data);
 }
 static void destory_dev_info (device_info *dev_info)
 {
     g_slice_free(device_info,dev_info);
 }    
-
-static sysdata *open_operation_data (const char   *source,
-                                     const char   *target,
-                                     int           mode,
-                                     gboolean      overwrite,
-                                     GCancellable *cancellable)
-{
-
-    int dfr,dfw;
-    sysdata *data;
-    
-    dfr = open_source_device(source,mode);
-    if (dfr <= 0 ) 
-    {
-        return NULL;
-    }
-    dfw = open_target_device(source,mode,overwrite);
-    if (dfw <= 0 ) 
-    {
-        return NULL;
-    }
-
-    if (cancellable == NULL)
-    {
-        cancellable = g_cancellable_new (); 
-    }
-    data = g_slice_new (sysdata);
-    data->dfr = dfr;
-    data->dfw = dfw;
-    data->cancellable = cancellable;
-    data->source = g_strdup (source);
-    data->target = g_strdup (target);
-
-    return data;
-}
 
 static void start_sysbak_data_ptf (GTask         *task,
                                    gpointer       source_object,
@@ -132,11 +98,18 @@ static void start_sysbak_data_ptf (GTask         *task,
     GError          *error = NULL;
 
 	dev_info = get_extfs_device_info (data->source);
+    if (dev_info == NULL)
+    {
+        goto ERROR;
+    }    
     load_progress_info (dev_info->usedblocks,
 						dev_info->block_size,
                         data);
 
-    if (!gdbus_sysbak_extfs_ptf (data->source,data->target,data->dfr,data->dfw,&error))
+    if (!libgdbus_sysbak_extfs_ptf (data->source,
+                                    data->target,
+                                    data->overwrite,
+                                    &error))
     {
         goto ERROR;
     } 
@@ -159,10 +132,17 @@ static void start_sysbak_data_ptp (GTask         *task,
     GError          *error = NULL;
 
 	dev_info = get_extfs_device_info (data->source);
+    if (dev_info == NULL)
+    {
+        goto ERROR;
+    }    
     load_progress_info (dev_info->usedblocks,
 						dev_info->block_size,
                         data);
-    if (!gdbus_sysbak_extfs_ptp (data->source,data->target,data->dfr,data->dfw,&error))
+    if (!gdbus_sysbak_extfs_ptp (data->source,
+                                 data->target,
+                                 data->overwrite,
+                                 &error))
     {
         goto ERROR;
     }
@@ -185,15 +165,22 @@ static void start_sysbak_data_restore (GTask         *task,
     device_info     *dev_info;
     GError          *error = NULL;
 
-	dev_info = get_extfs_image_info (data->target);
+	dev_info = get_extfs_image_info (data->source);
+    if (dev_info == NULL)
+    {
+        goto ERROR;
+    }   
+    /*
     load_progress_info (dev_info->usedblocks,
 						dev_info->block_size,
                         data);
-
-    if (!read_write_data_restore (&fs_info,&img_opt,bitmap,&(data->dfr),&(data->dfw)))
+*/
+    g_print ("dev_info->usedblocks = %llu \r\n",dev_info->usedblocks);
+    if (!libgdbus_sysbak_extfs_restore (data->source,data->target,data->overwrite,&error))
     {
+        g_print ("error=>message = %s \r\n",error->message);
         goto ERROR;
-    } 
+    }
 
     g_task_return_pointer (task,dev_info,(GDestroyNotify)destory_dev_info);
     return;
@@ -233,15 +220,18 @@ gboolean sysbak_extfs_ptf_async (const char   *source,
     GTask *task;
     sysdata *data;
 
-    g_return_val_if_fail (device != NULL,FALSE);
-    g_return_val_if_fail (targer != NULL,FALSE);
+    g_return_val_if_fail (source != NULL,FALSE);
+    g_return_val_if_fail (target != NULL,FALSE);
     g_return_val_if_fail (finished_callback != NULL,FALSE);
 
-    data = open_operation_data (source,target,BACK_PTF,overwrite,cancellable);
-    if (data == NULL)
+    if (cancellable == NULL)
     {
-        return FALSE;
+        cancellable = g_cancellable_new (); 
     }
+    data = g_slice_new (sysdata);
+    data->cancellable = cancellable;
+    data->source = g_strdup (source);
+    data->target = g_strdup (target);
     data->progress_callback = progress_callback;
     data->p_data = p_data;
 
@@ -269,27 +259,30 @@ gboolean sysbak_extfs_ptf_async (const char   *source,
  *        
  * Author:  zhuyaliang  29/08/2019
  ******************************************************************************/
-gboolean sysbak_extfs_ptp_async (const char   *device,
-        const char   *targer,
-        gboolean      overwrite,
-        GCancellable *cancellable,
-        GAsyncReadyCallback finished_callback,
-        gpointer      f_data,
-        sysbak_progress progress_callback,
-        gpointer      p_data)
+gboolean sysbak_extfs_ptp_async (const char   *source,
+                                 const char   *target,
+                                 gboolean      overwrite,
+                                 GCancellable *cancellable,
+                                 GAsyncReadyCallback finished_callback,
+                                 gpointer      f_data,
+                                 sysbak_progress progress_callback,
+                                 gpointer      p_data)
 {
     GTask *task;
     sysdata *data;
 
-    g_return_val_if_fail (device != NULL,FALSE);
-    g_return_val_if_fail (targer != NULL,FALSE);
+    g_return_val_if_fail (source != NULL,FALSE);
+    g_return_val_if_fail (target != NULL,FALSE);
     g_return_val_if_fail (finished_callback != NULL,FALSE);
 
-    data = open_operation_data (device,targer,BACK_PTP,overwrite,cancellable);
-    if (data == NULL)
+    if (cancellable == NULL)
     {
-        return FALSE;
+        cancellable = g_cancellable_new (); 
     }
+    data = g_slice_new (sysdata);
+    data->cancellable = cancellable;
+    data->source = g_strdup (source);
+    data->target = g_strdup (target);
     data->progress_callback = progress_callback;
     data->p_data = p_data;
 
@@ -317,30 +310,33 @@ gboolean sysbak_extfs_ptp_async (const char   *device,
  *        
  * Author:  zhuyaliang  29/08/2019
  ******************************************************************************/
-gboolean sysbak_extfs_restore_async (const char   *device,
-        const char   *targer,
-        gboolean      overwrite,
-        GCancellable *cancellable,
-        GAsyncReadyCallback finished_callback,
-        gpointer      f_data,
-        sysbak_progress progress_callback,
-        gpointer      p_data)
+gboolean sysbak_extfs_restore_async (const char   *source,
+                                     const char   *target,
+                                     gboolean      overwrite,
+                                     GCancellable *cancellable,
+                                     GAsyncReadyCallback finished_callback,
+                                     gpointer      f_data,
+                                     sysbak_progress progress_callback,
+                                     gpointer      p_data)
 {
     GTask *task;
     sysdata *data;
 
-    g_return_val_if_fail (device != NULL,FALSE);
-    g_return_val_if_fail (targer != NULL,FALSE);
+    g_return_val_if_fail (source != NULL,FALSE);
+    g_return_val_if_fail (target != NULL,FALSE);
     g_return_val_if_fail (finished_callback != NULL,FALSE);
 
-    data = open_operation_data (device,targer,RESTORE,overwrite,cancellable);
-    if (data == NULL)
+    if (cancellable == NULL)
     {
-        return FALSE;
+        cancellable = g_cancellable_new (); 
     }
+    data = g_slice_new (sysdata);
     data->progress_callback = progress_callback;
     data->p_data = p_data;
-
+    data->cancellable = cancellable;
+    data->source = g_strdup (source);
+    data->target = g_strdup (target);
+    data->overwrite = overwrite;
     task = g_task_new (NULL,cancellable,finished_callback,f_data);
     g_task_set_task_data (task, data, (GDestroyNotify) sys_data_free);
     g_task_run_in_thread (task, start_sysbak_data_restore);
@@ -349,7 +345,7 @@ gboolean sysbak_extfs_restore_async (const char   *device,
     return TRUE;      /// finish
 }
 device_info *sysbak_extfs_finish (GAsyncResult  *result,
-        GError       **error) 
+                                  GError       **error) 
 {
     device_info *dev_info;
     g_return_val_if_fail (g_task_is_valid (result, NULL), NULL);

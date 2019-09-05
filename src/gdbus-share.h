@@ -101,6 +101,13 @@ typedef struct
 
 #pragma pack(pop)
 
+int         open_source_device             (const char       *device,
+                                            int               mode);
+
+int         open_target_device             (const char       *target, 
+                                            int               mode,
+                                            gboolean          overwrite);
+
 gboolean    check_memory_size              (file_system_info  fs_info,
 		                                    image_options     img_opt);
 

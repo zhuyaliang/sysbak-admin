@@ -301,7 +301,7 @@ static ull get_read_blocks_size (file_system_info *fs_info,ull *block_id,ul *bit
     return blocks_read;
 
 }    
-static gboolean read_write_data_ptf (IoGdbus          *object,
+static gboolean read_write_data_ptf (SysbakGdbus      *object,
 		                             file_system_info *fs_info,
                                      image_options    *img_opt,
                                      unsigned long    *bitmap,
@@ -384,7 +384,7 @@ static gboolean read_write_data_ptf (IoGdbus          *object,
 		{
 			pdata.percent=100.0;
 		}
-		io_gdbus_emit_sysbak_progress (object,
+		sysbak_gdbus_emit_sysbak_progress (object,
 				                       pdata.percent,
 									   pdata.speed,
 									   pdata.elapsed);
@@ -392,7 +392,7 @@ static gboolean read_write_data_ptf (IoGdbus          *object,
         {
             goto ERROR;
         }
-		//io_gdbus_set_read_size (object,block_id);
+		//sysbak_gdbus_set_read_size (object,block_id);
     } while (1);
     if (blocks_in_cs > 0) 
     {
@@ -416,7 +416,7 @@ ERROR:
     }
     return FALSE;	
 }
-gboolean gdbus_sysbak_extfs_ptf (IoGdbus               *object,
+gboolean gdbus_sysbak_extfs_ptf (SysbakGdbus           *object,
                                  GDBusMethodInvocation *invocation,
 								 const gchar           *source,
 								 const gchar           *target,
@@ -491,7 +491,7 @@ gboolean gdbus_sysbak_extfs_ptf (IoGdbus               *object,
     }    
     write_image_bitmap(&dfw, fs_info, bitmap);
     copied_count = 0;
-	io_gdbus_complete_sysbak_extfs_ptf (object,invocation); 
+	sysbak_gdbus_complete_sysbak_extfs_ptf (object,invocation); 
     if (!read_write_data_ptf (object,&fs_info,&img_opt,bitmap,&dfr,&dfw))
 	{
 		e_code = 8;
@@ -503,7 +503,7 @@ gboolean gdbus_sysbak_extfs_ptf (IoGdbus               *object,
               fs_info.totalblock,
               fs_info.usedblocks,
               fs_info.block_size);
-	io_gdbus_emit_sysbak_finished (object,
+	sysbak_gdbus_emit_sysbak_finished (object,
 								   fs_info.totalblock,
 								   fs_info.usedblocks,
 								   fs_info.block_size);
@@ -512,8 +512,8 @@ gboolean gdbus_sysbak_extfs_ptf (IoGdbus               *object,
     close (dfr);
     return TRUE;
 ERROR:
-	io_gdbus_complete_sysbak_extfs_ptf (object,invocation); 
-	io_gdbus_emit_sysbak_error (object,
+	sysbak_gdbus_complete_sysbak_extfs_ptf (object,invocation); 
+	sysbak_gdbus_emit_sysbak_error (object,
 							    sysbak_error_message[e_code],
 			                    e_code);
     free(bitmap);
@@ -528,11 +528,11 @@ ERROR:
 	return FALSE;
 }   
 
-static gboolean read_write_data_ptp (IoGdbus          *object,
-	                                file_system_info *fs_info,
-                                    ul               *bitmap,
-                                    int              *dfr,
-                                    int              *dfw)
+static gboolean read_write_data_ptp (SysbakGdbus      *object,
+	                                 file_system_info *fs_info,
+                                     ul               *bitmap,
+                                     int              *dfr,
+                                     int              *dfw)
 {
     const uint block_size = fs_info->block_size; //Data size per block
     const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? 
@@ -587,7 +587,7 @@ static gboolean read_write_data_ptp (IoGdbus          *object,
 		{
 			pdata.percent=100.0;
 		}
-		io_gdbus_emit_sysbak_progress (object,
+		sysbak_gdbus_emit_sysbak_progress (object,
 				                       pdata.percent,
 									   pdata.speed,
 									   pdata.elapsed);
@@ -603,7 +603,7 @@ ERROR:
     return FALSE;	
 }
 
-gboolean gdbus_sysbak_extfs_ptp (IoGdbus               *object,
+gboolean gdbus_sysbak_extfs_ptp (SysbakGdbus           *object,
                                  GDBusMethodInvocation *invocation,
 								 const gchar           *source,
 								 const gchar           *target,
@@ -668,7 +668,7 @@ gboolean gdbus_sysbak_extfs_ptp (IoGdbus               *object,
         goto ERROR;
     }   
     copied_count = 0;
-	io_gdbus_complete_sysbak_extfs_ptp (object,invocation); 
+	sysbak_gdbus_complete_sysbak_extfs_ptp (object,invocation); 
     if (!read_write_data_ptp (object,
 				              &fs_info,
                               bitmap,
@@ -683,13 +683,13 @@ gboolean gdbus_sysbak_extfs_ptp (IoGdbus               *object,
     free(bitmap);
     close (dfr);
     close (dfw);
-	io_gdbus_emit_sysbak_finished (object,
+	sysbak_gdbus_emit_sysbak_finished (object,
 								   fs_info.totalblock,
 								   fs_info.usedblocks,
 								   fs_info.block_size);
     return TRUE;
 ERROR:
-	io_gdbus_complete_sysbak_extfs_ptp (object,invocation); 
+	sysbak_gdbus_complete_sysbak_extfs_ptp (object,invocation); 
     free(bitmap);
     if (dfr > 0)
     {    
@@ -699,12 +699,12 @@ ERROR:
     {    
         close (dfw);
     }    
-	io_gdbus_emit_sysbak_error (object,
+	sysbak_gdbus_emit_sysbak_error (object,
 							    sysbak_error_message[e_code],
 			                    e_code);
 	return FALSE;
 }   
-static gboolean read_write_data_restore (IoGdbus          *object,
+static gboolean read_write_data_restore (SysbakGdbus      *object,
 		                                 file_system_info *fs_info,
                                          image_options    *img_opt,
                                          ul               *bitmap,
@@ -858,7 +858,7 @@ static gboolean read_write_data_restore (IoGdbus          *object,
 			{
 				pdata.percent=100.0;
 			}
-			io_gdbus_emit_sysbak_progress (object,
+			sysbak_gdbus_emit_sysbak_progress (object,
 										   pdata.percent,
 									       pdata.speed,
 										   pdata.elapsed);
@@ -880,7 +880,7 @@ ERROR:
     return FALSE;
 }
 
-gboolean gdbus_sysbak_restore (IoGdbus               *object,
+gboolean gdbus_sysbak_restore (SysbakGdbus           *object,
                                GDBusMethodInvocation *invocation,
 							   const char            *source,
 							   const char            *target,
@@ -939,7 +939,7 @@ gboolean gdbus_sysbak_restore (IoGdbus               *object,
         goto ERROR;
     }  
     copied_count = 0;
-	io_gdbus_complete_sysbak_restore (object,invocation);
+	sysbak_gdbus_complete_sysbak_restore (object,invocation);
     if (!read_write_data_restore (object,
 				                  &fs_info,
 								  &img_opt,
@@ -955,13 +955,13 @@ gboolean gdbus_sysbak_restore (IoGdbus               *object,
     free(bitmap);
     close (dfw);
     close (dfr);
-	io_gdbus_emit_sysbak_finished (object,
+	sysbak_gdbus_emit_sysbak_finished (object,
 								   fs_info.totalblock,
 								   fs_info.usedblocks,
 								   fs_info.block_size);
     return TRUE;
 ERROR:
-	io_gdbus_complete_sysbak_restore (object,invocation);
+	sysbak_gdbus_complete_sysbak_restore (object,invocation);
     free(bitmap);
     if (dfr > 0)
     {    
@@ -971,12 +971,12 @@ ERROR:
     {    
         close (dfw);
     }    
-	io_gdbus_emit_sysbak_error (object,
+	sysbak_gdbus_emit_sysbak_error (object,
 							    sysbak_error_message[e_code],
 			                    e_code);
 	return FALSE;
 }   
-gboolean gdbus_get_extfs_device_info (IoGdbus               *object,
+gboolean gdbus_get_extfs_device_info (SysbakGdbus           *object,
 		                              GDBusMethodInvocation *invocation,
 									  const char            *device)
 {
@@ -995,16 +995,17 @@ gboolean gdbus_get_extfs_device_info (IoGdbus               *object,
                         ext2fs_free_blocks_count(extfs->super));
 
     ext2fs_close(extfs);
-	io_gdbus_complete_get_extfs_device_info (object,
+	sysbak_gdbus_complete_get_extfs_device_info (object,
 			                                 invocation,
 											 totalblock,
 											 usedblocks,
 											 block_size);	
     return TRUE;
 }	
-gboolean gdbus_get_extfs_image_info (IoGdbus               *object,
-		                             GDBusMethodInvocation *invocation,
-									 const char            *image_name)
+//View ext file system image information
+gboolean gdbus_get_fs_image_info (SysbakGdbus           *object,
+                                  GDBusMethodInvocation *invocation,
+                                  const char            *image_name)
 {
     file_system_info fs_info;   /// description of the file system
     image_options    img_opt;
@@ -1026,12 +1027,12 @@ gboolean gdbus_get_extfs_image_info (IoGdbus               *object,
         close (fd);
         return FALSE;
     }    
- 
-	io_gdbus_complete_get_extfs_image_info (object,
-			                                invocation,
-										    fs_info.totalblock,
-										    fs_info.usedblocks,
-										    fs_info.block_size);	
+
+    sysbak_gdbus_complete_get_fs_image_info (object,
+                                         invocation,
+                                         fs_info.totalblock,
+                                         fs_info.usedblocks,
+                                         fs_info.block_size);	
     close (fd);
     return TRUE;
 }	

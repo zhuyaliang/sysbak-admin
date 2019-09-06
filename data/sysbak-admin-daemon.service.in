@@ -6,8 +6,8 @@ Wants=nss-user-lookup.target
 
 [Service]
 Type=dbus
-BusName=org.io.operation.gdbus
-ExecStart=@libexecdir@/io-daemon
+BusName=org.sysbak.admin.gdbus
+ExecStart=@libexecdir@/sysbak-admin-daemon
 Environment=GVFS_DISABLE_FUSE=1
 Environment=GIO_USE_VFS=local
 Environment=GVFS_REMOTE_VOLUME_MONITOR_IGNORE=1

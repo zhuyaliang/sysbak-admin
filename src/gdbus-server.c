@@ -21,8 +21,8 @@
 #include <assert.h>
 #include "gdbus-extfs.h"
 
-#define ORG_NAME  "org.io.operation.gdbus"
-#define DBS_NAME  "/org/io/operation/gdbus"
+#define ORG_NAME  "org.sysbak.admin.gdbus"
+#define DBS_NAME  "/org/sysbak/admin/gdbus"
 
 static GMainLoop* loop = NULL;
  
@@ -30,18 +30,19 @@ static void AcquiredCallback (GDBusConnection *Connection,
                               const gchar     *name,
                               gpointer         data)
 {
-    GError       *error = NULL;
-    IoGdbus      *io_gdbus;
-    IoGdbusIface *iface;
+    GError           *error = NULL;
+    SysbakGdbus      *sysbak_gdbus;
+    SysbakGdbusIface *iface;
 
-    io_gdbus = io_gdbus_skeleton_new ();
-    iface = IO_GDBUS_GET_IFACE (io_gdbus);
+    sysbak_gdbus = sysbak_gdbus_skeleton_new ();
+    iface = SYSBAK_GDBUS_GET_IFACE (sysbak_gdbus);
+
     iface->handle_sysbak_extfs_ptf  = gdbus_sysbak_extfs_ptf;
 	iface->handle_sysbak_extfs_ptp  = gdbus_sysbak_extfs_ptp;
 	iface->handle_sysbak_restore    = gdbus_sysbak_restore;
 	iface->handle_get_extfs_device_info   = gdbus_get_extfs_device_info;
-    iface->handle_get_extfs_image_info = gdbus_get_extfs_image_info; 
-    if(!g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(io_gdbus), 
+    iface->handle_get_fs_image_info = gdbus_get_fs_image_info; 
+    if(!g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(sysbak_gdbus), 
                                          Connection, 
                                          DBS_NAME, 
                                          &error))

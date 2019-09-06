@@ -26,7 +26,7 @@ configure_file(
 )
 
 if install_systemd_unit_dir
-  service = 'io-operation-daemon.service'
+  service = 'sysbak-admin-daemon.service'
 
   configure_file(
     input: service + '.in',

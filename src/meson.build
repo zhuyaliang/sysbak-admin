@@ -4,7 +4,7 @@ sources = []
 gdbus_headers = []
 
 ifaces = [
-  ['io-generated',        'org.io.operation', '.gdbus'],
+  ['sysbak-admin-generated',        'org.sysbak.admin', '.gdbus'],
 ]
 
 foreach iface: ifaces
@@ -12,7 +12,7 @@ foreach iface: ifaces
     iface[0],
     join_paths(data_dir, iface[1] + iface[2] + '.xml'),
     interface_prefix: iface[1],
-    namespace: 'Io',
+    namespace: 'Sysbak',
   )
   sources += gdbus_sources
   gdbus_headers += gdbus_sources[1]
@@ -24,7 +24,7 @@ deps = [
 ]
 
 libaccounts_generated = static_library(
-  'io-generated',
+  'sysbak-admin-generated',
   sources: sources,
   include_directories: top_srcdir,
   dependencies: deps,
@@ -54,7 +54,7 @@ deps = [
 ]
 
 executable(
-  'io-daemon',
+  'sysbak-admin-daemon',
   sources,
   include_directories: top_srcdir,
   dependencies: deps,

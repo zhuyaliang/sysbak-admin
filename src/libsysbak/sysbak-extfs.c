@@ -28,23 +28,23 @@
 #include <unistd.h>
 
 #include "sysbak-extfs.h"
-#include "io-generated.h"
+#include "sysbak-admin-generated.h"
 
 //Backup partition to image file 
 gboolean sysbak_admin_extfs_ptf_async (SysbakAdmin *sysbak)
 {
-	const char *source,*target;
-	gboolean    overwrite;
-	IoGdbus    *proxy;
+	const char  *source,*target;
+	gboolean     overwrite;
+	SysbakGdbus *proxy;
 	g_autoptr(GError) error = NULL;
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 	
 	source = sysbak_admin_get_source (sysbak);
 	target = sysbak_admin_get_target (sysbak);
 	overwrite = sysbak_admin_get_option (sysbak);
-	proxy  = (IoGdbus*)sysbak_admin_get_proxy (sysbak);
+	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
     
-	if (!io_gdbus_call_sysbak_extfs_ptf_sync (proxy,
+	if (!sysbak_gdbus_call_sysbak_extfs_ptf_sync (proxy,
                                               source,
                                               target,
                                               overwrite,
@@ -59,18 +59,18 @@ gboolean sysbak_admin_extfs_ptf_async (SysbakAdmin *sysbak)
 }
 gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak)
 {
-	const char *source,*target;
-	gboolean    overwrite;
-	IoGdbus    *proxy;
+	const char  *source,*target;
+	gboolean     overwrite;
+	SysbakGdbus *proxy;
 	g_autoptr(GError) error = NULL;
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 	
 	source = sysbak_admin_get_source (sysbak);
 	target = sysbak_admin_get_target (sysbak);
 	overwrite = sysbak_admin_get_option (sysbak);
-	proxy  = (IoGdbus*)sysbak_admin_get_proxy (sysbak);
+	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
 
-	if (!io_gdbus_call_sysbak_extfs_ptp_sync (proxy,
+	if (!sysbak_gdbus_call_sysbak_extfs_ptp_sync (proxy,
 											  source,
 											  target,
                                               overwrite,
@@ -85,18 +85,18 @@ gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak)
 }
 gboolean sysbak_admin_extfs_restore_async (SysbakAdmin *sysbak)
 {
-	const char *source,*target;
-	gboolean    overwrite;
-	IoGdbus    *proxy;
+	const char  *source,*target;
+	gboolean     overwrite;
+	SysbakGdbus *proxy;
 	g_autoptr(GError) error = NULL;
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 	
 	source = sysbak_admin_get_source (sysbak);
 	target = sysbak_admin_get_target (sysbak);
 	overwrite = sysbak_admin_get_option (sysbak);
-	proxy  = (IoGdbus*)sysbak_admin_get_proxy (sysbak);
+	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
 
-	if (!io_gdbus_call_sysbak_restore_sync (proxy,
+	if (!sysbak_gdbus_call_sysbak_restore_sync (proxy,
 				                            source,
 										    target,
                                             overwrite,

@@ -28,10 +28,9 @@
 #include <unistd.h>
 
 #include "sysbak-gdbus.h"
-#include "io-generated.h"
-#define ORG_NAME  "org.io.operation.gdbus"
-#define DBS_NAME  "/org/io/operation/gdbus"
-
+#include "sysbak-admin-generated.h"
+#define ORG_NAME  "org.sysbak.admin.gdbus"
+#define DBS_NAME  "/org/sysbak/admin/gdbus"
 
 enum 
 {
@@ -42,18 +41,18 @@ enum
 };
 typedef struct
 {
-   gboolean	   overwrite;
-   char       *source; 
-   char       *target;
-   IoGdbus    *proxy;
+   gboolean	       overwrite;
+   char           *source; 
+   char           *target;
+   SysbakGdbus    *proxy;
 } SysbakAdminPrivate;
 static guint signals[LAST_SIGNAL] = { 0 }; 
 G_DEFINE_TYPE_WITH_PRIVATE (SysbakAdmin, sysbak_admin, G_TYPE_OBJECT)
 
-static void on_progress_update (SysbakAdmin *sysbak,
-                                double       percent,
-                                double       speed,
-                                guint64      elapsed)
+static void on_progress (SysbakAdmin *sysbak,
+                         double       percent,
+                         double       speed,
+                         guint64      elapsed)
 {
     progress_data pdata;
     pdata.percent = percent;
@@ -113,12 +112,12 @@ static void sysbak_admin_init (SysbakAdmin *sysbak)
 		g_warning ("g_bus_get_sync failed %s\r\n",error->message);
         return;
     }
-	priv->proxy = io_gdbus_proxy_new_sync (connection,
-                                           G_DBUS_PROXY_FLAGS_NONE,
-                                           ORG_NAME,
-                                           DBS_NAME,
-                                           NULL,
-                                          &error);
+	priv->proxy = sysbak_gdbus_proxy_new_sync (connection,
+                                               G_DBUS_PROXY_FLAGS_NONE,
+                                               ORG_NAME,
+                                               DBS_NAME,
+                                               NULL,
+                                              &error);
 	if (!priv->proxy)
 	{
 		g_warning ("proxy_new_sync failed %s\r\n",error->message);
@@ -126,7 +125,7 @@ static void sysbak_admin_init (SysbakAdmin *sysbak)
 	}
 	g_signal_connect_object (priv->proxy, 
 			                "sysbak-progress", 
-							 G_CALLBACK(on_progress_update), 
+							 G_CALLBACK(on_progress), 
 							 sysbak, 
 							 G_CONNECT_SWAPPED);
 	

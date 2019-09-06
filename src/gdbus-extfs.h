@@ -20,35 +20,33 @@
 
 #include <glib.h>
 #include <gio/gio.h>
-#include "io-generated.h"
+#include "sysbak-admin-generated.h"
 
 
-gboolean      gdbus_sysbak_extfs_ptf      (IoGdbus               *object,
+gboolean      gdbus_sysbak_extfs_ptf      (SysbakGdbus           *object,
                                            GDBusMethodInvocation *invocation,
 										   const gchar           *source,
 										   const gchar           *target,
                                            gboolean               overwrite);
 
-gboolean      gdbus_sysbak_extfs_ptp      (IoGdbus               *object,
+gboolean      gdbus_sysbak_extfs_ptp      (SysbakGdbus           *object,
                                            GDBusMethodInvocation *invocation,
 										   const gchar           *source,
 										   const gchar           *target,
                                            gboolean               overwrite);
 
-gboolean      gdbus_sysbak_restore        (IoGdbus               *object,
+gboolean      gdbus_sysbak_restore        (SysbakGdbus           *object,
                                            GDBusMethodInvocation *invocation,
                                            const gchar           *source,
                                            const gchar           *target,
                                            gboolean               overwrite);
 
-gboolean      gdbus_get_extfs_device_info (IoGdbus               *object,
+gboolean      gdbus_get_extfs_device_info (SysbakGdbus           *object,
 		                                   GDBusMethodInvocation *invocation,
 									       const char            *device);
 
-gboolean      gdbus_get_extfs_image_info  (IoGdbus               *object,
+gboolean      gdbus_get_fs_image_info     (SysbakGdbus           *object,
 		                                   GDBusMethodInvocation *invocation,
 									       const char            *image_name);
 
-gboolean      gdbus_get_extfs_read_szie   (IoGdbus               *object,
-		                                   GDBusMethodInvocation *invocation);
 #endif

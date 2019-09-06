@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdarg.h>
-#include <io-generated.h>
+#include <sysbak-admin-generated.h>
 
 #define     DEFAULT_BUFFER_SIZE       1048576
 #define     CRC32_SIZE                4

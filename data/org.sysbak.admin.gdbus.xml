@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <node>
-    <interface name="org.io.operation.gdbus">
+    <interface name="org.sysbak.admin.gdbus">
 
     <method name="GetExtfsDeviceInfo">
         <arg name="filename" direction="in" type="s">
@@ -12,7 +12,7 @@
         <arg name="block_size" direction="out" type="u">
         </arg>
     </method>
-    <method name="GetExtfsImageInfo">
+    <method name="GetFsImageInfo">
         <arg name="filename" direction="in" type="s">
         </arg>
         <arg name="totalblock" direction="out" type="t">

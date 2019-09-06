@@ -1,0 +1,5 @@
+[D-BUS Service]
+Name=org.sysbak.admin.gdbus
+Exec=@libexecdir@/sysbak-admin-daemon
+User=root
+SystemdService=sysbak-admin-daemon.service

@@ -32,6 +32,14 @@
 #define ORG_NAME  "org.io.operation.gdbus"
 #define DBS_NAME  "/org/io/operation/gdbus"
 
+
+enum 
+{
+    SIGNAL_ERROR,
+    SIGNAL_PROGRESS,
+    SIGNAL_FINISHED,
+    LAST_SIGNAL
+};
 typedef struct
 {
    gboolean	   overwrite;
@@ -39,10 +47,52 @@ typedef struct
    char       *target;
    IoGdbus    *proxy;
 } SysbakAdminPrivate;
- 
+static guint signals[LAST_SIGNAL] = { 0 }; 
 G_DEFINE_TYPE_WITH_PRIVATE (SysbakAdmin, sysbak_admin, G_TYPE_OBJECT)
 
+static void on_progress_update (SysbakAdmin *sysbak,
+                                double       percent,
+                                double       speed,
+                                guint64      elapsed)
+{
+    progress_data pdata;
+    pdata.percent = percent;
+    pdata.speed = speed;
+    pdata.elapsed = elapsed;
 
+    g_signal_emit (sysbak, 
+                   signals[SIGNAL_PROGRESS], 
+                   0,
+                   &pdata);
+   // g_print ("\r percent %.2f speed %.2f elapsed %lu",percent,speed,elapsed);
+}    
+
+static void on_findshed (SysbakAdmin *sysbak,
+                         guint64      totalblock,
+                         guint64      usedblocks,
+                         guint        block_size)
+{
+    finished_data fdata;
+
+    fdata.totalblock = totalblock;
+    fdata.usedblocks = usedblocks;
+    fdata.block_size = block_size;
+
+    g_signal_emit (sysbak, 
+                   signals[SIGNAL_FINISHED], 
+                   0,
+                   &fdata);
+}    
+static void on_error (SysbakAdmin *sysbak,
+                      int          e_code,
+                      const char  *error_message)
+{
+    g_signal_emit (sysbak, 
+                   signals[SIGNAL_ERROR], 
+                   0,
+                   error_message);
+
+}    
 static void sysbak_admin_finalize  (GObject *object)
 {
 	SysbakAdmin *sysbak = SYSBAK_ADMIN (object);
@@ -74,11 +124,60 @@ static void sysbak_admin_init (SysbakAdmin *sysbak)
 		g_warning ("proxy_new_sync failed %s\r\n",error->message);
 
 	}
+	g_signal_connect_object (priv->proxy, 
+			                "sysbak-progress", 
+							 G_CALLBACK(on_progress_update), 
+							 sysbak, 
+							 G_CONNECT_SWAPPED);
+	
+    g_signal_connect_object (priv->proxy, 
+			                "sysbak-finished", 
+							 G_CALLBACK(on_findshed), 
+							 sysbak, 
+							 G_CONNECT_SWAPPED);
+
+	g_signal_connect_object (priv->proxy, 
+			                "sysbak-error", 
+							 G_CALLBACK(on_error), 
+							 sysbak, 
+							 G_CONNECT_SWAPPED);
+
 }
 static void sysbak_admin_class_init (SysbakAdminClass *klass)
 {
 	GObjectClass   *object_class = G_OBJECT_CLASS (klass);
     object_class->finalize = sysbak_admin_finalize;
+    
+    signals [SIGNAL_ERROR] =
+        g_signal_new ("signal-error",
+                      G_TYPE_FROM_CLASS (object_class),
+                      G_SIGNAL_RUN_LAST,
+                      G_STRUCT_OFFSET (SysbakAdminClass, signal_error),
+                      NULL,
+                      NULL,
+                      g_cclosure_marshal_VOID__STRING,
+                      G_TYPE_NONE,
+                      1, G_TYPE_STRING);
+    signals [SIGNAL_FINISHED] =
+        g_signal_new ("signal-finished",
+                      G_TYPE_FROM_CLASS (object_class),
+                      G_SIGNAL_RUN_LAST,
+                      G_STRUCT_OFFSET (SysbakAdminClass, signal_finished),
+                      NULL,
+                      NULL,
+                      g_cclosure_marshal_VOID__POINTER,
+                      G_TYPE_NONE,
+                      1, G_TYPE_POINTER);
+    signals [SIGNAL_PROGRESS] =
+        g_signal_new ("signal-progress",
+                      G_TYPE_FROM_CLASS (object_class),
+                      G_SIGNAL_RUN_LAST,
+                      G_STRUCT_OFFSET (SysbakAdminClass, signal_progress),
+                      NULL,
+                      NULL,
+                      g_cclosure_marshal_VOID__POINTER,
+                      G_TYPE_NONE,
+                      1, G_TYPE_POINTER);
 }
 
 const char *sysbak_admin_get_source (SysbakAdmin *sysbak)
@@ -127,45 +226,6 @@ void sysbak_admin_set_option (SysbakAdmin *sysbak,gboolean overwrite)
 	priv->overwrite = overwrite;
 }
 
-void sysbak_admin_finished_signal  (SysbakAdmin   *sysbak,
-		                            finished_func  function,
-									gpointer       user_data)
-{
-	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
-	IoGdbus *proxy;
-	proxy = priv->proxy;
-	g_signal_connect_object (proxy, 
-			                "sysbak-finished", 
-							 G_CALLBACK(function), 
-							 user_data, 
-							 G_CONNECT_SWAPPED);
-}
-void sysbak_admin_progress_signal  (SysbakAdmin   *sysbak,
-		                            progress_func  function,
-									gpointer       user_data)
-{
-	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
-	IoGdbus *proxy;
-	proxy = priv->proxy;
-	g_signal_connect_object (proxy, 
-			                "sysbak-progress", 
-							 G_CALLBACK(function), 
-							 user_data, 
-							 G_CONNECT_SWAPPED);
-}	
-void sysbak_admin_error_signal  (SysbakAdmin   *sysbak,
-		                         error_func     function,
-								 gpointer       user_data)
-{
-	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
-	IoGdbus *proxy;
-	proxy = priv->proxy;
-	g_signal_connect_object (proxy, 
-			                "sysbak-error", 
-							 G_CALLBACK(function), 
-							 user_data, 
-							 G_CONNECT_SWAPPED);
-}	
 SysbakAdmin *sysbak_admin_new (void)
 {
 	return g_object_new (SYSBAK_TYPE_ADMIN,NULL);

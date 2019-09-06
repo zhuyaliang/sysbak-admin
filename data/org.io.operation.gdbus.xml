@@ -67,8 +67,6 @@
        </arg>
        <arg name="speed" type="d">
        </arg>
-       <arg name="remained" type="t">
-       </arg>
        <arg name="elapsed" type="t">
        </arg>
     </signal>

@@ -38,11 +38,23 @@ typedef struct
 typedef struct  
 {
     GObjectClass   parent_class;
+    void          (*signal_error)      (SysbakAdmin *,guint,  const char*);
+    void          (*signal_progress)   (SysbakAdmin *,double, double,   guint64);
+    void          (*signal_finished)   (SysbakAdmin *,guint64,guint64,  uint);
 }SysbakAdminClass;
+typedef struct
+{
+    double   percent;
+    double   speed;
+    guint64  elapsed;
+}progress_data;
 
-typedef void (*finished_func) (guint64,guint64,uint,   gpointer);
-typedef void (*progress_func) (double ,double ,guint64,guint64,gpointer);
-typedef void (*error_func)    (int, const char*,gpointer);
+typedef struct
+{
+    guint64      totalblock;
+    guint64      usedblocks;
+    guint        block_size;
+}finished_data;
 
 GType            sysbak_admin_get_type         (void) G_GNUC_CONST;
 
@@ -65,16 +77,5 @@ void             sysbak_admin_set_target       (SysbakAdmin    *sysbak,
 void             sysbak_admin_set_option       (SysbakAdmin    *sysbak,
 		                                        gboolean       overwrite);
 
-void             sysbak_admin_finished_signal  (SysbakAdmin   *sysbak,
-		                                        finished_func  function,
-												gpointer       user_data);
-
-void             sysbak_admin_progress_signal  (SysbakAdmin   *sysbak,
-		                                        progress_func  function,
-												gpointer       user_data);
-
-void             sysbak_admin_error_signal     (SysbakAdmin   *sysbak,
-		                                        error_func     function,
-												gpointer       user_data);
 G_END_DECLS
 #endif

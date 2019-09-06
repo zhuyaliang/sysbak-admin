@@ -23,31 +23,21 @@
 
 #define   TESTCONFIG     "./test.ini"
 #define   TESTMAX         3
-/*
-typedef void (*test_func) (char *,char *);
+
+typedef void (*test_func) (SysbakAdmin *);
+
+typedef struct 
+{
+    char *test;
+    int   value;
+    int   key;
+}call_data;
+
 typedef struct 
 {
     char      *enable_key;
     test_func  start_test;
 }test_data;
-
-static void call_finished (GObject      *source_object,
-                           GAsyncResult *res,
-                           gpointer      f_data)
-{
-    device_info *dev_info;
-    GError *error = NULL;
-
-    dev_info = sysbak_extfs_finish (res,&error);
-    if (dev_info == NULL)
-    {
-        g_print ("%s Faild %s\r\n",(const char *)f_data,error->message);
-    }
-    else
-    {
-        g_print ("file system type:  Successful %s\r\n",dev_info->fs);
-    }
-}    
 
 void call_progress (progress_data *data,gpointer p_data)
 {
@@ -55,134 +45,93 @@ void call_progress (progress_data *data,gpointer p_data)
     printf ("%s Percentile %.2f speed %.2f KB/S\r\n",(const char *)p_data,data->percent,data->speed);
 }
 
-static void start_test_ptf (char *source,char *targer)
+static void start_test_ptf (SysbakAdmin *sysbak)
 {
-    GCancellable *cancellable;
-    const char *data = "ptf";
-
-    cancellable = g_cancellable_new ();
-    g_print ("start Partition to File Backup \r\n");
-    if (!sysbak_extfs_ptf_async ((const char *)source, 
-                                 (const char *)targer,
-                                  0,
-                                  cancellable,
-                                  call_finished,
-                                 (gpointer)data,
-                                  call_progress,
-                                 (gpointer)data))
-    {
-        g_print ("Partition-to-File backup failed \r\n");
-    } 
-    free (source);
-    free (targer);
-    g_object_unref (cancellable);
+    sysbak_admin_extfs_ptf_async (sysbak);
 }    
 
-static void start_test_ptp (char *source,char *targer)
+static void start_test_ptp (SysbakAdmin *sysbak)
 {
-    GCancellable *cancellable;
-    const char *data = "ptp";
-
-    cancellable = g_cancellable_new ();
-    g_print ("start Partition to Partition Backup \r\n");
-
-    if (!sysbak_extfs_ptp_async ((const char *)source, 
-                                 (const char *)targer,
-                                  0,
-                                  cancellable,
-                                  call_finished,
-                                 (gpointer)data,
-                                  call_progress,
-                                 (gpointer)data))
-    {
-        g_print ("Partition-to-partition backup failed \r\n");
-    } 
-    free (source);
-    free (targer);
-    g_object_unref (cancellable);
+	sysbak_admin_extfs_ptp_async (sysbak);
 }    
 
-static void start_test_restore (char *source,char *targer)
+static void start_test_restore (SysbakAdmin *sysbak)
 {
-    GCancellable *cancellable;
-    const char *data = "restore";
-
-    cancellable = g_cancellable_new ();
-    g_print ("start resatore backup from files \r\n");
-    if (!sysbak_extfs_restore_async ((const char *)source, 
-                                     (const char *)targer,
-                                      0,
-                                      cancellable,
-                                      call_finished,
-                                     (gpointer)data,
-                                      call_progress,
-                                     (gpointer)data))
-    {
-        g_print ("resatore backup from files failed \r\n");
-    } 
-    free (source);
-    free (targer);
-    g_object_unref (cancellable);
+	sysbak_admin_extfs_restore_async (sysbak);
 } 
-*/
 
-void finished_cb (guint64     totalblock,
-                  guint64     usedblocks,
-                  guint       block_size,
-                  gpointer    data)
+void finished_cb (SysbakAdmin   *sysbak,
+                  finished_data *fdata,
+                  gpointer       d)
 {
-    g_print ("totalblock = %lu block_size =%u\r\n",totalblock,block_size);
+    call_data *data = (call_data *)d;
+    
+    g_print ("\r\ntotalblock = %lu\ 
+              usedblocks = %lu\
+              block_size = %u\
+              test = %s\r\n",fdata->totalblock,fdata->usedblocks,fdata->block_size,data->test);
 }
-void progress_cb (double percent,double speed,guint64 remained, guint64 elapsed,gpointer data)
+void progress_cb (SysbakAdmin   *sysbak,
+                  progress_data *pdata,
+                  gpointer       d)
 {
-    g_print ("\r percent = %.2f",percent);
+    call_data *data = (call_data *)d;
+
+    g_print ("\r percent %.2f speed %.2f elapsed  %2lu test %s",
+                 pdata->percent,pdata->speed,pdata->elapsed,data->test);
 }
 
-void error_cb (int e_code,const char *error_message,gpointer data)
+void error_cb (SysbakAdmin *sysbak,
+               const char  *error_message,
+               gpointer     data)
 {
     g_print ("error->message = %s\r\n",error_message);
 }
+void set_call_data (call_data *pdata)
+{
+    pdata->test = g_strdup ("hello world");
+    pdata->value = 10;
+    pdata->key = 9;
+}    
 int main(int argc, char **argv)
 {
     GMainLoop    *loop;
-	SysbakAdmin *sysbak;
-    
-	loop = g_main_loop_new (NULL, FALSE);
-	sysbak = sysbak_admin_new ();
-//	sysbak_admin_set_source (sysbak,"/dev/sdb1");
-//	sysbak_admin_set_target (sysbak,"/tmp/xxx.img");
-	sysbak_admin_set_source (sysbak,"/tmp/xxx.img");
-	sysbak_admin_set_target (sysbak,"/dev/sdb1");
-	sysbak_admin_set_option (sysbak,TRUE);
-	
-//	sysbak_admin_extfs_ptf_async (sysbak);
-//	sysbak_admin_extfs_ptp_async (sysbak);
-	sysbak_admin_extfs_restore_async (sysbak);
-
-	sysbak_admin_finished_signal (sysbak,finished_cb,NULL);
-	sysbak_admin_progress_signal (sysbak,progress_cb,NULL);
-	sysbak_admin_error_signal (sysbak,error_cb,NULL);
-	/*
+	SysbakAdmin  *sysbak;
+    call_data     pdata;
 	GKeyFile     *kconfig = NULL;
     GError       *error = NULL;
     g_auto(GStrv) test_groups = NULL;
     gsize         length = 0;
     gint          value = 0;
+    gint          overwrite = 0;
     char         *source,*targer; 
     int           mode = 0;
-
+    
     static test_data array_test_data [TESTMAX] = 
     {
         {"enable_ptp",    start_test_ptp},
         {"enable_ptf",    start_test_ptf},
         {"enable_restore",start_test_restore}
     };
+	
+    loop = g_main_loop_new (NULL, FALSE);
+	sysbak = sysbak_admin_new ();
+    set_call_data (&pdata);        
+    g_signal_connect(sysbak, 
+                    "signal-progress", 
+                     G_CALLBACK(progress_cb),
+                     &pdata);
 
-    if (!init_sysbak_gdbus (&error))
-    {
-        g_warning ("init_sysbak_gdbus faild %s\r\n",error->message);
-        goto ERROR;
-    }    
+    g_signal_connect(sysbak, 
+                    "signal-error",    
+                     G_CALLBACK(error_cb), 
+                     loop);
+
+    g_signal_connect(sysbak, 
+                    "signal-finished", 
+                     G_CALLBACK(finished_cb),
+                     &pdata);
+
     kconfig = g_key_file_new();
     if(kconfig == NULL)
     {
@@ -228,9 +177,17 @@ int main(int argc, char **argv)
             g_warning ("test group %s key targer no setting\r\n",test_groups[i]);
             free (source);
             continue;
-        }   
-        g_print ("source = %s targer = %s\r\n",source,targer);
-        array_test_data[i].start_test(source,targer);
+        }  
+        overwrite = g_key_file_get_integer(kconfig,
+                                           test_groups[i],
+                                           "overwrite",
+                                           &error);
+        g_print ("source = %s targer = %s overwrite = %d\r\n",source,targer,overwrite);
+	    sysbak_admin_set_source (sysbak,source);
+	    sysbak_admin_set_target (sysbak,targer);
+	    sysbak_admin_set_option (sysbak,overwrite);
+
+        array_test_data[i].start_test(sysbak);
         mode++;
     }    
 
@@ -238,15 +195,14 @@ int main(int argc, char **argv)
     {
         g_print ("You haven't done anything. Please configure the test.ini file to open the test options.\r\n");
     }
-	*/
     g_main_loop_run (loop);
-/*
+
 ERROR:
     if (kconfig != NULL)
     {
         g_key_file_free (kconfig);
     }
-*/	
+	
     g_main_loop_unref (loop);
     g_main_loop_quit (loop);
 }    

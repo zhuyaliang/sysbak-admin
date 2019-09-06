@@ -383,12 +383,10 @@ static gboolean read_write_data_ptf (IoGdbus          *object,
 		if (!progress_update(&prog, copied_count,&pdata))
 		{
 			pdata.percent=100.0;
-			pdata.remained = (time_t)0;
 		}
 		io_gdbus_emit_sysbak_progress (object,
 				                       pdata.percent,
 									   pdata.speed,
-									   pdata.remained,
 									   pdata.elapsed);
         if (r_size + cs_added * img_opt->checksum_size != w_size)
         {
@@ -501,6 +499,10 @@ gboolean gdbus_sysbak_extfs_ptf (IoGdbus               *object,
     } 
 
     fsync(dfw);
+    g_print ("totalblock %llu,usedblocks %llu,block_size %u\r\n",
+              fs_info.totalblock,
+              fs_info.usedblocks,
+              fs_info.block_size);
 	io_gdbus_emit_sysbak_finished (object,
 								   fs_info.totalblock,
 								   fs_info.usedblocks,
@@ -584,12 +586,10 @@ static gboolean read_write_data_ptp (IoGdbus          *object,
 		if (!progress_update(&prog, block_id,&pdata))
 		{
 			pdata.percent=100.0;
-			pdata.remained = (time_t)0;
 		}
 		io_gdbus_emit_sysbak_progress (object,
 				                       pdata.percent,
 									   pdata.speed,
-									   pdata.remained,
 									   pdata.elapsed);
     } while (1);
 
@@ -857,12 +857,10 @@ static gboolean read_write_data_restore (IoGdbus          *object,
 			if (!progress_update(&prog, copied_count,&pdata))
 			{
 				pdata.percent=100.0;
-				pdata.remained = (time_t)0;
 			}
 			io_gdbus_emit_sysbak_progress (object,
 										   pdata.percent,
 									       pdata.speed,
-									       pdata.remained,
 										   pdata.elapsed);
         } while (blocks_written < blocks_read);
     } while(1);

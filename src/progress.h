@@ -31,7 +31,6 @@ typedef struct
 {
 	float  percent;
     float  speed;
-    time_t remained;
     time_t elapsed;
 }progress_data;
 

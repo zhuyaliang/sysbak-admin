@@ -68,7 +68,6 @@ static void calculate_speed(progress_bar *prog, ull copied, progress_data *progr
     }
 
     progressdata->speed = dspeed;
-    progressdata->remained = (time_t)((elapsed/percent*100) - elapsed);
     progressdata->elapsed = elapsed;
 }
 

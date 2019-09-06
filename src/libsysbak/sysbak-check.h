@@ -15,19 +15,12 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef __SYSBAK_EXTFS_H__
-#define __SYSBAK_EXTFS_H__
+#ifndef __SYSBAK_CHECK_H__
+#define __SYSBAK_CHECK_H__
 
 #include <glib.h>
 #include <gio/gio.h>
-#include "sysbak-gdbus.h"
-#include "sysbak-check.h"
 
-    
-gboolean     sysbak_admin_extfs_ptf_async      (SysbakAdmin *sysbak,GError **error);
+gboolean check_device_mount(const char* device);
 
-
-gboolean     sysbak_admin_extfs_ptp_async      (SysbakAdmin *sysbak,GError **error);
-
-gboolean     sysbak_admin_extfs_restore_async  (SysbakAdmin *sysbak,GError **error);
 #endif

@@ -5,6 +5,7 @@ subdir = 'libsysbak'
 
 headers = files(
   'sysbak-gdbus.h',
+  'sysbak-check.h',
 )
 
 install_headers(
@@ -15,6 +16,7 @@ install_headers(
 sources = files(
   'sysbak-gdbus.c',
   'sysbak-extfs.c',
+  'sysbak-check.c',
 )
 
 dbus_sources = []

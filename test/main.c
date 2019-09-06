@@ -47,17 +47,31 @@ void call_progress (progress_data *data,gpointer p_data)
 
 static void start_test_ptf (SysbakAdmin *sysbak)
 {
-    sysbak_admin_extfs_ptf_async (sysbak);
+    g_autoptr(GError) error = NULL;
+
+    if (!sysbak_admin_extfs_ptf_async (sysbak,&error))
+    {
+        g_print ("sysbak_admin_extfs_ptf_async failed %s\r\n",error->message);
+    }    
 }    
 
 static void start_test_ptp (SysbakAdmin *sysbak)
 {
-	sysbak_admin_extfs_ptp_async (sysbak);
+    g_autoptr(GError) error = NULL;
+	if (!sysbak_admin_extfs_ptp_async (sysbak,&error))
+    {
+        g_print ("sysbak_admin_extfs_ptp_async failed %s\r\n",error->message);
+    }    
 }    
 
 static void start_test_restore (SysbakAdmin *sysbak)
 {
-	sysbak_admin_extfs_restore_async (sysbak);
+    g_autoptr(GError) error = NULL;
+
+	if (!sysbak_admin_extfs_restore_async (sysbak,&error))
+    {
+        g_print ("sysbak_admin_extfs_restore_async failed %s\r\n",error->message);
+    }    
 } 
 
 void finished_cb (SysbakAdmin   *sysbak,

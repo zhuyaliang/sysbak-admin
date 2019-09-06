@@ -14,29 +14,39 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 #include <stdio.h>
-#include <fcntl.h>
+#include <string.h>
 #include <sys/stat.h>
-#include <ext2fs/ext2fs.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <malloc.h>
-#include <stdarg.h>
-#include <getopt.h>
+#include <sys/statvfs.h>
+#include <sys/ioctl.h>
+#include <sys/mount.h>
+#include <fcntl.h>
 #include <unistd.h>
+#include <mntent.h>
+#include <glib.h>
 
 #include "sysbak-extfs.h"
 #include "sysbak-admin-generated.h"
 
+static gboolean check_file_device (const char *path,GError **error)
+{
+    if (access (path,F_OK) == -1)
+    {
+        g_set_error_literal (error, 
+                             G_IO_ERROR, 
+                             G_IO_ERROR_FAILED,
+			                "file does not exist");
+        return FALSE;
+    }    
+    
+    return TRUE;
+}    
 //Backup partition to image file 
-gboolean sysbak_admin_extfs_ptf_async (SysbakAdmin *sysbak)
+gboolean sysbak_admin_extfs_ptf_async (SysbakAdmin *sysbak,GError **error)
 {
 	const char  *source,*target;
 	gboolean     overwrite;
 	SysbakGdbus *proxy;
-	g_autoptr(GError) error = NULL;
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 	
 	source = sysbak_admin_get_source (sysbak);
@@ -44,25 +54,40 @@ gboolean sysbak_admin_extfs_ptf_async (SysbakAdmin *sysbak)
 	overwrite = sysbak_admin_get_option (sysbak);
 	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
     
+    if (!check_file_device (source,error))
+    {
+        return FALSE;
+    }  
+    if(check_file_device (target,error) && overwrite)
+    {
+        return FALSE;
+    }       
+    if (check_device_mount (source))
+    {
+        g_set_error_literal (error, 
+                             G_IO_ERROR, 
+                             G_IO_ERROR_FAILED,
+			                "source device has been mounted");
+        return FALSE;
+    }   
+    error = NULL;
 	if (!sysbak_gdbus_call_sysbak_extfs_ptf_sync (proxy,
-                                              source,
-                                              target,
-                                              overwrite,
-											  NULL,
-											 &error))
+                                                  source,
+                                                  target,
+                                                  overwrite,
+											      NULL,
+											      error))
 	{
-		g_warning ("libgdbus_sysbak_extfs_ptf failed %s\r\n",error->message);
 		return FALSE;
 	}
 
     return TRUE;      /// finish
 }
-gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak)
+gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak,GError **error)
 {
 	const char  *source,*target;
 	gboolean     overwrite;
 	SysbakGdbus *proxy;
-	g_autoptr(GError) error = NULL;
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 	
 	source = sysbak_admin_get_source (sysbak);
@@ -70,40 +95,79 @@ gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak)
 	overwrite = sysbak_admin_get_option (sysbak);
 	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
 
-	if (!sysbak_gdbus_call_sysbak_extfs_ptp_sync (proxy,
-											  source,
-											  target,
-                                              overwrite,
-											  NULL,
-											 &error))
+    if (!check_file_device (source,error))
     {
-		g_warning ("libgdbus_sysbak_extfs_ptp failed %s\r\n",error->message);
+        return FALSE;
+    }   
+    if (!check_file_device (target,error))
+    {
+        return FALSE;
+    }    
+    if (check_device_mount (source))
+    {
+        g_set_error_literal (error, 
+                             G_IO_ERROR, 
+                             G_IO_ERROR_FAILED,
+			                "source device has been mounted");
+        return FALSE;
+    }    
+    if (check_device_mount (target))
+    {
+        g_set_error_literal (error, 
+                             G_IO_ERROR, 
+                             G_IO_ERROR_FAILED,
+			                "target device has been mounted");
+        return FALSE;
+    }    
+
+	if (!sysbak_gdbus_call_sysbak_extfs_ptp_sync (proxy,
+											      source,
+											      target,
+                                                  overwrite,
+											      NULL,
+											      error))
+    {
 		return FALSE;
     } 
 
     return TRUE;      /// finish
 }
-gboolean sysbak_admin_extfs_restore_async (SysbakAdmin *sysbak)
+gboolean sysbak_admin_extfs_restore_async (SysbakAdmin *sysbak,GError **error)
 {
 	const char  *source,*target;
 	gboolean     overwrite;
 	SysbakGdbus *proxy;
-	g_autoptr(GError) error = NULL;
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 	
 	source = sysbak_admin_get_source (sysbak);
 	target = sysbak_admin_get_target (sysbak);
 	overwrite = sysbak_admin_get_option (sysbak);
 	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
-
-	if (!sysbak_gdbus_call_sysbak_restore_sync (proxy,
-				                            source,
-										    target,
-                                            overwrite,
-											NULL,
-										   &error))
+    
+    if (!check_file_device (source,error))
     {
-		g_warning ("libgdbus_sysbak_extfs_restore failed %s\r\n",error->message);
+        return FALSE;
+    }   
+    if (!check_file_device (target,error))
+    {
+        return FALSE;
+    }   
+
+    if (check_device_mount (target))
+    {
+        g_set_error_literal (error, 
+                             G_IO_ERROR, 
+                             G_IO_ERROR_FAILED,
+			                "target device has been mounted");
+        return FALSE;
+    }    
+	if (!sysbak_gdbus_call_sysbak_restore_sync (proxy,
+				                                source,
+										        target,
+                                                overwrite,
+											    NULL,
+										        error))
+    {
 		return FALSE;
     } 
 

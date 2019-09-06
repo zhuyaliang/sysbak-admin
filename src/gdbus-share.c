@@ -394,55 +394,6 @@ static gboolean check_file_type (const char *filename)
     close (fd);
     return TRUE;
 }    
-static gboolean check_mount(const char* device)
-{
-    char *real_file = NULL, *real_fsname = NULL;
-    FILE * f;
-    struct mntent * mnt;
-    gboolean isMounted = FALSE;
-
-    real_file = malloc(PATH_MAX + 1);
-    if (!real_file) 
-    {
-        goto EXIT;
-    }
-    real_fsname = malloc(PATH_MAX + 1);
-    if (!real_fsname) 
-    {
-        goto EXIT;
-    }
-
-    if (!realpath(device, real_file)) 
-    {
-        goto EXIT;
-    }
-    if ((f = setmntent(MOUNTED, "r")) == 0) 
-    {
-        goto EXIT;
-    }
-    while ((mnt = getmntent (f)) != 0) 
-    {
-        if (!realpath(mnt->mnt_fsname, real_fsname))
-            continue;
-        if (strcmp(real_file, real_fsname) == 0) 
-        {
-            isMounted = 1;
-        }
-    }
-    endmntent(f);
-EXIT:
-    if (real_file)
-    { 
-        free(real_file); 
-        real_file = NULL;
-    }
-    if (real_fsname)
-    { 
-        free(real_fsname); 
-        real_fsname = NULL;
-    }
-    return isMounted;
-}
 int open_source_device(const char *device,int mode) 
 {
     int fd = 0;
@@ -455,10 +406,6 @@ int open_source_device(const char *device,int mode)
     }
     if (mode == BACK_PTF || mode == BACK_PTP || ddd_block_device == 1) 
     { 
-        if (check_mount(device)) 
-        {
-            return -2;
-        }
         fd = open(device, flags, S_IRUSR);
     } 
     else if (mode == RESTORE || ddd_block_device == 0) 
@@ -494,10 +441,6 @@ int open_target_device(const char* target, int mode,gboolean overwrite)
     // back-up parct to parct or restore or dd to block
     else if (mode == RESTORE || mode == BACK_PTP || (ddd_block_device == 1)) 
     {    
-        if (check_mount(target)) 
-        {
-            return -1;
-        }
         stat(target, &st_dev);
         if (!S_ISBLK(st_dev.st_mode)) 
         {

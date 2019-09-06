@@ -39,7 +39,7 @@
 #endif
 const char *sysbak_error_message[10] = 
 {
-	"Device been mounted",
+	"Device Busy",
 	"Failed to open source file",
 	"Failed to open target file",
 	"Failed to read superblock",

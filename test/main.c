@@ -39,42 +39,23 @@ typedef struct
     test_func  start_test;
 }test_data;
 
-void call_progress (progress_data *data,gpointer p_data)
-{
-
-    printf ("%s Percentile %.2f speed %.2f KB/S\r\n",(const char *)p_data,data->percent,data->speed);
-}
 
 static void start_test_ptf (SysbakAdmin *sysbak)
 {
-    g_autoptr(GError) error = NULL;
-
-    if (!sysbak_admin_extfs_ptf_async (sysbak,&error))
-    {
-        g_print ("sysbak_admin_extfs_ptf_async failed %s\r\n",error->message);
-    }    
+	sysbak_admin_extfs_ptf_async (sysbak);
 }    
 
 static void start_test_ptp (SysbakAdmin *sysbak)
 {
-    g_autoptr(GError) error = NULL;
-	if (!sysbak_admin_extfs_ptp_async (sysbak,&error))
-    {
-        g_print ("sysbak_admin_extfs_ptp_async failed %s\r\n",error->message);
-    }    
+	sysbak_admin_extfs_ptp_async (sysbak);
 }    
 
 static void start_test_restore (SysbakAdmin *sysbak)
 {
-    g_autoptr(GError) error = NULL;
-
-	if (!sysbak_admin_extfs_restore_async (sysbak,&error))
-    {
-        g_print ("sysbak_admin_extfs_restore_async failed %s\r\n",error->message);
-    }    
+	sysbak_admin_extfs_restore_async (sysbak);
 } 
 
-void finished_cb (SysbakAdmin   *sysbak,
+static void finished_cb (SysbakAdmin   *sysbak,
                   finished_data *fdata,
                   gpointer       d)
 {
@@ -85,7 +66,7 @@ void finished_cb (SysbakAdmin   *sysbak,
               block_size = %u\
               test = %s\r\n",fdata->totalblock,fdata->usedblocks,fdata->block_size,data->test);
 }
-void progress_cb (SysbakAdmin   *sysbak,
+static void progress_cb (SysbakAdmin   *sysbak,
                   progress_data *pdata,
                   gpointer       d)
 {
@@ -95,13 +76,13 @@ void progress_cb (SysbakAdmin   *sysbak,
                  pdata->percent,pdata->speed,pdata->elapsed,data->test);
 }
 
-void error_cb (SysbakAdmin *sysbak,
-               const char  *error_message,
-               gpointer     data)
+static void error_cb (SysbakAdmin *sysbak,
+					  const char  *error_message,
+                      gpointer     data)
 {
     g_print ("error->message = %s\r\n",error_message);
 }
-void set_call_data (call_data *pdata)
+static void set_call_data (call_data *pdata)
 {
     pdata->test = g_strdup ("hello world");
     pdata->value = 10;

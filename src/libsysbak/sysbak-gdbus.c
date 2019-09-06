@@ -83,8 +83,8 @@ static void on_findshed (SysbakAdmin *sysbak,
                    &fdata);
 }    
 static void on_error (SysbakAdmin *sysbak,
-                      int          e_code,
-                      const char  *error_message)
+                      const char  *error_message,
+					  int          e_code)
 {
     g_signal_emit (sysbak, 
                    signals[SIGNAL_ERROR], 

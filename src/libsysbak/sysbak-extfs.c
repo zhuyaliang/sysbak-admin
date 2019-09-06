@@ -28,25 +28,24 @@
 #include "sysbak-extfs.h"
 #include "sysbak-admin-generated.h"
 
-static gboolean check_file_device (const char *path,GError **error)
+static gboolean check_file_device (const char *path)
 {
     if (access (path,F_OK) == -1)
     {
-        g_set_error_literal (error, 
-                             G_IO_ERROR, 
-                             G_IO_ERROR_FAILED,
-			                "file does not exist");
         return FALSE;
     }    
     
     return TRUE;
 }    
 //Backup partition to image file 
-gboolean sysbak_admin_extfs_ptf_async (SysbakAdmin *sysbak,GError **error)
+gboolean sysbak_admin_extfs_ptf_async (SysbakAdmin *sysbak)
 {
 	const char  *source,*target;
 	gboolean     overwrite;
 	SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+	g_autofree gchar *error_message = NULL;
+	const char  *base_error = "Backup partition to file failed";
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 	
 	source = sysbak_admin_get_source (sysbak);
@@ -54,40 +53,47 @@ gboolean sysbak_admin_extfs_ptf_async (SysbakAdmin *sysbak,GError **error)
 	overwrite = sysbak_admin_get_option (sysbak);
 	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
     
-    if (!check_file_device (source,error))
+    if (!check_file_device (source))
     {
+		error_message = g_strdup_printf ("%s %s device does not exist",base_error,source);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }  
-    if(check_file_device (target,error) && overwrite)
+    if(check_file_device (target) && overwrite)
     {
+		error_message = g_strdup_printf ("%s Overwrite is not set, but the %s file already exists",base_error,target);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }       
     if (check_device_mount (source))
     {
-        g_set_error_literal (error, 
-                             G_IO_ERROR, 
-                             G_IO_ERROR_FAILED,
-			                "source device has been mounted");
+		error_message = g_strdup_printf ("%s Please umount the %s to be backed up",base_error,source);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }   
-    error = NULL;
 	if (!sysbak_gdbus_call_sysbak_extfs_ptf_sync (proxy,
                                                   source,
                                                   target,
                                                   overwrite,
 											      NULL,
-											      error))
+											      &error))
 	{
+		
+		error_message = g_strdup_printf ("%s %s",base_error,error->message);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
 		return FALSE;
 	}
 
     return TRUE;      /// finish
 }
-gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak,GError **error)
+gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak)
 {
 	const char  *source,*target;
 	gboolean     overwrite;
 	SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+	g_autofree gchar *error_message = NULL;
+	const char  *base_error = "Backup partition to partition failed";
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 	
 	source = sysbak_admin_get_source (sysbak);
@@ -95,28 +101,28 @@ gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak,GError **error)
 	overwrite = sysbak_admin_get_option (sysbak);
 	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
 
-    if (!check_file_device (source,error))
+    if (!check_file_device (source))
     {
+		error_message = g_strdup_printf ("%s %s device does not exist",base_error,source);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }   
-    if (!check_file_device (target,error))
+    if (!check_file_device (target))
     {
+		error_message = g_strdup_printf ("%s %s device does not exist",base_error,target);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }    
     if (check_device_mount (source))
     {
-        g_set_error_literal (error, 
-                             G_IO_ERROR, 
-                             G_IO_ERROR_FAILED,
-			                "source device has been mounted");
+		error_message = g_strdup_printf ("%s Please umount the %s to be backed up",base_error,source);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }    
     if (check_device_mount (target))
     {
-        g_set_error_literal (error, 
-                             G_IO_ERROR, 
-                             G_IO_ERROR_FAILED,
-			                "target device has been mounted");
+		error_message = g_strdup_printf ("%s Please umount the %s to be backed up",base_error,target);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }    
 
@@ -125,18 +131,23 @@ gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak,GError **error)
 											      target,
                                                   overwrite,
 											      NULL,
-											      error))
+											      &error))
     {
+		error_message = g_strdup_printf ("%s %s",base_error,error->message);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
 		return FALSE;
     } 
 
     return TRUE;      /// finish
 }
-gboolean sysbak_admin_extfs_restore_async (SysbakAdmin *sysbak,GError **error)
+gboolean sysbak_admin_extfs_restore_async (SysbakAdmin *sysbak)
 {
 	const char  *source,*target;
 	gboolean     overwrite;
 	SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+	g_autofree gchar *error_message = NULL;
+	const char  *base_error = "Restore image to partition failed";
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 	
 	source = sysbak_admin_get_source (sysbak);
@@ -144,21 +155,22 @@ gboolean sysbak_admin_extfs_restore_async (SysbakAdmin *sysbak,GError **error)
 	overwrite = sysbak_admin_get_option (sysbak);
 	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
     
-    if (!check_file_device (source,error))
+    if (!check_file_device (source))
     {
+		error_message = g_strdup_printf ("%s %s device does not exist",base_error,source);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }   
-    if (!check_file_device (target,error))
+    if (!check_file_device (target))
     {
+		error_message = g_strdup_printf ("%s %s device does not exist",base_error,target);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
-    }   
-
+    }    
     if (check_device_mount (target))
     {
-        g_set_error_literal (error, 
-                             G_IO_ERROR, 
-                             G_IO_ERROR_FAILED,
-			                "target device has been mounted");
+		error_message = g_strdup_printf ("%s Please umount the %s to be backed up",base_error,target);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }    
 	if (!sysbak_gdbus_call_sysbak_restore_sync (proxy,
@@ -166,8 +178,10 @@ gboolean sysbak_admin_extfs_restore_async (SysbakAdmin *sysbak,GError **error)
 										        target,
                                                 overwrite,
 											    NULL,
-										        error))
+										        &error))
     {
+		error_message = g_strdup_printf ("%s %s",base_error,error->message);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
 		return FALSE;
     } 
 

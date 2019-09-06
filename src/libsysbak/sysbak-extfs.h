@@ -24,10 +24,10 @@
 #include "sysbak-check.h"
 
     
-gboolean     sysbak_admin_extfs_ptf_async      (SysbakAdmin *sysbak,GError **error);
+gboolean     sysbak_admin_extfs_ptf_async      (SysbakAdmin *sysbak);
 
 
-gboolean     sysbak_admin_extfs_ptp_async      (SysbakAdmin *sysbak,GError **error);
+gboolean     sysbak_admin_extfs_ptp_async      (SysbakAdmin *sysbak);
 
-gboolean     sysbak_admin_extfs_restore_async  (SysbakAdmin *sysbak,GError **error);
+gboolean     sysbak_admin_extfs_restore_async  (SysbakAdmin *sysbak);
 #endif

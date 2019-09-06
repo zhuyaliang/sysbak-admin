@@ -452,7 +452,7 @@ gboolean gdbus_sysbak_extfs_ptf (IoGdbus               *object,
     }
     init_file_system_info(&fs_info);
     init_image_options(&img_opt);
-
+    
     // get Super Block information from partition
     if (!read_super_blocks(source, &fs_info))
     {
@@ -493,25 +493,27 @@ gboolean gdbus_sysbak_extfs_ptf (IoGdbus               *object,
     }    
     write_image_bitmap(&dfw, fs_info, bitmap);
     copied_count = 0;
+	io_gdbus_complete_sysbak_extfs_ptf (object,invocation); 
     if (!read_write_data_ptf (object,&fs_info,&img_opt,bitmap,&dfr,&dfw))
 	{
 		e_code = 8;
         goto ERROR;
     } 
 
-	io_gdbus_complete_sysbak_extfs_ptf (object,invocation); 
     fsync(dfw);
-	free(bitmap);
-    close (dfw);
-    close (dfr);
 	io_gdbus_emit_sysbak_finished (object,
-			                      "extfs",
 								   fs_info.totalblock,
 								   fs_info.usedblocks,
 								   fs_info.block_size);
+	free(bitmap);
+    close (dfw);
+    close (dfr);
     return TRUE;
 ERROR:
 	io_gdbus_complete_sysbak_extfs_ptf (object,invocation); 
+	io_gdbus_emit_sysbak_error (object,
+							    sysbak_error_message[e_code],
+			                    e_code);
     free(bitmap);
     if (dfr > 0)
     {    
@@ -521,9 +523,6 @@ ERROR:
     {    
         close (dfw);
     }    
-	io_gdbus_emit_sysbak_error (object,
-							    sysbak_error_message[e_code],
-			                    e_code);
 	return FALSE;
 }   
 
@@ -668,7 +667,8 @@ gboolean gdbus_sysbak_extfs_ptp (IoGdbus               *object,
         e_code = 6;
         goto ERROR;
     }   
-    //copied_count = 0;
+    copied_count = 0;
+	io_gdbus_complete_sysbak_extfs_ptp (object,invocation); 
     if (!read_write_data_ptp (object,
 				              &fs_info,
                               bitmap,
@@ -679,13 +679,11 @@ gboolean gdbus_sysbak_extfs_ptp (IoGdbus               *object,
         goto ERROR;
     }
 
-	io_gdbus_complete_sysbak_extfs_ptp (object,invocation); 
     fsync(dfw);
     free(bitmap);
     close (dfr);
     close (dfw);
 	io_gdbus_emit_sysbak_finished (object,
-			                      "extfs",
 								   fs_info.totalblock,
 								   fs_info.usedblocks,
 								   fs_info.block_size);
@@ -942,7 +940,8 @@ gboolean gdbus_sysbak_restore (IoGdbus               *object,
         e_code = 6;
         goto ERROR;
     }  
-    //copied_count = 0;
+    copied_count = 0;
+	io_gdbus_complete_sysbak_restore (object,invocation);
     if (!read_write_data_restore (object,
 				                  &fs_info,
 								  &img_opt,
@@ -954,13 +953,11 @@ gboolean gdbus_sysbak_restore (IoGdbus               *object,
         goto ERROR;
     } 
     
-	io_gdbus_complete_sysbak_restore (object,invocation);
     fsync(dfw);
     free(bitmap);
     close (dfw);
     close (dfr);
 	io_gdbus_emit_sysbak_finished (object,
-			                      "extfs",
 								   fs_info.totalblock,
 								   fs_info.usedblocks,
 								   fs_info.block_size);

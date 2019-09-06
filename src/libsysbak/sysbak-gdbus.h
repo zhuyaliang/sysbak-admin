@@ -40,8 +40,8 @@ typedef struct
     GObjectClass   parent_class;
 }SysbakAdminClass;
 
-typedef void (*finished_func) (guint64,guint64,uint,gpointer);
-typedef void (*progress_func) (double,double,guint64, guint64,gpointer);
+typedef void (*finished_func) (guint64,guint64,uint,   gpointer);
+typedef void (*progress_func) (double ,double ,guint64,guint64,gpointer);
 typedef void (*error_func)    (int, const char*,gpointer);
 
 GType            sysbak_admin_get_type         (void) G_GNUC_CONST;

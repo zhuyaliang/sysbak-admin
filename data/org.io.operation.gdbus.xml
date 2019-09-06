@@ -48,8 +48,6 @@
     </method>
 
     <signal name="SysbakFinished">
-       <arg name="fstype" type="s">
-       </arg>
        <arg name="totalblock" type="t">
        </arg>
        <arg name="usedblocks" type="t">

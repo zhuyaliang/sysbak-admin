@@ -126,18 +126,21 @@ static void start_test_restore (char *source,char *targer)
 } 
 */
 
-void finished_cb (guint64 totalblock,guint64 usedblocks,uint block_size,gpointer data)
+void finished_cb (guint64     totalblock,
+                  guint64     usedblocks,
+                  guint       block_size,
+                  gpointer    data)
 {
-
+    g_print ("totalblock = %lu block_size =%u\r\n",totalblock,block_size);
 }
 void progress_cb (double percent,double speed,guint64 remained, guint64 elapsed,gpointer data)
 {
-
+    g_print ("\r percent = %.2f",percent);
 }
 
 void error_cb (int e_code,const char *error_message,gpointer data)
 {
-
+    g_print ("error->message = %s\r\n",error_message);
 }
 int main(int argc, char **argv)
 {
@@ -146,12 +149,14 @@ int main(int argc, char **argv)
     
 	loop = g_main_loop_new (NULL, FALSE);
 	sysbak = sysbak_admin_new ();
-	sysbak_admin_set_source (sysbak,"/dev/sdc1");
-	sysbak_admin_set_target (sysbak,"/tmp/xxx.img");
+//	sysbak_admin_set_source (sysbak,"/dev/sdb1");
+//	sysbak_admin_set_target (sysbak,"/tmp/xxx.img");
+	sysbak_admin_set_source (sysbak,"/tmp/xxx.img");
+	sysbak_admin_set_target (sysbak,"/dev/sdb1");
 	sysbak_admin_set_option (sysbak,TRUE);
 	
-	sysbak_admin_extfs_ptf_async (sysbak);
-	sysbak_admin_extfs_ptp_async (sysbak);
+//	sysbak_admin_extfs_ptf_async (sysbak);
+//	sysbak_admin_extfs_ptp_async (sysbak);
 	sysbak_admin_extfs_restore_async (sysbak);
 
 	sysbak_admin_finished_signal (sysbak,finished_cb,NULL);

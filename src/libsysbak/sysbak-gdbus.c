@@ -42,10 +42,6 @@ typedef struct
  
 G_DEFINE_TYPE_WITH_PRIVATE (SysbakAdmin, sysbak_admin, G_TYPE_OBJECT)
 
-static void     sysbak_admin_class_init (SysbakAdminClass *klass);
-static void     sysbak_admin_init       (SysbakAdmin      *sysbak);
-static void     sysbak_admin_finalize   (GObject          *object);
-
 
 static void sysbak_admin_finalize  (GObject *object)
 {
@@ -121,7 +117,7 @@ void sysbak_admin_set_target (SysbakAdmin *sysbak,const char *target)
 {
 	SysbakAdminPrivate *priv = sysbak_admin_get_instance_private (sysbak);
 	
-	priv->source = g_strdup (target);
+	priv->target = g_strdup (target);
 }
 
 void sysbak_admin_set_option (SysbakAdmin *sysbak,gboolean overwrite)

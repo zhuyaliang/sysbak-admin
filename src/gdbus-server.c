@@ -54,6 +54,7 @@ static void AcquiredCallback (GDBusConnection *Connection,
         }    
         g_error("qiut g_dbus_interface_skeleton_export!!!\r\n");
     }    
+    sysbak_gdbus_set_version (sysbak_gdbus,"v1.0.0");
 }
 static void NameLostCallback (GDBusConnection *connection,
                               const gchar     *name,

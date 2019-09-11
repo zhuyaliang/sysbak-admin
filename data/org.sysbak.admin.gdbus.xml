@@ -46,6 +46,9 @@
         <arg name="overwrite" direction="in" type="b">
         </arg>
     </method>
+    
+    <property name="Version" type="s" access="read">
+    </property>
 
     <signal name="SysbakFinished">
        <arg name="totalblock" type="t">
@@ -55,7 +58,6 @@
        <arg name="block_size" type="u">
        </arg>
     </signal>
-	
 	<signal name="SysbakError">
        <arg name="message" type="s">
        </arg>

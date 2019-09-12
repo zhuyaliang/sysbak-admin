@@ -40,6 +40,22 @@
         <arg name="overwrite" direction="in" type="b">
         </arg>
     </method>
+    <method name="SysbakFattfsPtf">
+        <arg name="source" direction="in" type="s">
+        </arg>
+        <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="overwrite" direction="in" type="b">
+        </arg>
+    </method>
+    <method name="SysbakFatfsPtp">
+        <arg name="source" direction="in" type="s">
+        </arg>
+        <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="overwrite" direction="in" type="b">
+        </arg>
+    </method>
     <method name="SysbakRestore">
         <arg name="source" direction="in" type="s">
         </arg>

@@ -43,6 +43,7 @@
 #define     WRITE                     1 
 #define     READ                      0 
 #define     extfs_MAGIC              "EXTFS"
+#define     fatfs_MAGIC              "FATXX"
 #define     ext2_MAGIC               "EXT2"
 #define     ext3_MAGIC               "EXT3"
 #define     ext4_MAGIC               "EXT4"

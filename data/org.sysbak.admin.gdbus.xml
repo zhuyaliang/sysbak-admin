@@ -15,6 +15,8 @@
     <method name="GetFsImageInfo">
         <arg name="filename" direction="in" type="s">
         </arg>
+        <arg name="FsType" direction="out" type="s">
+        </arg>
         <arg name="totalblock" direction="out" type="t">
         </arg>
         <arg name="usedblocks" direction="out" type="t">

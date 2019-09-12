@@ -1037,6 +1037,7 @@ gboolean gdbus_get_fs_image_info (SysbakGdbus           *object,
 
     sysbak_gdbus_complete_get_fs_image_info (object,
                                              invocation,
+                                             fs_info.fs,
                                              fs_info.totalblock,
                                              fs_info.usedblocks,
                                              fs_info.block_size);	

@@ -244,7 +244,6 @@ gboolean write_image_desc(int* fd, file_system_info fs_info,image_options img_op
     memcpy(&image.options, &img_opt, sizeof(image_options));
     init_crc32(&image.crc);
     image.crc = crc32(image.crc, &image, sizeof(image_desc) - CRC32_SIZE);
-    g_print ("image = %s\r\n",(char*)&image);
     if (write_read_io_all (fd, (char*)&image, sizeof(image_desc),WRITE) != sizeof(image_desc))
     {
         return FALSE;
@@ -295,7 +294,6 @@ gboolean read_image_desc(int              *fd,
     crc = crc32(crc, &image, sizeof(image) - CRC32_SIZE);
     if (crc != image.crc)
     {
-        g_print ("crc = %08x \r\n",crc);
         return FALSE;
     }
     if (image.head.endianess != ENDIAN_MAGIC)

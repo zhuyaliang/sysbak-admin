@@ -5,7 +5,7 @@
 ## ext/2/3/4 文件系统
 
 ### 备份分区到分区
-```sysbak_admin_extfs_ptf_async```
+```sysbak_admin_extfs_ptp_async```
 
 ### 备份分区到文件
 ```sysbak_admin_extfs_ptf_async```

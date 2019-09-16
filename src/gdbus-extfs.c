@@ -37,7 +37,7 @@
 #ifndef EXT2_FLAG_64BITS
 #	define EXTFS_1_41 1.41
 #endif
-const char *sysbak_error_message[10] = 
+static const char *sysbak_error_message[10] = 
 {
 	"Device Busy",
 	"Failed to open source file",

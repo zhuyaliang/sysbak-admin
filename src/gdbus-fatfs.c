@@ -14,19 +14,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <ext2fs/ext2fs.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <malloc.h>
-#include <stdarg.h>
-#include <getopt.h>
-#include <unistd.h>
-
+#include <assert.h>
 #include "gdbus-fatfs.h"
 #include "gdbus-share.h"
 #include "checksum.h"
@@ -40,7 +28,7 @@
 #define MSDOS_DIR_BITS         5        /* log2(sizeof(struct msdos_dir_entry)) */
 
 static int FS;
-const char *sysbak_error_message[10] = 
+static const char *sysbak_error_message[10] = 
 {
 	"Device Busy",
 	"Failed to open source file",
@@ -67,8 +55,207 @@ static ull get_total_sector(FatBootSector *fat_sb)
     return total_sector;
 
 }
+///return sec_per_fat
+static ull get_sec_per_fat(FatBootSector *fat_sb)
+{
+    ull sec_per_fat = 0;
+    /// get fat length
+    if(fat_sb->fat_length != 0)
+        sec_per_fat = fat_sb->fat_length;
+    else
+        if (fat_sb->u.fat32.fat_length != 0)
+        sec_per_fat = fat_sb->u.fat32.fat_length;
+    return sec_per_fat;
+
+}
+
+///return root sec
+static ull get_root_sec(FatBootSector *fat_sb)
+{
+    ull root_sec = 0;
+    root_sec = ((fat_sb->dir_entries * 32) + fat_sb->sector_size - 1) / fat_sb->sector_size;
+    return root_sec;
+}
+
+static ull get_cluster_count(FatBootSector *fat_sb)
+{
+    ull data_sec = 0;
+    ull cluster_count = 0;
+    ull total_sector = get_total_sector(fat_sb);
+    ull root_sec = get_root_sec(fat_sb);
+    ull sec_per_fat = get_sec_per_fat(fat_sb);
+    ull reserved = fat_sb->reserved +
+             (fat_sb->fats * sec_per_fat) + root_sec;
+
+    if (reserved > total_sector) {
+        return 0;
+    }
+
+    data_sec = total_sector - ( fat_sb->reserved + (fat_sb->fats * sec_per_fat) + root_sec);
+    cluster_count = data_sec / fat_sb->cluster_size;
+    return cluster_count;
+}
+/// mark reserved sectors as used
+static ull mark_reserved_sectors(ul *fat_bitmap, ull block,FatBootSector *fat_sb)
+{
+    ull i = 0;
+    ull j = 0;
+    ull sec_per_fat = 0;
+    ull root_sec = 0;
+    ull total_block;
+    
+    total_block = get_total_sector (fat_sb);
+    sec_per_fat = get_sec_per_fat(fat_sb);
+    root_sec = get_root_sec(fat_sb);
+
+    /// A) the reserved sectors are used
+    for (i=0; i < fat_sb->reserved; i++,block++)
+        pc_set_bit(block, fat_bitmap, total_block);
+
+    /// B) the FAT tables are on used sectors
+    for (j=0; j < fat_sb->fats; j++)
+        for (i=0; i < sec_per_fat ; i++,block++)
+            pc_set_bit(block, fat_bitmap, total_block);
+
+    /// C) The rootdirectory is on used sectors
+    if (root_sec > 0) /// no rootdir sectors on FAT32
+        for (i=0; i < root_sec; i++,block++)
+            pc_set_bit(block, fat_bitmap, total_block);
+    return block;
+}
+static int check_fat_status(int fd) 
+{
+    uint16_t Fat16_Entry;
+    uint32_t Fat32_Entry;
+    int fs_error = 2;
+    int fs_good = 0;
+    int fs_bad = 1;
+
+    if (FS == FAT_16)
+    {
+        read(fd, &Fat16_Entry, sizeof(Fat16_Entry));
+        if (!(Fat16_Entry & 0x8000))
+            return fs_bad;
+        if (!(Fat16_Entry & 0x4000))
+            return fs_error;
+
+    } 
+    else if (FS == FAT_32) 
+    {
+        read(fd, &Fat32_Entry, sizeof(Fat32_Entry));
+        if (!(Fat32_Entry & 0x08000000))
+            return fs_bad;
+        if (!(Fat32_Entry & 0x04000000))
+            return fs_error;
+    } 
+    return fs_good;
+}
+static ull check_fat16_entry(ul  *fat_bitmap, 
+                             ull  total_block,
+                             ull  cluster_size,
+                             ull  block, 
+                             ull *bfree, 
+                             ull *bused, 
+                             ull *DamagedClusters,
+                             int  fd)
+{
+    uint16_t Fat16_Entry = 0;
+    ull i = 0;
+    
+    read(fd, &Fat16_Entry, sizeof(Fat16_Entry));
+    if (Fat16_Entry  == 0xFFF7) 
+    { /// bad FAT16 cluster
+        DamagedClusters++;
+        for (i=0; i < cluster_size; i++,block++)
+            pc_clear_bit(block, fat_bitmap, total_block);
+    } 
+    else if (Fat16_Entry == 0x0000)
+    { /// free
+        bfree++;
+        for (i=0; i < cluster_size; i++,block++)
+            pc_clear_bit(block, fat_bitmap, total_block);
+    } 
+    else 
+    {
+        bused++;
+        for (i=0; i < cluster_size; i++,block++)
+            pc_set_bit(block, fat_bitmap, total_block);
+    }
+    return block;
+}
+/// check per FAT32 entry
+static ull check_fat32_entry(ul  *fat_bitmap,
+                             ull  total_block,
+                             ull  cluster_size,
+                             ull  block, 
+                             ull *bfree, 
+                             ull *bused, 
+                             ull *DamagedClusters,
+                             int  fd)
+{
+    uint32_t Fat32_Entry = 0;
+    ull i = 0;
+    
+    read(fd, &Fat32_Entry, sizeof(Fat32_Entry));
+    if (Fat32_Entry  == 0x0FFFFFF7) 
+    { /// bad FAT32 cluster
+        DamagedClusters++;
+        for (i=0; i < cluster_size; i++,block++)
+            pc_clear_bit(block, fat_bitmap, total_block);
+    } 
+    else if (Fat32_Entry == 0x0000)
+    { /// free
+        bfree++;
+        for (i=0; i < cluster_size; i++,block++)
+            pc_clear_bit(block, fat_bitmap, total_block);
+    } 
+    else 
+    {
+        bused++;
+        for (i=0; i < cluster_size; i++,block++)
+            pc_set_bit(block, fat_bitmap, total_block);
+    }
+
+    return block;
+}
+/// check per FAT12 entry
+static ull check_fat12_entry(ul  *fat_bitmap, 
+                             ull  total_block,
+                             ull  cluster_size,
+                             ull  block, 
+                             ull *bfree, 
+                             ull *bused, 
+                             ull *DamagedClusters,
+                             int  fd)
+{
+    uint16_t Fat16_Entry = 0;
+    uint16_t Fat12_Entry = 0;
+    ull i = 0;
+    
+    read(fd, &Fat16_Entry, sizeof(Fat16_Entry));
+    Fat12_Entry = Fat16_Entry>>4;
+    if (Fat12_Entry  == 0xFF7) 
+    { /// bad FAT12 cluster
+        DamagedClusters++;
+        for (i=0; i < cluster_size; i++,block++)
+            pc_clear_bit(block, fat_bitmap, total_block);
+    } 
+    else if (Fat12_Entry == 0x0000)
+    { /// free
+        bfree++;
+        for (i=0; i < cluster_size; i++,block++)
+            pc_clear_bit(block, fat_bitmap, total_block);
+    } 
+    else 
+    {
+        bused++;
+        for (i=0; i < cluster_size; i++,block++)
+            pc_set_bit(block, fat_bitmap, total_block);
+    }
+    return block;
+}
 /// get_used_block - get FAT used blocks
-static ull get_used_block()
+static ull get_used_block(FatBootSector *fat_sb,int fd)
 {
     ull i = 0;
     int fat_stat = 0;
@@ -78,67 +265,79 @@ static ull get_used_block()
     int FatReservedBytes = 0;
     unsigned long *fat_bitmap;
 
-    log_mesg(2, 0, 0, fs_opt.debug, "%s: get_used_block start\n", __FILE__);
-
-    total_sector = get_total_sector();
-    cluster_count = get_cluster_count();
-
+    total_sector = get_total_sector(fat_sb);
+    cluster_count = get_cluster_count(fat_sb);
     fat_bitmap = pc_alloc_bitmap(total_sector);
-    if (fat_bitmap == NULL)
-        log_mesg(2, 1, 1, fs_opt.debug, "%s: bitmapalloc error\n", __FILE__);
     pc_init_bitmap(fat_bitmap, 0xFF, total_sector);
 
     /// A) B) C)
-    block = mark_reserved_sectors(fat_bitmap, block);
+    block = mark_reserved_sectors(fat_bitmap, block,fat_sb);
 
     /// D) The clusters
-    FatReservedBytes = fat_sb.sector_size * fat_sb.reserved;
+    FatReservedBytes = fat_sb->sector_size * fat_sb->reserved;
 
-    /// The first fat will be seek
-    if (lseek(ret, FatReservedBytes, SEEK_SET) == -1)
-    log_mesg(0, 1, 1, fs_opt.debug, "%s, %i, ERROR: seek FatReservedBytes, error\n", __func__, __LINE__);
+    lseek(fd, FatReservedBytes, SEEK_SET);
 
     /// The second fat is used to check FAT status
-    fat_stat = check_fat_status();
-    if (fat_stat == 1)
-        log_mesg(0, 1, 1, fs_opt.debug, "%s: Filesystem isn't in valid state. May be it is not cleanly unmounted.\n\n"    , __FILE__);
-    else if (fat_stat == 2)
-        log_mesg(0, 1, 1, fs_opt.debug, "%s: I/O error! %X\n", __FILE__);
-
-    for (i=0; i < cluster_count; i++){
-    if (block >= total_sector)
-            log_mesg(1, 0, 0, fs_opt.debug, "%s: error block too large\n", __FILE__);
-        /// If FAT16
-        if(FS == FAT_16){
-            block = check_fat16_entry(fat_bitmap, block, &bfree, &bused, &DamagedClusters);
-        } else if (FS == FAT_32){ /// FAT32
-            block = check_fat32_entry(fat_bitmap, block, &bfree, &bused, &DamagedClusters);
-        } else if (FS == FAT_12){ /// FAT12
-            block = check_fat12_entry(fat_bitmap, block, &bfree, &bused, &DamagedClusters);
-        } else
-            log_mesg(2, 0, 0, fs_opt.debug, "%s: error fs\n", __FILE__);
+    fat_stat = check_fat_status(fd);
+    if (fat_stat != 0)
+    {
+        return 0;
+    }
+    for (i=0; i < cluster_count; i++)
+    {
+        if(FS == FAT_16)
+        {
+            block = check_fat16_entry(fat_bitmap,
+                                      total_sector, 
+                                      fat_sb->cluster_size,
+                                      block, 
+                                      &bfree, 
+                                      &bused, 
+                                      &DamagedClusters,
+                                      fd);
+        } 
+        else if (FS == FAT_32)
+        { /// FAT32
+            block = check_fat32_entry(fat_bitmap,
+                                      total_sector, 
+                                      fat_sb->cluster_size,
+                                      block, 
+                                      &bfree, 
+                                      &bused, 
+                                      &DamagedClusters,
+                                      fd);
+        } 
+        else if (FS == FAT_12)
+        { /// FAT12
+            block = check_fat12_entry(fat_bitmap,
+                                      total_sector, 
+                                      fat_sb->cluster_size,
+                                      block, 
+                                      &bfree, 
+                                      &bused, 
+                                      &DamagedClusters,
+                                      fd);
+        } 
     }
 
     while(block < total_sector){
-        pc_set_bit(block, fat_bitmap, total_block);
+        pc_set_bit(block, fat_bitmap, total_sector);
         block++;
     }
-
-
     for (block = 0; block < total_sector; block++)
     {
-        if (pc_test_bit(block, fat_bitmap, total_block)) {
+        if (pc_test_bit(block, fat_bitmap, total_sector)) {
             real_back_block++;
         }
     }
     free(fat_bitmap);
-    log_mesg(2, 0, 0, fs_opt.debug, "%s: get_used_block down\n", __FILE__);
 
     return real_back_block;
 }
 
 // open device
-static gboolean get_fat_fs_sector (const char* device,FatBootSector *fat_sb)
+static int get_fat_fs_sector (const char* device,FatBootSector *fat_sb)
 {
     char *buffer;
     int fd;
@@ -146,57 +345,25 @@ static gboolean get_fat_fs_sector (const char* device,FatBootSector *fat_sb)
     fd = open(device, O_RDONLY);
     if (fd < 0 )
     {
-        return FALSE;
+        return -1;
     }     
     buffer = (char*)malloc(sizeof(FatBootSector));
     if(buffer == NULL)
     {
-        close (fd);
-        return FALSE; 
+        return -1; 
     }
     if(read (fd, buffer, sizeof(FatBootSector)) != sizeof(FatBootSector))
     {
-        close (fd);
         free(buffer);
-        return FALSE;
+        return -1;
     }    
     assert(buffer != NULL);
     memcpy(fat_sb, buffer, sizeof(FatBootSector));
     free(buffer);
-    close (fd);
     
-    return TRUE;
+    return fd;
 }
 
-static gboolean get_fat_fs_info (const char* device,FatFsInfo *fatfs_info)
-{
-    char *buffer;
-    int fd;
-
-    fd = open(device, O_RDONLY);
-    if (fd < 0 )
-    {
-        return FALSE;
-    }     
-    buffer = (char*)malloc(sizeof(FatFsInfo));
-    if(buffer == NULL)
-    {
-        close (fd);
-        return FALSE; 
-    }
-    if (read(ret, buffer, sizeof(FatFsInfo)) != sizeof(FatFsInfo))
-    {
-        close (fd);
-        free(buffer);
-        return FALSE;
-    }    
-    assert(buffer != NULL);
-    memcpy(fatfs_info, buffer, sizeof(FatFsInfo));
-    free(buffer);
-    
-    close (fd);
-    return TRUE;
-}   
 static const char *get_fat_fs_type(FatBootSector *fat_sb)
 {
     off_t total_sectors;
@@ -207,20 +374,20 @@ static const char *get_fat_fs_type(FatBootSector *fat_sb)
     off_t root_start;
     uint  root_entries;
 
-    if ((fat_sb.u.fat16.ext_signature == 0x29) || 
-        (fat_sb.fat_length && !fat_sb.u.fat32.fat_length))
+    if ((fat_sb->u.fat16.ext_signature == 0x29) || 
+        (fat_sb->fat_length && !fat_sb->u.fat32.fat_length))
     {
         total_sectors = get_total_sector(fat_sb);
-        logical_sector_size = fat_sb.sector_size;
-        root_start = (fat_sb.reserved + fat_sb.fats * fat_sb.fat_length) * logical_sector_size;
-        root_entries = fat_sb.dir_entries;
+        logical_sector_size = fat_sb->sector_size;
+        root_start = (fat_sb->reserved + fat_sb->fats * fat_sb->fat_length) * logical_sector_size;
+        root_entries = fat_sb->dir_entries;
         data_start = root_start + ROUND_TO_MULTIPLE(root_entries <<MSDOS_DIR_BITS,logical_sector_size);
         data_size = (off_t) total_sectors * logical_sector_size - data_start;
         if (data_size <= 0)
         {
             return NULL;
         }   
-        clusters = data_size / (fat_sb.cluster_size * logical_sector_size);
+        clusters = data_size / (fat_sb->cluster_size * logical_sector_size);
         if (clusters <= 0)
         {
             return NULL;
@@ -237,10 +404,10 @@ static const char *get_fat_fs_type(FatBootSector *fat_sb)
             return "FAT12";
         }
     }
-    else if ((fat_sb.u.fat32.fat_name[4] == '2')||(!fat_sb.fat_length && fat_sb.u.fat32.fat_length))
+    else if ((fat_sb->u.fat32.fat_name[4] == '2')||(!fat_sb->fat_length && fat_sb->u.fat32.fat_length))
     {
         FS = FAT_32;
-        return = "FAT32";
+        return  "FAT32";
     }
     
     return NULL;
@@ -250,147 +417,106 @@ static gboolean read_bitmap_info (const char      *device,
                                   file_system_info fs_info, 
                                   ul              *bitmap) 
 {
-    ext2_filsys extfs;
-    errcode_t   retval;
-    ul          group;
-    ull         current_block, block;
-    ull         lfree, gfree;
-    char       *block_bitmap = NULL;
-    int         block_nbytes;
-    ull         blk_itr;
-    int         bg_flags = 0;
-    int         B_UN_INIT = 0;
+    ull i = 0;
+    int fat_stat = 0;
+    FatBootSector fat_sb;
+    ull block = 0, bfree = 0, bused = 0, DamagedClusters = 0;
+    ull cluster_count = 0;
+    ull total_sector = 0;
+    ull FatReservedBytes = 0;
+    int fd;
 
-    extfs = open_file_system(device);
-    if (extfs == NULL)
+    fd = get_fat_fs_sector (device,&fat_sb);
+    if (fd < 0)
     {
+        return FALSE;
+    }     
+
+    total_sector = get_total_sector(&fat_sb);
+    cluster_count = get_cluster_count(&fat_sb);
+
+    pc_init_bitmap(bitmap, 0xFF, total_sector);
+
+    /// A) B) C)
+    block = mark_reserved_sectors(bitmap, block,&fat_sb);
+
+    /// D) The clusters
+    FatReservedBytes = fat_sb.sector_size * fat_sb.reserved;
+
+    lseek(fd, FatReservedBytes, SEEK_SET);
+
+    /// The second used to check FAT status
+    fat_stat = check_fat_status(fd);
+    if (fat_stat != 0)
+    {
+        close (fd);
         return FALSE;
     }    
-    retval = ext2fs_read_bitmaps(extfs); /// open extfs bitmap
-    if (retval)
+    for (i=0; i < cluster_count; i++)
     {
-        return FALSE;
-    }    
-
-    block_nbytes = EXT2_BLOCKS_PER_GROUP(extfs->super) / 8;
-    if (extfs->block_map)
-        block_bitmap = malloc(block_nbytes);
-
-    // initial image bitmap as 1 (all block are used)
-    pc_init_bitmap(bitmap, 0xFF, fs_info.totalblock);
-
-    lfree = 0;
-    current_block = 0;
-    blk_itr = extfs->super->s_first_data_block;
-
-    /// each group
-    for (group = 0; group < extfs->group_desc_count; group++)
-    {
-        gfree = 0;
-        B_UN_INIT = 0;
-
-        if (block_bitmap) 
+        if(FS == FAT_16)
         {
-#ifdef EXTFS_1_41
-            ext2fs_get_block_bitmap_range(extfs->block_map, 
-                                          blk_itr, 
-                                          block_nbytes << 3, 
-                                          block_bitmap);
-#else
-            ext2fs_get_block_bitmap_range2(extfs->block_map, 
-                                           blk_itr, 
-                                           block_nbytes << 3, 
-                                           block_bitmap);
-#endif
-        if (extfs->super->s_feature_ro_compat & EXT4_FEATURE_RO_COMPAT_GDT_CSUM)
-        {
-#ifdef EXTFS_1_41
-            bg_flags = extfs->group_desc[group].bg_flags;
-#else
-            bg_flags = ext2fs_bg_flags(extfs, group);
-#endif
-            if (bg_flags&EXT2_BG_BLOCK_UNINIT)
-            {
-                B_UN_INIT = 1;
-            } 
-        }
-        // each block in group
-        for (block = 0; ((block < extfs->super->s_blocks_per_group) && 
-                    (current_block < (fs_info.totalblock-1))); 
-                block++) 
-        {
-            current_block = block + blk_itr;
-
-            if (in_use (block_bitmap, block))
-            {
-                if (!pc_set_bit(current_block, bitmap, fs_info.totalblock))
-                {
-                    return FALSE;
-                }    
-            } 
-            else 
-            {
-                lfree++;
-                gfree++;
-                if (!pc_clear_bit(current_block, bitmap, fs_info.totalblock))
-                {
-                    return FALSE;
-                }    
-            }
-
-        }
-        blk_itr += extfs->super->s_blocks_per_group;
+            block = check_fat16_entry(bitmap, 
+                                      total_sector,
+                                      fat_sb.cluster_size,
+                                      block, 
+                                      &bfree, 
+                                      &bused, 
+                                      &DamagedClusters,
+                                      fd);
+        } 
+        else if (FS == FAT_32)
+        { /// FAT32
+            block = check_fat32_entry(bitmap, 
+                                      total_sector,
+                                      fat_sb.cluster_size,
+                                      block, 
+                                      &bfree, 
+                                      &bused, 
+                                      &DamagedClusters,
+                                      fd);
+        } 
+        else if (FS == FAT_12)
+        { /// FAT12
+            block = check_fat12_entry(bitmap,
+                                      total_sector,
+                                      fat_sb.cluster_size, 
+                                      block, 
+                                      &bfree, 
+                                      &bused, 
+                                      &DamagedClusters,
+                                      fd);
+        } 
     }
-    /// check free blocks in group
-#ifdef EXTFS_1_41
-    if (gfree != extfs->group_desc[group].bg_free_blocks_count)
-    {	
-#else
-        if (gfree != ext2fs_bg_free_blocks_count(extfs, group))
-        {
-#endif
-            if (!B_UN_INIT)
-                return FALSE;
-        }
-    }
-    /// check all free blocks in partition
-    if (lfree != ext2fs_free_blocks_count(extfs->super)) 
-    {
-        return FALSE;
-    }
-
-    ext2fs_close(extfs);
-    free(block_bitmap);
+    close(fd);
 
     return TRUE;
 }
 static gboolean read_super_blocks(const char* device, file_system_info* fs_info)
 {
     FatBootSector fat_sb;
-    FatFsInfo fatfs_info;
     ull total_sector = 0;
     ull bused = 0;
+    int fd;
 
     const char *fs_type;
 
-    if (!get_fat_fs_sector (device,&fat_sb))
+    fd = get_fat_fs_sector (device,&fat_sb);
+    if (fd < 0)
     {
         return FALSE;
     }     
-    if (!get_fat_fs_info (device,&fatfs_info))
-    {
-        return FALSE;
-    }    
     fs_type = get_fat_fs_type (&fat_sb);
     strncpy(fs_info->fs, fs_type, FS_MAGIC_SIZE);
-    total_sector = get_total_sector();
-    bused = get_used_block();//so I need calculate by myself.
+    total_sector = get_total_sector(&fat_sb);
+    bused = get_used_block(&fat_sb,fd);//so I need calculate by myself.
     
     fs_info->block_size  = fat_sb.sector_size;
     fs_info->totalblock  = total_sector;
     fs_info->usedblocks  = bused;
     fs_info->device_size = total_sector * fs_info->block_size;
-
+    
+    close (fd);
     return TRUE;
 }
 static gboolean check_system_space (file_system_info *fs_info,
@@ -615,7 +741,6 @@ gboolean gdbus_sysbak_fatfs_ptf (SysbakGdbus           *object,
         e_code = 3;
         goto ERROR;
     }
-
     buffer_capacity = DEFAULT_BUFFER_SIZE > fs_info.block_size
                     ? DEFAULT_BUFFER_SIZE / fs_info.block_size : 1; // in blocks
     img_opt.blocks_per_checksum = buffer_capacity; 
@@ -649,7 +774,7 @@ gboolean gdbus_sysbak_fatfs_ptf (SysbakGdbus           *object,
     }    
     write_image_bitmap(&dfw, fs_info, bitmap);
     copied_count = 0;
-    sysbak_gdbus_complete_sysbak_extfs_ptf (object,invocation); 
+    sysbak_gdbus_complete_sysbak_fatfs_ptf (object,invocation); 
     if (!read_write_data_ptf (object,&fs_info,&img_opt,bitmap,&dfr,&dfw))
     {
         e_code = 8;
@@ -666,7 +791,7 @@ gboolean gdbus_sysbak_fatfs_ptf (SysbakGdbus           *object,
     close (dfr);
     return TRUE;
 ERROR:
-	sysbak_gdbus_complete_sysbak_extfs_ptf (object,invocation); 
+	sysbak_gdbus_complete_sysbak_fatfs_ptf (object,invocation); 
 	sysbak_gdbus_emit_sysbak_error (object,
                                     sysbak_error_message[e_code],
                                     e_code);
@@ -756,8 +881,7 @@ ERROR:
     }
     return FALSE;	
 }
-//Backup ext file system partition to partition
-gboolean gdbus_sysbak_extfs_ptp (SysbakGdbus           *object,
+gboolean gdbus_sysbak_fatfs_ptp (SysbakGdbus           *object,
                                  GDBusMethodInvocation *invocation,
                                  const gchar           *source,
                                  const gchar           *target,
@@ -822,7 +946,7 @@ gboolean gdbus_sysbak_extfs_ptp (SysbakGdbus           *object,
         goto ERROR;
     }   
     copied_count = 0;
-    sysbak_gdbus_complete_sysbak_extfs_ptp (object,invocation); 
+    sysbak_gdbus_complete_sysbak_fatfs_ptp (object,invocation); 
     if (!read_write_data_ptp (object,
                              &fs_info,
                               bitmap,
@@ -843,7 +967,7 @@ gboolean gdbus_sysbak_extfs_ptp (SysbakGdbus           *object,
                                        fs_info.block_size);
     return TRUE;
 ERROR:
-    sysbak_gdbus_complete_sysbak_extfs_ptp (object,invocation); 
+    sysbak_gdbus_complete_sysbak_fatfs_ptp (object,invocation); 
     free(bitmap);
     if (dfr > 0)
     {    

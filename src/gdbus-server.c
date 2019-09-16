@@ -40,8 +40,8 @@ static void AcquiredCallback (GDBusConnection *Connection,
 
     iface->handle_sysbak_extfs_ptf  = gdbus_sysbak_extfs_ptf;
 	iface->handle_sysbak_extfs_ptp  = gdbus_sysbak_extfs_ptp;
-    iface->handle_sysbak_extfs_ptf  = gdbus_sysbak_fatfs_ptf;
-	iface->handle_sysbak_extfs_ptp  = gdbus_sysbak_fatfs_ptp;
+    iface->handle_sysbak_fatfs_ptf  = gdbus_sysbak_fatfs_ptf;
+	iface->handle_sysbak_fatfs_ptp  = gdbus_sysbak_fatfs_ptp;
 	iface->handle_sysbak_restore    = gdbus_sysbak_restore;
 	iface->handle_get_extfs_device_info   = gdbus_get_extfs_device_info;
     iface->handle_get_fs_image_info = gdbus_get_fs_image_info; 

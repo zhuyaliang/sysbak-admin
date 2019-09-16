@@ -40,7 +40,7 @@
         <arg name="overwrite" direction="in" type="b">
         </arg>
     </method>
-    <method name="SysbakFattfsPtf">
+    <method name="SysbakFatfsPtf">
         <arg name="source" direction="in" type="s">
         </arg>
         <arg name="target" direction="in" type="s">

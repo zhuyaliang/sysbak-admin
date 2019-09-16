@@ -18,6 +18,16 @@
 #ifndef __GDBUS_FATFS_H__
 #define __GDBUS_FATFS_H__
 
+#include <stdio.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <malloc.h>
+#include <stdarg.h>
+#include <getopt.h>
+#include <unistd.h>
 #include <glib.h>
 #include <gio/gio.h>
 #include "sysbak-admin-generated.h"

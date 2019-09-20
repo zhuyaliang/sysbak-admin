@@ -29,8 +29,6 @@ dbus_sys_dir = dbus_dep.get_pkgconfig_variable('system_bus_services_dir', define
 
 systemd_system_unit_dir = get_option('systemdsystemunitdir')
 install_systemd_unit_dir = (systemd_system_unit_dir != 'no')
-enable_systemd = get_option('systemd')
-enable_elogind = get_option('elogind')
 
 if install_systemd_unit_dir and systemd_system_unit_dir == ''
   systemd_dep = dependency('systemd', required: false)

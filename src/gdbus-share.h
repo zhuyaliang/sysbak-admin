@@ -47,6 +47,7 @@
 #define     ext2_MAGIC               "EXT2"
 #define     ext3_MAGIC               "EXT3"
 #define     ext4_MAGIC               "EXT4"
+#define     btrfs_MAGIC              "BTRFS"
 
 
 typedef enum

@@ -87,7 +87,8 @@ test_args = [
   '-Wundef',
   '-Wuninitialized',
   '-Wunused-but-set-variable',
-  '-Wwrite-strings'
+  '-Wwrite-strings',
+  '-D_GNU_SOURCE'
   ]
 
 cc = meson.get_compiler('c')
@@ -100,7 +101,7 @@ endforeach
 
 # enable full RELRO where possible
 # FIXME: until https://github.com/mesonbuild/meson/issues/1140 is fixed
-global_link_args = []
+global_link_args = ['-D_GNU_SOURCE']
 test_link_args = [
   '-Wl,-z,relro',
   '-Wl,-z,now',
@@ -122,6 +123,8 @@ glib_dep = dependency('glib-2.0', version: '>= 2.44')
 polkit_gobject_dep = dependency('polkit-gobject-1')
 crypt_dep = cc.find_library('crypt')
 ext2fs_dep = dependency('ext2fs')
+blkid_dep = dependency('blkid')
+uuid_dep = dependency('uuid')
 # Configure data
 policy_dir = polkit_gobject_dep.get_pkgconfig_variable('policydir', define_variable: ['prefix', sysbak_prefix])
 conf = configuration_data()

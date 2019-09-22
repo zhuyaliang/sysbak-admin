@@ -50,4 +50,3 @@ void btrfs_remove_free_space_cache(struct btrfs_block_group_cache *block_group)
 {
 	__btrfs_remove_free_space_cache(block_group->free_space_ctl);
 }
-

@@ -27,7 +27,7 @@
 #include "disk-io.h"
 #include "transaction.h"
 #include "volumes.h"
-//#include "free-space-cache.h"
+#include "free-space-cache.h"
 #include "utils.h"
 
 #define PENDING_EXTENT_INSERT 0

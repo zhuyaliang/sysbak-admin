@@ -1374,32 +1374,23 @@ static int btrfs_check_chunk_valid(struct btrfs_root *root,
 	 * These valid checks may be insufficient to cover every corner cases.
 	 */
 	if (!IS_ALIGNED(logical, root->sectorsize)) {
-		error("invalid chunk logical %llu",  logical);
 		return -EIO;
 	}
 	if (btrfs_chunk_sector_size(leaf, chunk) != root->sectorsize) {
-		error("invalid chunk sectorsize %llu", 
-		      (unsigned long long)btrfs_chunk_sector_size(leaf, chunk));
 		return -EIO;
 	}
 	if (!length || !IS_ALIGNED(length, root->sectorsize)) {
-		error("invalid chunk length %llu",  length);
 		return -EIO;
 	}
 	if (stripe_len != BTRFS_STRIPE_LEN) {
-		error("invalid chunk stripe length: %llu", stripe_len);
 		return -EIO;
 	}
 	/* Check on chunk item type */
 	if (slot == -1 && (type & BTRFS_BLOCK_GROUP_SYSTEM) == 0) {
-		error("invalid chunk type %llu", type);
 		return -EIO;
 	}
 	if (type & ~(BTRFS_BLOCK_GROUP_TYPE_MASK |
 		     BTRFS_BLOCK_GROUP_PROFILE_MASK)) {
-		error("unrecognized chunk type: %llu",
-		      ~(BTRFS_BLOCK_GROUP_TYPE_MASK |
-			BTRFS_BLOCK_GROUP_PROFILE_MASK) & type);
 		return -EIO;
 	}
 	/*
@@ -1412,7 +1403,6 @@ static int btrfs_check_chunk_valid(struct btrfs_root *root,
 	     BTRFS_SYSTEM_CHUNK_ARRAY_SIZE) ||
 	    (slot >= 0 && sizeof(struct btrfs_stripe) * (num_stripes - 1) >
 	     btrfs_item_size_nr(leaf, slot))) {
-		error("invalid num_stripes: %u", num_stripes);
 		return -EIO;
 	}
 	/*
@@ -1425,9 +1415,6 @@ static int btrfs_check_chunk_valid(struct btrfs_root *root,
 	    (type & BTRFS_BLOCK_GROUP_DUP && num_stripes > 2) ||
 	    ((type & BTRFS_BLOCK_GROUP_PROFILE_MASK) == 0 &&
 	     num_stripes != 1)) {
-		error("Invalid num_stripes:sub_stripes %u:%u for profile %llu",
-		      num_stripes, sub_stripes,
-		      type & BTRFS_BLOCK_GROUP_PROFILE_MASK);
 		return -EIO;
 	}
 
@@ -1460,9 +1447,6 @@ static int read_one_chunk(struct btrfs_root *root, struct btrfs_key *key,
 	/* Validation check */
 	ret = btrfs_check_chunk_valid(root, leaf, chunk, slot, logical);
 	if (ret) {
-		error("%s checksums match, but it has an invalid chunk, %s",
-		      (slot == -1) ? "Superblock" : "Metadata",
-		      (slot == -1) ? "try btrfsck --repair -s <superblock> ie, 0,1,2" : "");
 		return ret;
 	}
 

@@ -65,10 +65,9 @@ static void set_bitmap(unsigned long* bitmap, uint64_t pos, uint64_t length){
     }
 }
 
-int check_extent_bitmap(unsigned long* bitmap, u64 bytenr, u64 *num_bytes, int type)
+static int check_extent_bitmap(unsigned long* bitmap, u64 bytenr, u64 *num_bytes, int type)
 {
     struct btrfs_multi_bio *multi = NULL;
-    int ret = 0;
     int mirror = 0;
     u64 maxlen;
     
@@ -103,7 +102,7 @@ static void dump_file_extent_item(unsigned long* bitmap, struct extent_buffer *e
 	set_bitmap(bitmap, (unsigned long long)btrfs_file_extent_disk_bytenr(eb, fi),
 		                   (unsigned long long)btrfs_file_extent_disk_num_bytes(eb, fi) );
 }
-void dump_start_leaf(unsigned long* bitmap, struct btrfs_root *root, struct extent_buffer *eb, int follow){
+static void dump_start_leaf(unsigned long* bitmap, struct btrfs_root *root, struct extent_buffer *eb, int follow){
 
     u64 bytenr;
     u64 size;
@@ -201,7 +200,8 @@ static gboolean fs_open(char* device)
 }
 
 /// close device
-static void fs_close(){
+static void fs_close()
+{
     close_ctree(root);
 }
 static gboolean read_bitmap_info (char* device, file_system_info fs_info, ul *bitmap)
@@ -215,6 +215,7 @@ static gboolean read_bitmap_info (char* device, file_system_info fs_info, ul *bi
     struct extent_buffer *leaf;
     struct btrfs_root_item ri;
     int slot;
+    u64 bsize;
 
     total_block = fs_info.totalblock;
     if (!fs_open(device))
@@ -223,7 +224,7 @@ static gboolean read_bitmap_info (char* device, file_system_info fs_info, ul *bi
     }    
     dev_size = fs_info.device_size;
     block_size  = btrfs_super_nodesize(info->super_copy);
-    u64 bsize = (u64)block_size;
+    bsize = (u64)block_size;
     set_bitmap(bitmap, 0, BTRFS_SUPER_INFO_OFFSET); // some data like mbr maybe in
     set_bitmap(bitmap, BTRFS_SUPER_INFO_OFFSET, block_size);
     check_extent_bitmap(bitmap, btrfs_root_bytenr(&info->extent_root->root_item), &bsize, 0);

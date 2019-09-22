@@ -122,33 +122,4 @@ static inline u64 div_factor(u64 num, int factor)
 	return num;
 }
 
-__attribute__ ((format (printf, 1, 2)))
-static inline void warning(const char *fmt, ...)
-{
-    va_list args;
-
-    fputs("WARNING: ", stderr);
-    va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
-    va_end(args);
-    fputc('\n', stderr);
-}
-
-__attribute__ ((format (printf, 2, 3)))
-static inline int warning_on(int condition, const char *fmt, ...)
-{
-    va_list args;
-
-    if (!condition)
-        return 0;
-
-    fputs("WARNING: ", stderr);
-    va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
-    va_end(args);
-    fputc('\n', stderr);
-
-    return 1;
-}
-
 #endif

@@ -22,7 +22,6 @@
 #include "transaction.h"
 #include "disk-io.h"
 #include "extent_io.h"
-#include "bitops.h"
 #include "utils.h"
 
 

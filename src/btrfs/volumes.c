@@ -490,101 +490,6 @@ error:
 	return ret;
 }
 
-static int find_next_devid(struct btrfs_root *root, struct btrfs_path *path,
-			   u64 *objectid)
-{
-	int ret;
-	struct btrfs_key key;
-	struct btrfs_key found_key;
-
-	key.objectid = BTRFS_DEV_ITEMS_OBJECTID;
-	key.type = BTRFS_DEV_ITEM_KEY;
-	key.offset = (u64)-1;
-
-	ret = btrfs_search_slot(NULL, root, &key, path, 0, 0);
-	if (ret < 0)
-		goto error;
-
-	BUG_ON(ret == 0);
-
-	ret = btrfs_previous_item(root, path, BTRFS_DEV_ITEMS_OBJECTID,
-				  BTRFS_DEV_ITEM_KEY);
-	if (ret) {
-		*objectid = 1;
-	} else {
-		btrfs_item_key_to_cpu(path->nodes[0], &found_key,
-				      path->slots[0]);
-		*objectid = found_key.offset + 1;
-	}
-	ret = 0;
-error:
-	btrfs_release_path(path);
-	return ret;
-}
-
-/*
- * the device information is stored in the chunk root
- * the btrfs_device struct should be fully filled in
- */
-int btrfs_add_device(struct btrfs_trans_handle *trans,
-		     struct btrfs_root *root,
-		     struct btrfs_device *device)
-{
-	int ret;
-	struct btrfs_path *path;
-	struct btrfs_dev_item *dev_item;
-	struct extent_buffer *leaf;
-	struct btrfs_key key;
-	unsigned long ptr;
-	u64 free_devid = 0;
-
-	root = root->fs_info->chunk_root;
-
-	path = btrfs_alloc_path();
-	if (!path)
-		return -ENOMEM;
-
-	ret = find_next_devid(root, path, &free_devid);
-	if (ret)
-		goto out;
-
-	key.objectid = BTRFS_DEV_ITEMS_OBJECTID;
-	key.type = BTRFS_DEV_ITEM_KEY;
-	key.offset = free_devid;
-
-	ret = btrfs_insert_empty_item(trans, root, path, &key,
-				      sizeof(*dev_item));
-	if (ret)
-		goto out;
-
-	leaf = path->nodes[0];
-	dev_item = btrfs_item_ptr(leaf, path->slots[0], struct btrfs_dev_item);
-
-	device->devid = free_devid;
-	btrfs_set_device_id(leaf, dev_item, device->devid);
-	btrfs_set_device_generation(leaf, dev_item, 0);
-	btrfs_set_device_type(leaf, dev_item, device->type);
-	btrfs_set_device_io_align(leaf, dev_item, device->io_align);
-	btrfs_set_device_io_width(leaf, dev_item, device->io_width);
-	btrfs_set_device_sector_size(leaf, dev_item, device->sector_size);
-	btrfs_set_device_total_bytes(leaf, dev_item, device->total_bytes);
-	btrfs_set_device_bytes_used(leaf, dev_item, device->bytes_used);
-	btrfs_set_device_group(leaf, dev_item, 0);
-	btrfs_set_device_seek_speed(leaf, dev_item, 0);
-	btrfs_set_device_bandwidth(leaf, dev_item, 0);
-	btrfs_set_device_start_offset(leaf, dev_item, 0);
-
-	ptr = (unsigned long)btrfs_device_uuid(dev_item);
-	write_extent_buffer(leaf, device->uuid, ptr, BTRFS_UUID_SIZE);
-	ptr = (unsigned long)btrfs_device_fsid(dev_item);
-	write_extent_buffer(leaf, root->fs_info->fsid, ptr, BTRFS_UUID_SIZE);
-	btrfs_mark_buffer_dirty(leaf);
-	ret = 0;
-
-out:
-	btrfs_free_path(path);
-	return ret;
-}
 
 int btrfs_update_device(struct btrfs_trans_handle *trans,
 			struct btrfs_device *device)
@@ -1035,122 +940,6 @@ again:
 	return ret;
 }
 
-/*
- * Alloc a DATA chunk with SINGLE profile.
- *
- * If 'convert' is set, it will alloc a chunk with 1:1 mapping
- * (btrfs logical bytenr == on-disk bytenr)
- * For that case, caller must make sure the chunk and dev_extent are not
- * occupied.
- */
-int btrfs_alloc_data_chunk(struct btrfs_trans_handle *trans,
-			   struct btrfs_root *extent_root, u64 *start,
-			   u64 num_bytes, u64 type, int convert)
-{
-	u64 dev_offset;
-	struct btrfs_fs_info *info = extent_root->fs_info;
-	struct btrfs_root *chunk_root = info->chunk_root;
-	struct btrfs_stripe *stripes;
-	struct btrfs_device *device = NULL;
-	struct btrfs_chunk *chunk;
-	struct list_head *dev_list = &info->fs_devices->devices;
-	struct list_head *cur;
-	struct map_lookup *map;
-	u64 calc_size = 8 * 1024 * 1024;
-	int num_stripes = 1;
-	int sub_stripes = 0;
-	int ret;
-	int index;
-	int stripe_len = BTRFS_STRIPE_LEN;
-	struct btrfs_key key;
-
-	key.objectid = BTRFS_FIRST_CHUNK_TREE_OBJECTID;
-	key.type = BTRFS_CHUNK_ITEM_KEY;
-	if (convert) {
-		BUG_ON(*start != round_down(*start, extent_root->sectorsize));
-		key.offset = *start;
-		dev_offset = *start;
-	} else {
-		ret = find_next_chunk(chunk_root,
-				      BTRFS_FIRST_CHUNK_TREE_OBJECTID,
-				      &key.offset);
-		if (ret)
-			return ret;
-	}
-
-	chunk = kmalloc(btrfs_chunk_item_size(num_stripes), GFP_NOFS);
-	if (!chunk)
-		return -ENOMEM;
-
-	map = kmalloc(btrfs_map_lookup_size(num_stripes), GFP_NOFS);
-	if (!map) {
-		kfree(chunk);
-		return -ENOMEM;
-	}
-
-	stripes = &chunk->stripe;
-	calc_size = num_bytes;
-
-	index = 0;
-	cur = dev_list->next;
-	device = list_entry(cur, struct btrfs_device, dev_list);
-
-	while (index < num_stripes) {
-		struct btrfs_stripe *stripe;
-
-		ret = btrfs_alloc_dev_extent(trans, device,
-			     info->chunk_root->root_key.objectid,
-			     BTRFS_FIRST_CHUNK_TREE_OBJECTID, key.offset,
-			     calc_size, &dev_offset, convert);
-		BUG_ON(ret);
-
-		device->bytes_used += calc_size;
-		ret = btrfs_update_device(trans, device);
-		BUG_ON(ret);
-
-		map->stripes[index].dev = device;
-		map->stripes[index].physical = dev_offset;
-		stripe = stripes + index;
-		btrfs_set_stack_stripe_devid(stripe, device->devid);
-		btrfs_set_stack_stripe_offset(stripe, dev_offset);
-		memcpy(stripe->dev_uuid, device->uuid, BTRFS_UUID_SIZE);
-		index++;
-	}
-
-	/* key was set above */
-	btrfs_set_stack_chunk_length(chunk, num_bytes);
-	btrfs_set_stack_chunk_owner(chunk, extent_root->root_key.objectid);
-	btrfs_set_stack_chunk_stripe_len(chunk, stripe_len);
-	btrfs_set_stack_chunk_type(chunk, type);
-	btrfs_set_stack_chunk_num_stripes(chunk, num_stripes);
-	btrfs_set_stack_chunk_io_align(chunk, stripe_len);
-	btrfs_set_stack_chunk_io_width(chunk, stripe_len);
-	btrfs_set_stack_chunk_sector_size(chunk, extent_root->sectorsize);
-	btrfs_set_stack_chunk_sub_stripes(chunk, sub_stripes);
-	map->sector_size = extent_root->sectorsize;
-	map->stripe_len = stripe_len;
-	map->io_align = stripe_len;
-	map->io_width = stripe_len;
-	map->type = type;
-	map->num_stripes = num_stripes;
-	map->sub_stripes = sub_stripes;
-
-	ret = btrfs_insert_item(trans, chunk_root, &key, chunk,
-				btrfs_chunk_item_size(num_stripes));
-	BUG_ON(ret);
-	if (!convert)
-		*start = key.offset;
-
-	map->ce.start = key.offset;
-	map->ce.size = num_bytes;
-
-	ret = insert_cache_extent(&info->mapping_tree.cache_tree, &map->ce);
-	BUG_ON(ret);
-
-	kfree(chunk);
-	return ret;
-}
-
 int btrfs_num_copies(struct btrfs_mapping_tree *map_tree, u64 logical, u64 len)
 {
 	struct cache_extent *ce;
@@ -1185,39 +974,6 @@ int btrfs_num_copies(struct btrfs_mapping_tree *map_tree, u64 logical, u64 len)
 	else
 		ret = 1;
 	return ret;
-}
-
-int btrfs_next_bg(struct btrfs_mapping_tree *map_tree, u64 *logical,
-		     u64 *size, u64 type)
-{
-	struct cache_extent *ce;
-	struct map_lookup *map;
-	u64 cur = *logical;
-
-	ce = search_cache_extent(&map_tree->cache_tree, cur);
-
-	while (ce) {
-		/*
-		 * only jump to next bg if our cur is not 0
-		 * As the initial logical for btrfs_next_bg() is 0, and
-		 * if we jump to next bg, we skipped a valid bg.
-		 */
-		if (cur) {
-			ce = next_cache_extent(ce);
-			if (!ce)
-				return -ENOENT;
-		}
-
-		cur = ce->start;
-		map = container_of(ce, struct map_lookup, ce);
-		if (map->type & type) {
-			*logical = ce->start;
-			*size = ce->size;
-			return 0;
-		}
-	}
-
-	return -ENOENT;
 }
 
 int btrfs_rmap_block(struct btrfs_mapping_tree *map_tree,
@@ -1550,21 +1306,6 @@ struct btrfs_device *btrfs_find_device(struct btrfs_root *root, u64 devid,
 				return device;
 		}
 		cur_devices = cur_devices->seed;
-	}
-	return NULL;
-}
-
-struct btrfs_device *
-btrfs_find_device_by_devid(struct btrfs_fs_devices *fs_devices,
-			   u64 devid, int instance)
-{
-	struct list_head *head = &fs_devices->devices;
-	struct btrfs_device *dev;
-	int num_found = 0;
-
-	list_for_each_entry(dev, head, dev_list) {
-		if (dev->devid == devid && num_found++ == instance)
-			return dev;
 	}
 	return NULL;
 }
@@ -1967,12 +1708,6 @@ int btrfs_read_chunk_tree(struct btrfs_root *root)
 	if (!path)
 		return -ENOMEM;
 
-	/*
-	 * Read all device items, and then all the chunk items. All
-	 * device items are found before any chunk item (their object id
-	 * is smaller than the lowest possible object id for a chunk
-	 * item - BTRFS_FIRST_CHUNK_TREE_OBJECTID).
-	 */
 	key.objectid = BTRFS_DEV_ITEMS_OBJECTID;
 	key.offset = 0;
 	key.type = 0;
@@ -2033,12 +1768,6 @@ static int rmw_eb(struct btrfs_fs_info *info,
 	if (eb->start + eb->len <= orig_eb->start ||
 	    eb->start >= orig_eb->start + orig_eb->len)
 		return 0;
-	/*
-	 * | ----- orig_eb ------- |
-	 *         | ----- stripe -------  |
-	 *         | ----- orig_eb ------- |
-	 *              | ----- orig_eb ------- |
-	 */
 	if (eb->start > orig_eb->start)
 		orig_off = eb->start - orig_eb->start;
 	if (orig_eb->start > eb->start)

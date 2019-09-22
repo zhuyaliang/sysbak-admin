@@ -53,7 +53,6 @@ sources = files(
   'btrfs/extent-cache.c',
   'btrfs/file-item.c',
   'btrfs/free-space-cache.c',
-  'btrfs/list_sort.c',
   'btrfs/raid6.c',
   'btrfs/rbtree-utils.c',
   'btrfs/repair.c',

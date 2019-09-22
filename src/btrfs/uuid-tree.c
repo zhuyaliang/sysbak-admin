@@ -22,7 +22,6 @@
 #include "ctree.h"
 #include "transaction.h"
 #include "disk-io.h"
-#include "print-tree.h"
 
 
 static void btrfs_uuid_to_key(const u8 *uuid, u64 *key_objectid,

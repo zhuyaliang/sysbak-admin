@@ -31,7 +31,6 @@
 #include "volumes.h"
 #include "transaction.h"
 #include "utils.h"
-#include "print-tree.h"
 #include "rbtree-utils.h"
 
 /* specified errno for check_tree_block */

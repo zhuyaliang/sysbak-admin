@@ -25,7 +25,6 @@
 #include <btrfs/radix-tree.h>
 #include "ctree.h"
 #include "disk-io.h"
-#include "print-tree.h"
 #include "utils.h"
 #include "ulist.h"
 #include "rbtree-utils.h"

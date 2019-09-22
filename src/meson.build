@@ -56,7 +56,6 @@ sources = files(
   'btrfs/inode-item.c',
   'btrfs/inode-map.c',
   'btrfs/list_sort.c',
-  'btrfs/print-tree.c',
   'btrfs/qgroup.c',
   'btrfs/qgroup-verify.c',
   'btrfs/raid6.c',

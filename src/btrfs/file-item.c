@@ -24,7 +24,6 @@
 #include "ctree.h"
 #include "disk-io.h"
 #include "transaction.h"
-#include "print-tree.h"
 #include "utils.h"
 
 #define MAX_CSUM_ITEMS(r,size) ((((BTRFS_LEAF_DATA_SIZE(r) - \

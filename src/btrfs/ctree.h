@@ -2475,28 +2475,10 @@ int btrfs_insert_xattr_item(struct btrfs_trans_handle *trans,
 			    struct btrfs_root *root, const char *name,
 			    u16 name_len, const void *data, u16 data_len,
 			    u64 dir);
-/* inode-map.c */
-int btrfs_find_free_objectid(struct btrfs_trans_handle *trans,
-			     struct btrfs_root *fs_root,
-			     u64 dirid, u64 *objectid);
 
 /* file-item.c */
 int btrfs_del_csums(struct btrfs_trans_handle *trans,
 		    struct btrfs_root *root, u64 bytenr, u64 len);
-int btrfs_insert_file_extent(struct btrfs_trans_handle *trans,
-			     struct btrfs_root *root,
-			     u64 objectid, u64 pos, u64 offset,
-			     u64 disk_num_bytes,
-			     u64 num_bytes);
-int btrfs_insert_inline_extent(struct btrfs_trans_handle *trans,
-				struct btrfs_root *root, u64 objectid,
-				u64 offset, char *buffer, size_t size);
-int btrfs_csum_file_block(struct btrfs_trans_handle *trans,
-			  struct btrfs_root *root, u64 alloc_end,
-			  u64 bytenr, char *data, size_t len);
-int btrfs_csum_truncate(struct btrfs_trans_handle *trans,
-			struct btrfs_root *root, struct btrfs_path *path,
-			u64 isize);
 
 /* uuid-tree.c */
 int btrfs_lookup_uuid_subvol_item(int fd, const u8 *uuid, u64 *subvol_id);

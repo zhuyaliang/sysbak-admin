@@ -53,7 +53,6 @@ sources = files(
   'btrfs/extent-cache.c',
   'btrfs/file-item.c',
   'btrfs/free-space-cache.c',
-  'btrfs/inode-map.c',
   'btrfs/list_sort.c',
   'btrfs/qgroup.c',
   'btrfs/qgroup-verify.c',

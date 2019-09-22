@@ -304,9 +304,64 @@ const char *get_argv0_buf(void);
 unsigned int get_unit_mode_from_arg(int *argc, char *argv[], int df_mode);
 void clean_args_no_options(int argc, char *argv[], const char * const *usage);
 int string_is_numerical(const char *str);
-void error(const char *fmt, ...);
-void warning(const char *fmt, ...);
-int warning_on(int condition, const char *fmt, ...);
+
+__attribute__ ((format (printf, 1, 2)))
+static inline void warning(const char *fmt, ...)
+{
+	va_list args;
+
+	fputs("WARNING: ", stderr);
+	va_start(args, fmt);
+	vfprintf(stderr, fmt, args);
+	va_end(args);
+	fputc('\n', stderr);
+}
+
+__attribute__ ((format (printf, 1, 2)))
+static inline void error(const char *fmt, ...)
+{
+	va_list args;
+
+	fputs("ERROR: ", stderr);
+	va_start(args, fmt);
+	vfprintf(stderr, fmt, args);
+	va_end(args);
+	fputc('\n', stderr);
+}
+
+__attribute__ ((format (printf, 2, 3)))
+static inline int warning_on(int condition, const char *fmt, ...)
+{
+	va_list args;
+
+	if (!condition)
+		return 0;
+
+	fputs("WARNING: ", stderr);
+	va_start(args, fmt);
+	vfprintf(stderr, fmt, args);
+	va_end(args);
+	fputc('\n', stderr);
+
+	return 1;
+}
+
+__attribute__ ((format (printf, 2, 3)))
+static inline int error_on(int condition, const char *fmt, ...)
+{
+	va_list args;
+
+	if (!condition)
+		return 0;
+
+	fputs("ERROR: ", stderr);
+	va_start(args, fmt);
+	vfprintf(stderr, fmt, args);
+	va_end(args);
+	fputc('\n', stderr);
+
+	return 1;
+}
 
 /* Pseudo random number generator wrappers */
 u32 rand_u32(void);

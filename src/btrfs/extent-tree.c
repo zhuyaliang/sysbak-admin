@@ -3830,7 +3830,7 @@ int btrfs_fix_block_accounting(struct btrfs_trans_handle *trans,
 			       struct btrfs_root *root)
 {
 	int ret;
-	uint slot;
+	int slot;
 	u64 start = 0;
 	u64 bytes_used = 0;
 	struct btrfs_path path;
@@ -3923,7 +3923,7 @@ static void __get_extent_size(struct btrfs_root *root, struct btrfs_path *path,
  * Return >0 for not found.
  * Return <0 for err
  */
-static int btrfs_search_overlap_extent(struct btrfs_root *root,
+int btrfs_search_overlap_extent(struct btrfs_root *root,
 				struct btrfs_path *path, u64 bytenr, u64 len)
 {
 	struct btrfs_key key;

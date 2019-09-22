@@ -253,7 +253,7 @@ struct btrfs_stripe {
 	__le64 devid;
 	__le64 offset;
 	u8 dev_uuid[BTRFS_UUID_SIZE];
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_chunk {
 	/* size of this chunk in bytes */
@@ -283,7 +283,7 @@ struct btrfs_chunk {
 	__le16 sub_stripes;
 	struct btrfs_stripe stripe;
 	/* additional stripes go here */
-};
+} __attribute__ ((__packed__));
 
 #define BTRFS_FREE_SPACE_EXTENT	1
 #define BTRFS_FREE_SPACE_BITMAP	2
@@ -292,14 +292,14 @@ struct btrfs_free_space_entry {
 	__le64 offset;
 	__le64 bytes;
 	u8 type;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_free_space_header {
 	struct btrfs_disk_key location;
 	__le64 generation;
 	__le64 num_entries;
 	__le64 num_bitmaps;
-};
+} __attribute__ ((__packed__));
 
 static inline unsigned long btrfs_chunk_item_size(int num_stripes)
 {
@@ -528,12 +528,12 @@ struct btrfs_key_ptr {
 	struct btrfs_disk_key key;
 	__le64 blockptr;
 	__le64 generation;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_node {
 	struct btrfs_header header;
 	struct btrfs_key_ptr ptrs[];
-};
+} __attribute__ ((__packed__));
 
 /*
  * btrfs_paths remember the path taken from the root down to the leaf.
@@ -546,7 +546,7 @@ struct btrfs_node {
 
 struct btrfs_path {
 	struct extent_buffer *nodes[BTRFS_MAX_LEVEL];
-	uint slots[BTRFS_MAX_LEVEL];
+	int slots[BTRFS_MAX_LEVEL];
 	/* if there is real range locking, this locks field will change */
 	int locks[BTRFS_MAX_LEVEL];
 	int reada;
@@ -570,11 +570,11 @@ struct btrfs_extent_item {
 	__le64 refs;
 	__le64 generation;
 	__le64 flags;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_extent_item_v0 {
 	__le32 refs;
-};
+} __attribute__ ((__packed__));
 
 #define BTRFS_MAX_EXTENT_ITEM_SIZE(r) ((BTRFS_LEAF_DATA_SIZE(r) >> 4) - \
 					sizeof(struct btrfs_item))
@@ -591,30 +591,30 @@ struct btrfs_extent_item_v0 {
 struct btrfs_tree_block_info {
 	struct btrfs_disk_key key;
 	u8 level;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_extent_data_ref {
 	__le64 root;
 	__le64 objectid;
 	__le64 offset;
 	__le32 count;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_shared_data_ref {
 	__le32 count;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_extent_inline_ref {
 	u8 type;
 	__le64 offset;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_extent_ref_v0 {
 	__le64 root;
 	__le64 generation;
 	__le64 objectid;
 	__le32 count;
-};
+} __attribute__ ((__packed__));
 
 /* dev extents record free space on individual devices.  The owner
  * field points back to the chunk allocation mapping tree that allocated
@@ -697,11 +697,11 @@ struct btrfs_inode_item {
 	struct btrfs_timespec ctime;
 	struct btrfs_timespec mtime;
 	struct btrfs_timespec otime;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_dir_log_item {
 	__le64 end;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_dir_item {
 	struct btrfs_disk_key location;
@@ -709,7 +709,7 @@ struct btrfs_dir_item {
 	__le16 data_len;
 	__le16 name_len;
 	u8 type;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_root_item_v0 {
 	struct btrfs_inode_item inode;
@@ -724,7 +724,7 @@ struct btrfs_root_item_v0 {
 	struct btrfs_disk_key drop_progress;
 	u8 drop_level;
 	u8 level;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_root_item {
 	struct btrfs_inode_item inode;
@@ -899,18 +899,18 @@ struct btrfs_qgroup_status_item {
 	__le64 generation;
 	__le64 flags;
 	__le64 scan;		/* progress during scanning */
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_block_group_item {
 	__le64 used;
 	__le64 chunk_objectid;
 	__le64 flags;
-};
+} __attribute__ ((__packed__));
 
 struct btrfs_free_space_info {
 	__le32 extent_count;
 	__le32 flags;
-};
+} __attribute__ ((__packed__));
 
 #define BTRFS_FREE_SPACE_USING_BITMAPS (1ULL << 0)
 
@@ -920,7 +920,7 @@ struct btrfs_qgroup_info_item {
 	__le64 referenced_compressed;
 	__le64 exclusive;
 	__le64 exclusive_compressed;
-};
+} __attribute__ ((__packed__));
 
 /* flags definition for qgroup limits */
 #define BTRFS_QGROUP_LIMIT_MAX_RFER	(1ULL << 0)
@@ -1618,6 +1618,7 @@ static inline u64 btrfs_node_blockptr(struct extent_buffer *eb, int nr)
 	unsigned long ptr;
 	ptr = offsetof(struct btrfs_node, ptrs) +
 		sizeof(struct btrfs_key_ptr) * nr;
+    printf ("ptr = %lu \r\n",ptr);
 	return btrfs_key_blockptr(eb, (struct btrfs_key_ptr *)ptr);
 }
 

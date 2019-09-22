@@ -15,6 +15,7 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #include <assert.h>
+#include <btrfs/radix-tree.h>
 #include "btrfs/ctree.h"
 #include "gdbus-btrfs.h"
 #include "gdbus-share.h"
@@ -109,60 +110,72 @@ void dump_start_leaf(unsigned long* bitmap, struct btrfs_root *root, struct exte
     u64 size;
     u64 objectid;
     u64 offset;
+    u64 parent_transid;
     u32 type;
     int i;
     struct btrfs_item *item;
     struct btrfs_disk_key disk_key;
     struct btrfs_file_extent_item *fi;
+    struct extent_buffer *next;
     u32 leaf_size;
 
+	g_print ("size = ytenr = \r\n");
     if (!eb)
 	return;
     u32 nr = btrfs_header_nritems(eb);
-    if (btrfs_is_leaf(eb)) {
-	size = (u64)root->nodesize;
-	bytenr = (unsigned long long)btrfs_header_bytenr(eb);
-	check_extent_bitmap(bitmap, bytenr, &size, 0);
-	for (i = 0 ; i < nr ; i++) {
-	    item = btrfs_item_nr(i);
-	    btrfs_item_key(eb, &disk_key, i);
-	    type = btrfs_disk_key_type(&disk_key);
-	    if (type == BTRFS_EXTENT_DATA_KEY){
-		fi = btrfs_item_ptr(eb, i,
-			struct btrfs_file_extent_item);
-		dump_file_extent_item(bitmap, eb, item, i, fi);
+    if (btrfs_is_leaf(eb)) 
+    {
+	    size = (u64)root->nodesize;
+	    bytenr = (unsigned long long)btrfs_header_bytenr(eb);
+	    check_extent_bitmap(bitmap, bytenr, &size, 0);
+        for (i = 0 ; i < nr ; i++) 
+        {
+	        item = btrfs_item_nr(i);
+	        btrfs_item_key(eb, &disk_key, i);
+	        type = btrfs_disk_key_type(&disk_key);
+	        if (type == BTRFS_EXTENT_DATA_KEY)
+            {
+		        fi = btrfs_item_ptr(eb, i,
+			                        struct btrfs_file_extent_item);
+		        dump_file_extent_item(bitmap, eb, item, i, fi);
+	        }
+	        if (type == BTRFS_EXTENT_ITEM_KEY)
+            {
+		        objectid = btrfs_disk_key_objectid(&disk_key);
+		        offset = btrfs_disk_key_offset(&disk_key);
+		        check_extent_bitmap(bitmap, objectid, &offset, 1);
+	        }
 	    }
-	    if (type == BTRFS_EXTENT_ITEM_KEY){
-		objectid = btrfs_disk_key_objectid(&disk_key);
-		offset = btrfs_disk_key_offset(&disk_key);
-		check_extent_bitmap(bitmap, objectid, &offset, 1);
-	    }
-
-	}
-	return;
+	    return;
     }
     if (!follow)
-	return;
+	    return;
     leaf_size = root->nodesize;
-    for (i = 0; i < nr; i++) {
-	bytenr = (unsigned long long)btrfs_header_bytenr(eb);
-	check_extent_bitmap(bitmap, bytenr, &size, 0);
-	struct extent_buffer *next = read_tree_block(root,
-		btrfs_node_blockptr(eb, i),
-		leaf_size,
-		btrfs_node_ptr_generation(eb, i));
-	bytenr = (unsigned long long)btrfs_header_bytenr(next);
-	check_extent_bitmap(bitmap, bytenr, &size, 0);
-	if (!extent_buffer_uptodate(next)) {
-	    continue;
-	}
-	btrfs_is_leaf(next); 
-    btrfs_header_level(eb);
-	btrfs_header_level(next); 
-    btrfs_header_level(eb);
+    g_print ("leaf_size = %lu \r\n",leaf_size);
+    for (i = 0; i < nr; i++) 
+    {
+	    bytenr = (unsigned long long)btrfs_header_bytenr(eb);
+	    g_print ("bytenr = %llu i = %d\r\n",bytenr,i);
+	    check_extent_bitmap(bitmap, bytenr, &size, 0);
+	    bytenr = btrfs_node_blockptr(eb, i);
+	    g_print ("bytenr = %llu i = %d\r\n",bytenr,i);
+        parent_transid = btrfs_node_ptr_generation(eb, i);
+	    g_print ("parent_transid = %llu \r\n",parent_transid);
+        next = read_tree_block(root,bytenr,leaf_size,parent_transid);
+	    g_print ("size = %llu \r\n",size);
+	    bytenr = (unsigned long long)btrfs_header_bytenr(next);
+	    check_extent_bitmap(bitmap, bytenr, &size, 0);
+	    if (!extent_buffer_uptodate(next)) 
+        {
+	        continue;
+	    }
+        if (btrfs_is_leaf(next) && btrfs_header_level(eb) != 1)
+            g_print("%s(%i): BUG\r\n", __FILE__, __LINE__);
+        if (btrfs_header_level(next) != btrfs_header_level(eb) - 1)
+            g_print("%s(%i): BUG\r\n", __FILE__, __LINE__);
 
-	dump_start_leaf(bitmap, root, next, 1);
-	free_extent_buffer(next);
+	    dump_start_leaf(bitmap, root, next, 1);
+	    free_extent_buffer(next);
     }
 
 }
@@ -211,12 +224,15 @@ static gboolean read_bitmap_info (char* device, file_system_info fs_info, ul *bi
     int slot;
 
     total_block = fs_info.totalblock;
-
-    fs_open(device);
+    if (!fs_open(device))
+    {
+        return FALSE;
+    }    
+    g_print ("total_block = %llu \r\n",total_block); 
     dev_size = fs_info.device_size;
     block_size  = btrfs_super_nodesize(info->super_copy);
     u64 bsize = (u64)block_size;
-
+    g_print ("block_size = %d\r\n",block_size);
     set_bitmap(bitmap, 0, BTRFS_SUPER_INFO_OFFSET); // some data like mbr maybe in
     set_bitmap(bitmap, BTRFS_SUPER_INFO_OFFSET, block_size);
     check_extent_bitmap(bitmap, btrfs_root_bytenr(&info->extent_root->root_item), &bsize, 0);
@@ -236,12 +252,12 @@ static gboolean read_bitmap_info (char* device, file_system_info fs_info, ul *bi
     btrfs_init_path(&path);
     if (!extent_buffer_uptodate(tree_root_scan->node))
 	goto no_node;
-
     key.offset = 0;
     key.objectid = 0;
     btrfs_set_key_type(&key, BTRFS_ROOT_ITEM_KEY);
     ret = btrfs_search_slot(NULL, tree_root_scan, &key, &path, 0, 0);
     while(1) {
+
 	leaf = path.nodes[0];
 	slot = path.slots[0];
 	if (slot >= btrfs_header_nritems(leaf)) {
@@ -253,7 +269,8 @@ static gboolean read_bitmap_info (char* device, file_system_info fs_info, ul *bi
 	}
 	btrfs_item_key(leaf, &disk_key, path.slots[0]);
 	btrfs_disk_key_to_cpu(&found_key, &disk_key);
-	if (btrfs_key_type(&found_key) == BTRFS_ROOT_ITEM_KEY) {
+	if (btrfs_key_type(&found_key) == BTRFS_ROOT_ITEM_KEY)
+    {
 	    unsigned long offset;
 	    struct extent_buffer *buf;
 
@@ -263,9 +280,12 @@ static gboolean read_bitmap_info (char* device, file_system_info fs_info, ul *bi
 		    btrfs_root_bytenr(&ri),
 		    root->nodesize,
 		    0);
+        g_print ("sssssssssssssssss\r\n");
 	    if (!extent_buffer_uptodate(buf))
-		goto next;
+		    goto next;
+        g_print ("sssssssssssssssss\r\n");
 	    dump_start_leaf(bitmap, tree_root_scan, buf, 1);
+        g_print ("offset = %lu\r\n",offset);
 	    free_extent_buffer(buf);
 	}
 next:
@@ -273,6 +293,7 @@ next:
     }
 no_node:
     btrfs_release_path(&path);
+    return TRUE;
 }
 
 static gboolean read_super_blocks(const char* device, file_system_info* fs_info)
@@ -286,6 +307,7 @@ static gboolean read_super_blocks(const char* device, file_system_info* fs_info)
     fs_info->usedblocks  = btrfs_super_bytes_used(root->fs_info->super_copy) / fs_info->block_size;
     fs_info->device_size = btrfs_super_total_bytes(root->fs_info->super_copy);
     fs_info->totalblock  = fs_info->device_size / fs_info->block_size;
+    g_print ("block_size = %u usedblocks = %llu device_size = %llu totalblock = %llu\r\n",fs_info->block_size,fs_info->usedblocks,fs_info->device_size,fs_info->totalblock);
     fs_close();
 
     return TRUE;
@@ -527,11 +549,13 @@ gboolean gdbus_sysbak_btrfs_ptf (SysbakGdbus           *object,
         e_code = 4;
         goto ERROR;
     }
+    g_print ("read_bitmap_info \r\n");
     if (!read_bitmap_info(source, fs_info, bitmap))
     {
         e_code = 5;
         goto ERROR;
     }    
+    g_print ("sssssssssssssssss\r\n");
     update_used_blocks_count(&fs_info, bitmap);
     if (!check_system_space (&fs_info,target,&img_opt))
     {

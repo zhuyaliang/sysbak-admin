@@ -61,12 +61,12 @@ sources = files(
   'btrfs/print-tree.c',
   'btrfs/qgroup.c',
   'btrfs/qgroup-verify.c',
-  'btrfs/radix-tree.c',
   'btrfs/raid6.c',
   'btrfs/rbtree.c',
   'btrfs/rbtree-utils.c',
   'btrfs/repair.c',
   'btrfs/root-tree.c',
+  'btrfs/radix-tree.c',
   'btrfs/send-stream.c',
   'btrfs/send-utils.c',
   'btrfs/ulist.c',
@@ -84,6 +84,7 @@ deps = [
   ext2fs_dep,
   blkid_dep,
   uuid_dep,
+  btrfs_dep,
 ]
 
 executable(

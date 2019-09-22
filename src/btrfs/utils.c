@@ -16,7 +16,6 @@
  * Free Software Foundation, Inc., 51 Franklin Street, Fifth
  * Floor, Boston, MA 02110-1301 USA.
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -66,57 +65,6 @@ const char *get_argv0_buf(void)
 	return argv0_buf;
 }
 
-static int error_on(int condition, const char *fmt, ...)
-{
-	va_list args;
-
-	if (!condition)
-		return 0;
-
-	fputs("ERROR: ", stderr);
-	va_start(args, fmt);
-	vfprintf(stderr, fmt, args);
-	va_end(args);
-	fputc('\n', stderr);
-
-	return 1;
-}
-void warning(const char *fmt, ...)
-{
-	va_list args;
-
-	fputs("WARNING: ", stderr);
-	va_start(args, fmt);
-	vfprintf(stderr, fmt, args);
-	va_end(args);
-	fputc('\n', stderr);
-}
-
-void error(const char *fmt, ...)
-{
-	va_list args;
-
-	fputs("ERROR: ", stderr);
-	va_start(args, fmt);
-	vfprintf(stderr, fmt, args);
-	va_end(args);
-	fputc('\n', stderr);
-}
-int warning_on(int condition, const char *fmt, ...)
-{
-	va_list args;
-
-	if (!condition)
-		return 0;
-
-	fputs("WARNING: ", stderr);
-	va_start(args, fmt);
-	vfprintf(stderr, fmt, args);
-	va_end(args);
-	fputc('\n', stderr);
-
-	return 1;
-}
 void fixup_argv0(char **argv, const char *token)
 {
 	int len = strlen(argv0_buf);
@@ -399,7 +347,7 @@ static inline int write_temp_extent_buffer(int fd, struct extent_buffer *buf,
 
 	/* Temporary extent buffer is always mapped 1:1 on disk */
 	ret = pwrite(fd, buf->data, buf->len, bytenr);
-	if ((uint)ret < buf->len)
+	if (ret < buf->len)
 		ret = (ret < 0 ? ret : -EIO);
 	else
 		ret = 0;
@@ -827,7 +775,7 @@ static int insert_temp_extent_item(int fd, struct extent_buffer *buf,
 	if (ret < 0)
 		goto out;
 	ret = pread(fd, tmp->data, cfg->nodesize, bytenr);
-	if ((uint)ret < cfg->nodesize) {
+	if (ret < cfg->nodesize) {
 		ret = (ret < 0 ? -errno : -EIO);
 		goto out;
 	}
@@ -1070,9 +1018,8 @@ int make_btrfs(int fd, struct btrfs_mkfs_config *cfg,
 	struct btrfs_dev_extent *dev_extent;
 	u8 chunk_tree_uuid[BTRFS_UUID_SIZE];
 	u8 *ptr;
-	uint i;
-	uint ret = 0;
-    int  plen;
+	int i;
+	int ret;
 	u32 itemoff;
 	u32 nritems = 0;
 	u64 first_free;
@@ -1214,9 +1161,9 @@ int make_btrfs(int fd, struct btrfs_mkfs_config *cfg,
 
 
 	csum_tree_block_size(buf, BTRFS_CRC32_SIZE, 0);
-	plen = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[1]);
-	if ((uint)plen != cfg->nodesize) {
-		plen = (plen < 0 ? -errno : -EIO);
+	ret = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[1]);
+	if (ret != cfg->nodesize) {
+		ret = (ret < 0 ? -errno : -EIO);
 		goto out;
 	}
 
@@ -1273,9 +1220,9 @@ int make_btrfs(int fd, struct btrfs_mkfs_config *cfg,
 	btrfs_set_header_owner(buf, BTRFS_EXTENT_TREE_OBJECTID);
 	btrfs_set_header_nritems(buf, nritems);
 	csum_tree_block_size(buf, BTRFS_CRC32_SIZE, 0);
-	plen = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[2]);
-	if ((uint)plen != cfg->nodesize) {
-		plen = (plen < 0 ? -errno : -EIO);
+	ret = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[2]);
+	if (ret != cfg->nodesize) {
+		ret = (ret < 0 ? -errno : -EIO);
 		goto out;
 	}
 
@@ -1360,9 +1307,9 @@ int make_btrfs(int fd, struct btrfs_mkfs_config *cfg,
 	btrfs_set_header_owner(buf, BTRFS_CHUNK_TREE_OBJECTID);
 	btrfs_set_header_nritems(buf, nritems);
 	csum_tree_block_size(buf, BTRFS_CRC32_SIZE, 0);
-	plen = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[3]);
-	if ((uint)plen != cfg->nodesize) {
-		plen = (plen < 0 ? -errno : -EIO);
+	ret = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[3]);
+	if (ret != cfg->nodesize) {
+		ret = (ret < 0 ? -errno : -EIO);
 		goto out;
 	}
 
@@ -1399,9 +1346,9 @@ int make_btrfs(int fd, struct btrfs_mkfs_config *cfg,
 	btrfs_set_header_owner(buf, BTRFS_DEV_TREE_OBJECTID);
 	btrfs_set_header_nritems(buf, nritems);
 	csum_tree_block_size(buf, BTRFS_CRC32_SIZE, 0);
-	plen = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[4]);
-	if ((uint)plen != cfg->nodesize) {
-		plen = (plen < 0 ? -errno : -EIO);
+	ret = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[4]);
+	if (ret != cfg->nodesize) {
+		ret = (ret < 0 ? -errno : -EIO);
 		goto out;
 	}
 
@@ -1412,9 +1359,9 @@ int make_btrfs(int fd, struct btrfs_mkfs_config *cfg,
 	btrfs_set_header_owner(buf, BTRFS_FS_TREE_OBJECTID);
 	btrfs_set_header_nritems(buf, 0);
 	csum_tree_block_size(buf, BTRFS_CRC32_SIZE, 0);
-	plen = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[5]);
-	if ((uint)plen != cfg->nodesize) {
-		plen = (plen < 0 ? -errno : -EIO);
+	ret = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[5]);
+	if (ret != cfg->nodesize) {
+		ret = (ret < 0 ? -errno : -EIO);
 		goto out;
 	}
 	/* finally create the csum root */
@@ -1424,9 +1371,9 @@ int make_btrfs(int fd, struct btrfs_mkfs_config *cfg,
 	btrfs_set_header_owner(buf, BTRFS_CSUM_TREE_OBJECTID);
 	btrfs_set_header_nritems(buf, 0);
 	csum_tree_block_size(buf, BTRFS_CRC32_SIZE, 0);
-	plen = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[6]);
-	if ((uint)plen != cfg->nodesize) {
-		plen = (plen < 0 ? -errno : -EIO);
+	ret = pwrite(fd, buf->data, cfg->nodesize, cfg->blocks[6]);
+	if (ret != cfg->nodesize) {
+		ret = (ret < 0 ? -errno : -EIO);
 		goto out;
 	}
 
@@ -1436,9 +1383,9 @@ int make_btrfs(int fd, struct btrfs_mkfs_config *cfg,
 	memcpy(buf->data, &super, sizeof(super));
 	buf->len = BTRFS_SUPER_INFO_SIZE;
 	csum_tree_block_size(buf, BTRFS_CRC32_SIZE, 0);
-	plen = pwrite(fd, buf->data, BTRFS_SUPER_INFO_SIZE, cfg->blocks[0]);
-	if (plen != BTRFS_SUPER_INFO_SIZE) {
-		plen = (plen < 0 ? -errno : -EIO);
+	ret = pwrite(fd, buf->data, BTRFS_SUPER_INFO_SIZE, cfg->blocks[0]);
+	if (ret != BTRFS_SUPER_INFO_SIZE) {
+		ret = (ret < 0 ? -errno : -EIO);
 		goto out;
 	}
 
@@ -1470,7 +1417,7 @@ static const struct btrfs_fs_feature {
 
 static int parse_one_fs_feature(const char *name, u64 *flags)
 {
-	uint i;
+	int i;
 	int found = 0;
 
 	for (i = 0; i < ARRAY_SIZE(mkfs_features); i++) {
@@ -1489,7 +1436,7 @@ static int parse_one_fs_feature(const char *name, u64 *flags)
 
 void btrfs_parse_features_to_string(char *buf, u64 flags)
 {
-	uint i;
+	int i;
 
 	buf[0] = 0;
 
@@ -1504,7 +1451,7 @@ void btrfs_parse_features_to_string(char *buf, u64 flags)
 
 void btrfs_process_fs_features(u64 flags)
 {
-	uint i;
+	int i;
 
 	for (i = 0; i < ARRAY_SIZE(mkfs_features); i++) {
 		if (flags & mkfs_features[i].flag) {
@@ -1517,7 +1464,7 @@ void btrfs_process_fs_features(u64 flags)
 
 void btrfs_list_all_fs_features(u64 mask_disallowed)
 {
-	uint i;
+	int i;
 
 	fprintf(stderr, "Filesystem features available:\n");
 	for (i = 0; i < ARRAY_SIZE(mkfs_features) - 1; i++) {
@@ -1571,16 +1518,16 @@ u64 btrfs_device_size(int fd, struct stat *st)
 
 static int zero_blocks(int fd, off_t start, size_t len)
 {
-    char *buf;
+	assert(len != 0);
+       char *buf = malloc(len);
 	int ret = 0;
 	ssize_t written;
-	assert(len != 0);
-    buf = malloc(len);
+
 	if (!buf)
 		return -ENOMEM;
 	memset(buf, 0, len);
 	written = pwrite(fd, buf, len, start);
-	if ((size_t)written != len)
+	if (written != len)
 		ret = -EIO;
 	free(buf);
 	return ret;
@@ -1671,6 +1618,7 @@ int btrfs_add_to_fsid(struct btrfs_trans_handle *trans,
 	memcpy(&dev_item->uuid, device->uuid, BTRFS_UUID_SIZE);
 
 	ret = pwrite(fd, buf, sectorsize, BTRFS_SUPER_INFO_OFFSET);
+	BUG_ON(ret != sectorsize);
 
 	kfree(buf);
 	list_add(&device->dev_list, &root->fs_info->fs_devices->devices);
@@ -1723,7 +1671,7 @@ static int btrfs_wipe_existing_sb(int fd)
 	if (ret < 0) {
 		error("cannot wipe existing superblock: %s", strerror(errno));
 		ret = -1;
-	} else if (ret != (int)len) {
+	} else if (ret != len) {
 		error("cannot wipe existing superblock: wrote %d of %zd", ret, len);
 		ret = -1;
 	}
@@ -2240,7 +2188,7 @@ char *canonicalize_dm_name(const char *ptname)
 {
 	FILE	*f;
 	size_t	sz;
-	char	path[PATH_MAX] = { 0 }, name[PATH_MAX-20], *res = NULL;
+	char	path[PATH_MAX], name[PATH_MAX], *res = NULL;
 
 	if (!ptname || !*ptname)
 		return NULL;
@@ -2252,7 +2200,7 @@ char *canonicalize_dm_name(const char *ptname)
 	/* read <name>\n from sysfs */
 	if (fgets(name, sizeof(name), f) && (sz = strlen(name)) > 1) {
 		name[sz - 1] = '\0';
-		sprintf(path, "/dev/mapper/%s", name);
+		snprintf(path, sizeof(path), "/dev/mapper/%s", name);
 
 		if (access(path, F_OK) == 0)
 			res = strdup(path);
@@ -2488,10 +2436,10 @@ static const char* unit_suffix_decimal[] =
 
 int pretty_size_snprintf(u64 size, char *str, size_t str_size, unsigned unit_mode)
 {
-	uint num_divs;
+	int num_divs;
 	float fraction;
 	u64 base = 0;
-	uint mult = 0;
+	int mult = 0;
 	const char** suffix = NULL;
 	u64 last_size;
 
@@ -2550,6 +2498,8 @@ int pretty_size_snprintf(u64 size, char *str, size_t str_size, unsigned unit_mod
 
 	if (num_divs >= ARRAY_SIZE(unit_suffix_binary)) {
 		str[0] = '\0';
+		printf("INTERNAL ERROR: unsupported unit suffix, index %d\n",
+				num_divs);
 		assert(0);
 		return -1;
 	}
@@ -2572,7 +2522,7 @@ int pretty_size_snprintf(u64 size, char *str, size_t str_size, unsigned unit_mod
  */
 char *__strncpy_null(char *dest, const char *src, size_t n)
 {
-	memcpy(dest, src, n);
+	strncpy(dest, src, n);
 	if (n > 0)
 		dest[n - 1] = '\0';
 	return dest;
@@ -2954,7 +2904,7 @@ static int search_chunk_tree_for_fs_info(int fd,
 				struct btrfs_ioctl_fs_info_args *fi_args)
 {
 	int ret;
-	uint max_items;
+	int max_items;
 	u64 start_devid = 1;
 	struct btrfs_ioctl_search_args search_args;
 	struct btrfs_ioctl_search_key *search_key = &search_args.key;
@@ -3020,7 +2970,7 @@ int get_fs_info(char *path, struct btrfs_ioctl_fs_info_args *fi_args,
 	int fd = -1;
 	int ret = 0;
 	int ndevs = 0;
-	uint i = 0;
+	int i = 0;
 	int replacing = 0;
 	struct btrfs_fs_devices *fs_devices_mnt = NULL;
 	struct btrfs_ioctl_dev_info_args *di_args;
@@ -3828,7 +3778,7 @@ int btrfs_check_nodesize(u32 nodesize, u32 sectorsize, u64 features)
  */
 int arg_copy_path(char *dest, const char *src, int destlen)
 {
-	int len = strlen(src);
+	size_t len = strlen(src);
 
 	if (len >= PATH_MAX || len >= destlen)
 		return -ENAMETOOLONG;
@@ -3972,7 +3922,12 @@ void clean_args_no_options(int argc, char *argv[], const char * const *usagestr)
 		if (c < 0)
 			break;
 
+		switch (c) {
+		default:
+			if (usagestr)
+                printf ("getopt_long %c \r\n",c);
 		}
+	}
 }
 
 /* Subvolume helper functions */
@@ -4115,7 +4070,7 @@ void init_rand_seed(u64 seed)
 static void __init_seed(void)
 {
 	struct timeval tv;
-	uint ret;
+	int ret;
 	int fd;
 
 	if(rand_seed_initlized)

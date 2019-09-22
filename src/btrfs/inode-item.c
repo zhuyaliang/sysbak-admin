@@ -16,10 +16,10 @@
  * Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <btrfs/crc32c.h>
 #include "ctree.h"
 #include "disk-io.h"
 #include "transaction.h"
-#include "crc32c.h"
 
 static int find_name_in_backref(struct btrfs_path *path, const char * name,
 			 int name_len, struct btrfs_inode_ref **ref_ret)

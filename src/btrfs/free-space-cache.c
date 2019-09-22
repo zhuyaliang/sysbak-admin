@@ -16,13 +16,13 @@
  * Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <btrfs/crc32c.h>
 #include "kerncompat.h"
 #include "ctree.h"
 #include "free-space-cache.h"
 #include "transaction.h"
 #include "disk-io.h"
 #include "extent_io.h"
-#include "crc32c.h"
 #include "bitops.h"
 #include "internal.h"
 

@@ -20,13 +20,13 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include <btrfs/crc32c.h>
+#include <btrfs/radix-tree.h>
 #include "kerncompat.h"
-#include "radix-tree.h"
 #include "ctree.h"
 #include "disk-io.h"
 #include "print-tree.h"
 #include "transaction.h"
-#include "crc32c.h"
 #include "volumes.h"
 #include "free-space-cache.h"
 #include "utils.h"

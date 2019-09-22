@@ -18,10 +18,10 @@
 
 #include <uuid/uuid.h>
 #include <unistd.h>
+#include <btrfs/crc32c.h>
 
 #include "send.h"
 #include "send-stream.h"
-#include "crc32c.h"
 
 struct btrfs_send_stream {
 	int fd;

@@ -18,13 +18,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <btrfs/crc32c.h>
+#include <btrfs/radix-tree.h>
 #include "kerncompat.h"
-#include "radix-tree.h"
 #include "ctree.h"
 #include "disk-io.h"
 #include "transaction.h"
 #include "print-tree.h"
-#include "crc32c.h"
 #include "internal.h"
 
 #define MAX_CSUM_ITEMS(r,size) ((((BTRFS_LEAF_DATA_SIZE(r) - \

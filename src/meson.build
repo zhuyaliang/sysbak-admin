@@ -46,7 +46,7 @@ sources = files(
   'gdbus-fatfs.c',
   'gdbus-btrfs.c',
   'btrfs/btrfs-list.c',
-  'btrfs/crc32c.c',
+  #  'btrfs/crc32c.c',
   'btrfs/ctree.c',
   'btrfs/dir-item.c',
   'btrfs/disk-io.c',

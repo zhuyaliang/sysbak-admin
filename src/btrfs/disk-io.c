@@ -23,13 +23,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
+#include <btrfs/crc32c.h>
+#include <btrfs/radix-tree.h>
 #include "kerncompat.h"
-#include "radix-tree.h"
 #include "ctree.h"
 #include "disk-io.h"
 #include "volumes.h"
 #include "transaction.h"
-#include "crc32c.h"
 #include "utils.h"
 #include "print-tree.h"
 #include "rbtree-utils.h"

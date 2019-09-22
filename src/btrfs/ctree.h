@@ -2367,10 +2367,6 @@ struct extent_buffer *read_node_slot(struct btrfs_root *root,
 int btrfs_previous_item(struct btrfs_root *root,
 			struct btrfs_path *path, u64 min_objectid,
 			int type);
-int btrfs_previous_extent_item(struct btrfs_root *root,
-			struct btrfs_path *path, u64 min_objectid);
-int btrfs_next_extent_item(struct btrfs_root *root,
-			struct btrfs_path *path, u64 max_objectid);
 int btrfs_cow_block(struct btrfs_trans_handle *trans,
 		    struct btrfs_root *root, struct extent_buffer *buf,
 		    struct extent_buffer *parent, int parent_slot,
@@ -2381,10 +2377,6 @@ int __btrfs_cow_block(struct btrfs_trans_handle *trans,
 			     struct extent_buffer *parent, int parent_slot,
 			     struct extent_buffer **cow_ret,
 			     u64 search_start, u64 empty_size);
-int btrfs_copy_root(struct btrfs_trans_handle *trans,
-		      struct btrfs_root *root,
-		      struct extent_buffer *buf,
-		      struct extent_buffer **cow_ret, u64 new_root_objectid);
 int btrfs_extend_item(struct btrfs_trans_handle *trans, struct btrfs_root
 		      *root, struct btrfs_path *path, u32 data_size);
 int btrfs_truncate_item(struct btrfs_trans_handle *trans,
@@ -2399,9 +2391,6 @@ int btrfs_split_item(struct btrfs_trans_handle *trans,
 int btrfs_search_slot(struct btrfs_trans_handle *trans, struct btrfs_root
 		      *root, struct btrfs_key *key, struct btrfs_path *p, int
 		      ins_len, int cow);
-int btrfs_find_item(struct btrfs_root *fs_root, struct btrfs_path *found_path,
-		u64 iobjectid, u64 ioff, u8 key_type,
-		struct btrfs_key *found_key);
 void btrfs_release_path(struct btrfs_path *p);
 void add_root_to_dirty_list(struct btrfs_root *root);
 struct btrfs_path *btrfs_alloc_path(void);
@@ -2449,9 +2438,6 @@ void btrfs_fixup_low_keys(struct btrfs_root *root, struct btrfs_path *path,
 			  struct btrfs_disk_key *key, int level);
 int btrfs_set_item_key_safe(struct btrfs_root *root, struct btrfs_path *path,
 			    struct btrfs_key *new_key);
-void btrfs_set_item_key_unsafe(struct btrfs_root *root,
-			       struct btrfs_path *path,
-			       struct btrfs_key *new_key);
 
 /* root-item.c */
 int btrfs_add_root_ref(struct btrfs_trans_handle *trans,

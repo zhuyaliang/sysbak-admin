@@ -74,70 +74,6 @@ void add_root_to_dirty_list(struct btrfs_root *root)
 	}
 }
 
-int btrfs_copy_root(struct btrfs_trans_handle *trans,
-		      struct btrfs_root *root,
-		      struct extent_buffer *buf,
-		      struct extent_buffer **cow_ret, u64 new_root_objectid)
-{
-	struct extent_buffer *cow;
-	int ret = 0;
-	int level;
-	struct btrfs_root *new_root;
-	struct btrfs_disk_key disk_key;
-
-	new_root = kmalloc(sizeof(*new_root), GFP_NOFS);
-	if (!new_root)
-		return -ENOMEM;
-
-	memcpy(new_root, root, sizeof(*new_root));
-	new_root->root_key.objectid = new_root_objectid;
-
-	WARN_ON(root->ref_cows && trans->transid !=
-		root->fs_info->running_transaction->transid);
-	WARN_ON(root->ref_cows && trans->transid != root->last_trans);
-
-	level = btrfs_header_level(buf);
-	if (level == 0)
-		btrfs_item_key(buf, &disk_key, 0);
-	else
-		btrfs_node_key(buf, &disk_key, 0);
-	cow = btrfs_alloc_free_block(trans, new_root, buf->len,
-				     new_root_objectid, &disk_key,
-				     level, buf->start, 0);
-	if (IS_ERR(cow)) {
-		kfree(new_root);
-		return PTR_ERR(cow);
-	}
-
-	copy_extent_buffer(cow, buf, 0, 0, cow->len);
-	btrfs_set_header_bytenr(cow, cow->start);
-	btrfs_set_header_generation(cow, trans->transid);
-	btrfs_set_header_backref_rev(cow, BTRFS_MIXED_BACKREF_REV);
-	btrfs_clear_header_flag(cow, BTRFS_HEADER_FLAG_WRITTEN |
-				     BTRFS_HEADER_FLAG_RELOC);
-	if (new_root_objectid == BTRFS_TREE_RELOC_OBJECTID)
-		btrfs_set_header_flag(cow, BTRFS_HEADER_FLAG_RELOC);
-	else
-		btrfs_set_header_owner(cow, new_root_objectid);
-
-	write_extent_buffer(cow, root->fs_info->fsid,
-			    btrfs_header_fsid(), BTRFS_FSID_SIZE);
-
-	WARN_ON(btrfs_header_generation(buf) > trans->transid);
-	ret = btrfs_inc_ref(trans, new_root, cow, 0);
-	kfree(new_root);
-
-	if (ret)
-		return ret;
-
-	btrfs_mark_buffer_dirty(cow);
-	*cow_ret = cow;
-	return 0;
-}
-
-/*
- * check if the tree block can be shared by multiple trees
- */
 static int btrfs_block_can_be_shared(struct btrfs_root *root,
 			             struct extent_buffer *buf)
 {
@@ -171,23 +107,6 @@ static noinline int update_ref_for_cow(struct btrfs_trans_handle *trans,
 	u64 flags;
 	u64 new_flags = 0;
 	int ret;
-
-	/*
-	 * Backrefs update rules:
-	 *
-	 * Always use full backrefs for extent pointers in tree block
-	 * allocated by tree relocation.
-	 *
-	 * If a shared tree block is no longer referenced by its owner
-	 * tree (btrfs_header_owner(buf) == root->root_key.objectid),
-	 * use full backrefs for extent pointers in tree block.
-	 *
-	 * If a tree block is been relocating
-	 * (root->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID),
-	 * use full backrefs for extent pointers in tree block.
-	 * The reason for this is some operations (such as drop tree)
-	 * are only allowed for blocks use full backrefs.
-	 */
 
 	if (btrfs_block_can_be_shared(root, buf)) {
 		ret = btrfs_lookup_extent_info(trans, root, buf->start,
@@ -1038,64 +957,6 @@ void reada_for_search(struct btrfs_root *root, struct btrfs_path *path,
 	}
 }
 
-int btrfs_find_item(struct btrfs_root *fs_root, struct btrfs_path *found_path,
-		u64 iobjectid, u64 ioff, u8 key_type,
-		struct btrfs_key *found_key)
-{
-	int ret;
-	struct btrfs_key key;
-	struct extent_buffer *eb;
-	struct btrfs_path *path;
-
-	key.type = key_type;
-	key.objectid = iobjectid;
-	key.offset = ioff;
-
-	if (found_path == NULL) {
-		path = btrfs_alloc_path();
-		if (!path)
-			return -ENOMEM;
-	} else
-		path = found_path;
-
-	ret = btrfs_search_slot(NULL, fs_root, &key, path, 0, 0);
-	if ((ret < 0) || (found_key == NULL))
-		goto out;
-
-	eb = path->nodes[0];
-	if (ret && path->slots[0] >= btrfs_header_nritems(eb)) {
-		ret = btrfs_next_leaf(fs_root, path);
-		if (ret)
-			goto out;
-		eb = path->nodes[0];
-	}
-
-	btrfs_item_key_to_cpu(eb, found_key, path->slots[0]);
-	if (found_key->type != key.type ||
-			found_key->objectid != key.objectid) {
-		ret = 1;
-		goto out;
-	}
-
-out:
-	if (path != found_path)
-		btrfs_free_path(path);
-	return ret;
-}
-
-/*
- * look for key in the tree.  path is filled in with nodes along the way
- * if key is found, we return zero and you can find the item in the leaf
- * level of the path (level 0)
- *
- * If the key isn't found, the path points to the slot where it should
- * be inserted, and 1 is returned.  If there are other errors during the
- * search a negative error number is returned.
- *
- * if ins_len > 0, nodes and leaves will be split as we walk down the
- * tree.  if ins_len < 0, nodes will be merged as we walk down the tree (if
- * possible)
- */
 int btrfs_search_slot(struct btrfs_trans_handle *trans, struct btrfs_root
 		      *root, struct btrfs_key *key, struct btrfs_path *p, int
 		      ins_len, int cow)
@@ -1250,35 +1111,6 @@ int btrfs_set_item_key_safe(struct btrfs_root *root, struct btrfs_path *path,
 	return 0;
 }
 
-/*
- * update an item key without the safety checks.  This is meant to be called by
- * fsck only.
- */
-void btrfs_set_item_key_unsafe(struct btrfs_root *root,
-			       struct btrfs_path *path,
-			       struct btrfs_key *new_key)
-{
-	struct btrfs_disk_key disk_key;
-	struct extent_buffer *eb;
-	int slot;
-
-	eb = path->nodes[0];
-	slot = path->slots[0];
-
-	btrfs_cpu_key_to_disk(&disk_key, new_key);
-	btrfs_set_item_key(eb, &disk_key, slot);
-	btrfs_mark_buffer_dirty(eb);
-	if (slot == 0)
-		btrfs_fixup_low_keys(root, path, &disk_key, 1);
-}
-
-/*
- * try to push data from one node into the next node left in the
- * tree.
- *
- * returns 0 if some ptrs were pushed left, < 0 if there was some horrible
- * error, and > 0 if there was no room in the left hand block.
- */
 static int push_node_left(struct btrfs_trans_handle *trans,
 			  struct btrfs_root *root, struct extent_buffer *dst,
 			  struct extent_buffer *src, int empty)
@@ -2908,70 +2740,4 @@ int btrfs_previous_item(struct btrfs_root *root,
 			break;
 	}
 	return 1;
-}
-
-/*
- * search in extent tree to find a previous Metadata/Data extent item with
- * min objecitd.
- *
- * returns 0 if something is found, 1 if nothing was found and < 0 on error
- */
-int btrfs_previous_extent_item(struct btrfs_root *root,
-			struct btrfs_path *path, u64 min_objectid)
-{
-	struct btrfs_key found_key;
-	struct extent_buffer *leaf;
-	u32 nritems;
-	int ret;
-
-	while (1) {
-		if (path->slots[0] == 0) {
-			ret = btrfs_prev_leaf(root, path);
-			if (ret != 0)
-				return ret;
-		} else {
-			path->slots[0]--;
-		}
-		leaf = path->nodes[0];
-		nritems = btrfs_header_nritems(leaf);
-		if (nritems == 0)
-			return 1;
-		if (path->slots[0] == nritems)
-			path->slots[0]--;
-
-		btrfs_item_key_to_cpu(leaf, &found_key, path->slots[0]);
-		if (found_key.objectid < min_objectid)
-			break;
-		if (found_key.type == BTRFS_EXTENT_ITEM_KEY ||
-		    found_key.type == BTRFS_METADATA_ITEM_KEY)
-			return 0;
-		if (found_key.objectid == min_objectid &&
-		    found_key.type < BTRFS_EXTENT_ITEM_KEY)
-			break;
-	}
-	return 1;
-}
-
-/*
- * Search in extent tree to found next meta/data extent
- * Caller needs to check for no-hole or skinny metadata features.
- */
-int btrfs_next_extent_item(struct btrfs_root *root,
-			struct btrfs_path *path, u64 max_objectid)
-{
-	struct btrfs_key found_key;
-	int ret;
-
-	while (1) {
-		ret = btrfs_next_item(root, path);
-		if (ret)
-			return ret;
-		btrfs_item_key_to_cpu(path->nodes[0], &found_key,
-				      path->slots[0]);
-		if (found_key.objectid > max_objectid)
-			return 1;
-		if (found_key.type == BTRFS_EXTENT_ITEM_KEY ||
-		    found_key.type == BTRFS_METADATA_ITEM_KEY)
-		return 0;
-	}
 }

@@ -285,9 +285,6 @@ search_again:
 	goto again;
 }
 
-/*
- * set some bits on a range in the tree.
- */
 int set_extent_bits(struct extent_io_tree *tree, u64 start,
 		    u64 end, int bits, gfp_t mask)
 {

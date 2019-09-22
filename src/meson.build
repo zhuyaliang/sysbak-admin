@@ -58,7 +58,6 @@ sources = files(
   'btrfs/repair.c',
   'btrfs/root-tree.c',
   'btrfs/radix-tree.c',
-  'btrfs/ulist.c',
   'btrfs/utils.c',
   'btrfs/uuid-tree.c',
   'btrfs/volumes.c',

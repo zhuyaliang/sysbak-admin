@@ -2440,14 +2440,6 @@ int btrfs_set_item_key_safe(struct btrfs_root *root, struct btrfs_path *path,
 			    struct btrfs_key *new_key);
 
 /* root-item.c */
-int btrfs_add_root_ref(struct btrfs_trans_handle *trans,
-		       struct btrfs_root *tree_root,
-		       u64 root_id, u8 type, u64 ref_id,
-		       u64 dirid, u64 sequence,
-		       const char *name, int name_len);
-int btrfs_insert_root(struct btrfs_trans_handle *trans, struct btrfs_root
-		      *root, struct btrfs_key *key, struct btrfs_root_item
-		      *item);
 int btrfs_update_root(struct btrfs_trans_handle *trans, struct btrfs_root
 		      *root, struct btrfs_key *key, struct btrfs_root_item
 		      *item);

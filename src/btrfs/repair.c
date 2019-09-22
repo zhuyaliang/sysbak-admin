@@ -17,7 +17,7 @@
  */
 
 #include "ctree.h"
-#include "extent-cache.h"
+#include <btrfs/extent-cache.h>
 #include "utils.h"
 #include "repair.h"
 

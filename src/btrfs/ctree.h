@@ -2480,38 +2480,6 @@ int btrfs_find_free_objectid(struct btrfs_trans_handle *trans,
 			     struct btrfs_root *fs_root,
 			     u64 dirid, u64 *objectid);
 
-/* inode-item.c */
-int btrfs_insert_inode_ref(struct btrfs_trans_handle *trans,
-			   struct btrfs_root *root,
-			   const char *name, int name_len,
-			   u64 inode_objectid, u64 ref_objectid, u64 index);
-int btrfs_insert_inode(struct btrfs_trans_handle *trans, struct btrfs_root
-		       *root, u64 objectid, struct btrfs_inode_item
-		       *inode_item);
-int btrfs_lookup_inode(struct btrfs_trans_handle *trans, struct btrfs_root
-		       *root, struct btrfs_path *path,
-		       struct btrfs_key *location, int mod);
-struct btrfs_inode_extref *btrfs_lookup_inode_extref(struct btrfs_trans_handle
-		*trans, struct btrfs_path *path, struct btrfs_root *root,
-		u64 ino, u64 parent_ino, u64 index, const char *name,
-		int namelen, int ins_len);
-int btrfs_del_inode_extref(struct btrfs_trans_handle *trans,
-			   struct btrfs_root *root,
-			   const char *name, int name_len,
-			   u64 inode_objectid, u64 ref_objectid,
-			   u64 *index);
-int btrfs_insert_inode_extref(struct btrfs_trans_handle *trans,
-			      struct btrfs_root *root,
-			      const char *name, int name_len,
-			      u64 inode_objectid, u64 ref_objectid, u64 index);
-struct btrfs_inode_ref *btrfs_lookup_inode_ref(struct btrfs_trans_handle *trans,
-		struct btrfs_root *root, struct btrfs_path *path,
-		const char *name, int namelen, u64 ino, u64 parent_ino,
-		u64 index, int ins_len);
-int btrfs_del_inode_ref(struct btrfs_trans_handle *trans,
-			struct btrfs_root *root, const char *name, int name_len,
-			u64 ino, u64 parent_ino, u64 *index);
-
 /* file-item.c */
 int btrfs_del_csums(struct btrfs_trans_handle *trans,
 		    struct btrfs_root *root, u64 bytenr, u64 len);

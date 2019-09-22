@@ -27,7 +27,7 @@
 #include "extent_io.h"
 #include "ctree.h"
 #include "volumes.h"
-#include "internal.h"
+#include "utils.h"
 
 void extent_io_tree_init(struct extent_io_tree *tree)
 {

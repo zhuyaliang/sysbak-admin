@@ -24,7 +24,7 @@
 #include "disk-io.h"
 #include "extent_io.h"
 #include "bitops.h"
-#include "internal.h"
+#include "utils.h"
 
 /*
  * Kernel always uses PAGE_CACHE_SIZE for sectorsize, but we don't have

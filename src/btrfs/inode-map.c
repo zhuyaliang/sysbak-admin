@@ -19,7 +19,7 @@
 #include "ctree.h"
 #include "disk-io.h"
 #include "transaction.h"
-#include "internal.h"
+#include "utils.h"
 
 /*
  * walks the btree of allocated inodes and find a hole.

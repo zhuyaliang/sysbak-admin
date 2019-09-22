@@ -23,7 +23,6 @@
 #include "ctree.h"
 #include <dirent.h>
 #include <stdarg.h>
-#include "internal.h"
 #include "btrfs-list.h"
 
 #define BTRFS_MKFS_SYSTEM_GROUP_SIZE (4 * 1024 * 1024)
@@ -101,6 +100,23 @@ void set_argv0(char **argv);
 #define UNITS_HUMAN_DECIMAL		(UNITS_DECIMAL)
 #define UNITS_HUMAN			(UNITS_HUMAN_BINARY)
 #define UNITS_DEFAULT			(UNITS_HUMAN)
+
+#define min(x,y) ({ \
+	typeof(x) _x = (x);	\
+	typeof(y) _y = (y);	\
+	(void) (&_x == &_y);		\
+	_x < _y ? _x : _y; })
+
+#define max(x,y) ({ \
+	typeof(x) _x = (x);	\
+	typeof(y) _y = (y);	\
+	(void) (&_x == &_y);		\
+	_x > _y ? _x : _y; })
+
+#define min_t(type,x,y) \
+	({ type __x = (x); type __y = (y); __x < __y ? __x: __y; })
+#define max_t(type,x,y) \
+	({ type __x = (x); type __y = (y); __x > __y ? __x: __y; })
 
 void units_set_mode(unsigned *units, unsigned mode);
 void units_set_base(unsigned *units, unsigned base);

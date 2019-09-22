@@ -119,7 +119,6 @@ void dump_start_leaf(unsigned long* bitmap, struct btrfs_root *root, struct exte
     struct extent_buffer *next;
     u32 leaf_size;
 
-	g_print ("size = ytenr = \r\n");
     if (!eb)
 	return;
     u32 nr = btrfs_header_nritems(eb);
@@ -151,18 +150,13 @@ void dump_start_leaf(unsigned long* bitmap, struct btrfs_root *root, struct exte
     if (!follow)
 	    return;
     leaf_size = root->nodesize;
-    g_print ("leaf_size = %lu \r\n",leaf_size);
     for (i = 0; i < nr; i++) 
     {
 	    bytenr = (unsigned long long)btrfs_header_bytenr(eb);
-	    g_print ("bytenr = %llu i = %d\r\n",bytenr,i);
 	    check_extent_bitmap(bitmap, bytenr, &size, 0);
 	    bytenr = btrfs_node_blockptr(eb, i);
-	    g_print ("bytenr = %llu i = %d\r\n",bytenr,i);
         parent_transid = btrfs_node_ptr_generation(eb, i);
-	    g_print ("parent_transid = %llu \r\n",parent_transid);
         next = read_tree_block(root,bytenr,leaf_size,parent_transid);
-	    g_print ("size = %llu \r\n",size);
 	    bytenr = (unsigned long long)btrfs_header_bytenr(next);
 	    check_extent_bitmap(bitmap, bytenr, &size, 0);
 	    if (!extent_buffer_uptodate(next)) 
@@ -228,11 +222,9 @@ static gboolean read_bitmap_info (char* device, file_system_info fs_info, ul *bi
     {
         return FALSE;
     }    
-    g_print ("total_block = %llu \r\n",total_block); 
     dev_size = fs_info.device_size;
     block_size  = btrfs_super_nodesize(info->super_copy);
     u64 bsize = (u64)block_size;
-    g_print ("block_size = %d\r\n",block_size);
     set_bitmap(bitmap, 0, BTRFS_SUPER_INFO_OFFSET); // some data like mbr maybe in
     set_bitmap(bitmap, BTRFS_SUPER_INFO_OFFSET, block_size);
     check_extent_bitmap(bitmap, btrfs_root_bytenr(&info->extent_root->root_item), &bsize, 0);
@@ -280,12 +272,9 @@ static gboolean read_bitmap_info (char* device, file_system_info fs_info, ul *bi
 		    btrfs_root_bytenr(&ri),
 		    root->nodesize,
 		    0);
-        g_print ("sssssssssssssssss\r\n");
 	    if (!extent_buffer_uptodate(buf))
 		    goto next;
-        g_print ("sssssssssssssssss\r\n");
 	    dump_start_leaf(bitmap, tree_root_scan, buf, 1);
-        g_print ("offset = %lu\r\n",offset);
 	    free_extent_buffer(buf);
 	}
 next:
@@ -307,7 +296,6 @@ static gboolean read_super_blocks(const char* device, file_system_info* fs_info)
     fs_info->usedblocks  = btrfs_super_bytes_used(root->fs_info->super_copy) / fs_info->block_size;
     fs_info->device_size = btrfs_super_total_bytes(root->fs_info->super_copy);
     fs_info->totalblock  = fs_info->device_size / fs_info->block_size;
-    g_print ("block_size = %u usedblocks = %llu device_size = %llu totalblock = %llu\r\n",fs_info->block_size,fs_info->usedblocks,fs_info->device_size,fs_info->totalblock);
     fs_close();
 
     return TRUE;
@@ -549,13 +537,11 @@ gboolean gdbus_sysbak_btrfs_ptf (SysbakGdbus           *object,
         e_code = 4;
         goto ERROR;
     }
-    g_print ("read_bitmap_info \r\n");
     if (!read_bitmap_info(source, fs_info, bitmap))
     {
         e_code = 5;
         goto ERROR;
     }    
-    g_print ("sssssssssssssssss\r\n");
     update_used_blocks_count(&fs_info, bitmap);
     if (!check_system_space (&fs_info,target,&img_opt))
     {

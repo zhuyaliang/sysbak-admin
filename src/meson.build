@@ -46,7 +46,6 @@ sources = files(
   'gdbus-fatfs.c',
   'gdbus-btrfs.c',
   'btrfs/ctree.c',
-  'btrfs/dir-item.c',
   'btrfs/disk-io.c',
   'btrfs/extent_io.c',
   'btrfs/extent-tree.c',
@@ -59,7 +58,6 @@ sources = files(
   'btrfs/root-tree.c',
   'btrfs/radix-tree.c',
   'btrfs/utils.c',
-  'btrfs/uuid-tree.c',
   'btrfs/volumes.c',
 )
 

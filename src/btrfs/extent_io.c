@@ -22,9 +22,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <btrfs/list.h>
 #include "kerncompat.h"
 #include "extent_io.h"
-#include "list.h"
 #include "ctree.h"
 #include "volumes.h"
 #include "internal.h"

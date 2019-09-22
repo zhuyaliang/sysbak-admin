@@ -8,8 +8,8 @@
 #ifndef __ULIST_H__
 #define __ULIST_H__
 
+#include <btrfs/list.h>
 #include "kerncompat.h"
-#include "list.h"
 #include "rbtree.h"
 
 /*

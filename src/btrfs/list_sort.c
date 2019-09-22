@@ -3,9 +3,9 @@
  * for btrfsprogs
  */
 
+#include <btrfs/list.h>
 #include "kerncompat.h"
 #include "list_sort.h"
-#include "list.h"
 
 #define MAX_LIST_LENGTH_BITS 20
 

@@ -19,15 +19,9 @@
 #ifndef __BTRFS_SEND_UTILS_H__
 #define __BTRFS_SEND_UTILS_H__
 
-#if BTRFS_FLAT_INCLUDES
-#include "kerncompat.h"
 #include "ctree.h"
-#include "rbtree.h"
-#else
 #include <btrfs/kerncompat.h>
-#include <btrfs/ctree.h>
 #include <btrfs/rbtree.h>
-#endif /* BTRFS_FLAT_INCLUDES */
 
 #ifdef __cplusplus
 extern "C" {

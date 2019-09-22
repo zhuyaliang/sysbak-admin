@@ -4,7 +4,7 @@
  */
 
 #include <btrfs/list.h>
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include "list_sort.h"
 
 #define MAX_LIST_LENGTH_BITS 20

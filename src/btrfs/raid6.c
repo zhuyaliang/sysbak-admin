@@ -19,7 +19,7 @@
  */
 #include <stdint.h>
 #include <unistd.h>
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include "ctree.h"
 #include "disk-io.h"
 

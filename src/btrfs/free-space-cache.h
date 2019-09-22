@@ -19,9 +19,9 @@
 #ifndef __BTRFS_FREE_SPACE_CACHE_H__
 #define __BTRFS_FREE_SPACE_CACHE_H__
 
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include "ctree.h"
-#include "rbtree.h"
+#include <btrfs/rbtree.h>
 
 struct btrfs_free_space {
 	struct rb_node offset_index;

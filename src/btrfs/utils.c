@@ -39,14 +39,14 @@
 #include <getopt.h>
 #include <btrfs/radix-tree.h>
 #include <btrfs/crc32c.h>
+#include <btrfs/kerncompat.h>
+#include <btrfs/ioctl.h>
 
-#include "kerncompat.h"
 #include "ctree.h"
 #include "disk-io.h"
 #include "transaction.h"
 #include "utils.h"
 #include "volumes.h"
-#include <btrfs/ioctl.h>
 #include "commands.h"
 
 #ifndef BLKDISCARD

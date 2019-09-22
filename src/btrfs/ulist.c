@@ -6,7 +6,7 @@
 
 //#include <linux/slab.h>
 #include <stdlib.h>
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include "ulist.h"
 #include "ctree.h"
 

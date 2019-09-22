@@ -4,7 +4,7 @@
 #ifndef _LINUX_LIST_SORT_H
 #define _LINUX_LIST_SORT_H
 
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 
 struct list_head;
 

@@ -19,7 +19,7 @@
 #ifndef __BTRFS_QGROUP_H__
 #define __BTRFS_QGROUP_H__
 
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include <btrfs/ioctl.h>
 
 struct btrfs_qgroup;

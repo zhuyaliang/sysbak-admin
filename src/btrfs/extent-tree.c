@@ -22,7 +22,7 @@
 #include <math.h>
 #include <btrfs/crc32c.h>
 #include <btrfs/radix-tree.h>
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include "ctree.h"
 #include "disk-io.h"
 #include "print-tree.h"

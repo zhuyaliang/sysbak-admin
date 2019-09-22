@@ -23,7 +23,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <btrfs/list.h>
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include "extent_io.h"
 #include "ctree.h"
 #include "volumes.h"

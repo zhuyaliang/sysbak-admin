@@ -17,7 +17,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include "extent-cache.h"
 #include "rbtree-utils.h"
 

@@ -29,11 +29,7 @@
 
 #ifndef	_LINUX_RBTREE_H
 #define	_LINUX_RBTREE_H
-#if BTRFS_FLAT_INCLUDES
-#include "kerncompat.h"
-#else
 #include <btrfs/kerncompat.h>
-#endif /* BTRFS_FLAT_INCLUDES */
 
 #ifdef __cplusplus
 extern "C" {

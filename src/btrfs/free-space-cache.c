@@ -17,7 +17,7 @@
  */
 
 #include <btrfs/crc32c.h>
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include "ctree.h"
 #include "free-space-cache.h"
 #include "transaction.h"

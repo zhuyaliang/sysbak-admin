@@ -1,5 +1,5 @@
 
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include <btrfs/radix-tree.h>
 #ifdef __KERNEL__
 #define RADIX_TREE_MAP_SHIFT	(CONFIG_BASE_SMALL ? 4 : 6)

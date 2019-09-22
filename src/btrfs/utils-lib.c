@@ -1,4 +1,4 @@
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <limits.h>

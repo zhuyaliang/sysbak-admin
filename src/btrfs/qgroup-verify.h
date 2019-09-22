@@ -19,7 +19,7 @@
 #ifndef __BTRFS_QGROUP_VERIFY_H__
 #define __BTRFS_QGROUP_VERIFY_H__
 
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include "ctree.h"
 
 int qgroup_verify_all(struct btrfs_fs_info *info);

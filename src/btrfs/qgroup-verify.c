@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <uuid/uuid.h>
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include <btrfs/radix-tree.h>
 #include "ctree.h"
 #include "disk-io.h"

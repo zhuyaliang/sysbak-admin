@@ -9,7 +9,7 @@
 #define __ULIST_H__
 
 #include <btrfs/list.h>
-#include "kerncompat.h"
+#include <btrfs/kerncompat.h>
 #include "rbtree.h"
 
 /*

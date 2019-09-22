@@ -61,7 +61,7 @@ sources = files(
   'btrfs/qgroup.c',
   'btrfs/qgroup-verify.c',
   'btrfs/raid6.c',
-  'btrfs/rbtree.c',
+  #'btrfs/rbtree.c',
   'btrfs/rbtree-utils.c',
   'btrfs/repair.c',
   'btrfs/root-tree.c',

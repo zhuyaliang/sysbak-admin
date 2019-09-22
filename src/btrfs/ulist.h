@@ -10,7 +10,7 @@
 
 #include <btrfs/list.h>
 #include <btrfs/kerncompat.h>
-#include "rbtree.h"
+#include <btrfs/rbtree.h>
 
 /*
  * ulist is a generic data structure to hold a collection of unique u64

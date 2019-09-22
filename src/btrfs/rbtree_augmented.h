@@ -25,7 +25,7 @@
 #ifndef _LINUX_RBTREE_AUGMENTED_H
 #define _LINUX_RBTREE_AUGMENTED_H
 
-#include "rbtree.h"
+#include <btrfs/rbtree.h>
 
 #ifdef __cplusplus
 extern "C" {

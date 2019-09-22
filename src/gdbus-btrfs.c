@@ -25,7 +25,6 @@
 #include "btrfs/volumes.h"
 #include "btrfs/disk-io.h"
 #include "btrfs/utils.h"
-#include "btrfs/version.h"
 static const char *sysbak_error_message[10] = 
 {
 	"Device Busy",

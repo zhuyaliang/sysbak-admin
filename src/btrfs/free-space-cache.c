@@ -18,11 +18,11 @@
 
 #include <btrfs/crc32c.h>
 #include <btrfs/kerncompat.h>
+#include <btrfs/extent_io.h>
 #include "ctree.h"
 #include "free-space-cache.h"
 #include "transaction.h"
 #include "disk-io.h"
-#include "extent_io.h"
 #include "bitops.h"
 #include "internal.h"
 

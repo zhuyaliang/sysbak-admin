@@ -24,7 +24,7 @@
 #include <unistd.h>
 #include <btrfs/list.h>
 #include <btrfs/kerncompat.h>
-#include "extent_io.h"
+#include <btrfs/extent_io.h>
 #include "ctree.h"
 #include "volumes.h"
 #include "internal.h"

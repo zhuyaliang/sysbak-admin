@@ -47,7 +47,6 @@
 #include "transaction.h"
 #include "utils.h"
 #include "volumes.h"
-#include "commands.h"
 
 #ifndef BLKDISCARD
 #define BLKDISCARD	_IO(0x12,119)

@@ -23,7 +23,6 @@
 #include "ctree.h"
 #include <dirent.h>
 #include <stdarg.h>
-#include "btrfs-list.h"
 
 #define BTRFS_MKFS_SYSTEM_GROUP_SIZE (4 * 1024 * 1024)
 #define BTRFS_MKFS_SMALL_VOLUME_SIZE (1024 * 1024 * 1024)

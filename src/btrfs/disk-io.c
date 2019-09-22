@@ -1355,43 +1355,7 @@ struct btrfs_fs_info *open_ctree_fs_info(const char *filename,
 	return info;
 }
 
-struct btrfs_root *open_ctree(const char *filename, u64 sb_bytenr,
-			      enum btrfs_open_ctree_flags flags)
-{
-	struct btrfs_fs_info *info;
 
-	/* This flags may not return fs_info with any valid root */
-	BUG_ON(flags & OPEN_CTREE_IGNORE_CHUNK_TREE_ERROR);
-	info = open_ctree_fs_info(filename, sb_bytenr, 0, 0, flags);
-	if (!info)
-		return NULL;
-	if (flags & __OPEN_CTREE_RETURN_CHUNK_ROOT)
-		return info->chunk_root;
-	return info->fs_root;
-}
-
-struct btrfs_root *open_ctree_fd(int fp, const char *path, u64 sb_bytenr,
-				 enum btrfs_open_ctree_flags flags)
-{
-	struct btrfs_fs_info *info;
-
-	/* This flags may not return fs_info with any valid root */
-	BUG_ON(flags & OPEN_CTREE_IGNORE_CHUNK_TREE_ERROR);
-	info = __open_ctree_fd(fp, path, sb_bytenr, 0, 0, flags);
-	if (!info)
-		return NULL;
-	if (flags & __OPEN_CTREE_RETURN_CHUNK_ROOT)
-		return info->chunk_root;
-	return info->fs_root;
-}
-
-/*
- * Check if the super is valid:
- * - nodesize/sectorsize - minimum, maximum, alignment
- * - tree block starts   - alignment
- * - number of devices   - something sane
- * - sys array size      - maximum
- */
 static int check_super(struct btrfs_super_block *sb)
 {
 	char result[BTRFS_CSUM_SIZE];

@@ -86,8 +86,6 @@ static inline struct extent_buffer* read_tree_block(
 			parent_transid);
 }
 
-int read_extent_data(struct btrfs_root *root, char *data, u64 logical,
-		     u64 *len, int mirror);
 void readahead_tree_block(struct btrfs_root *root, u64 bytenr, u32 blocksize,
 			  u64 parent_transid);
 struct extent_buffer* btrfs_find_create_tree_block(
@@ -112,10 +110,6 @@ int btrfs_scan_fs_devices(int fd, const char *path,
 int btrfs_setup_chunk_tree_and_device_map(struct btrfs_fs_info *fs_info,
 			  u64 chunk_root_bytenr);
 
-struct btrfs_root *open_ctree(const char *filename, u64 sb_bytenr,
-			      enum btrfs_open_ctree_flags flags);
-struct btrfs_root *open_ctree_fd(int fp, const char *path, u64 sb_bytenr,
-				 enum btrfs_open_ctree_flags flags);
 struct btrfs_fs_info *open_ctree_fs_info(const char *filename,
 					 u64 sb_bytenr, u64 root_tree_bytenr,
 					 u64 chunk_root_bytenr,

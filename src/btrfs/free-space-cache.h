@@ -43,8 +43,6 @@ struct btrfs_free_space_ctl {
 	u32 sectorsize;
 };
 
-int load_free_space_cache(struct btrfs_fs_info *fs_info,
-			  struct btrfs_block_group_cache *block_group);
 
 void __btrfs_remove_free_space_cache(struct btrfs_free_space_ctl *ctl);
 void btrfs_remove_free_space_cache(struct btrfs_block_group_cache

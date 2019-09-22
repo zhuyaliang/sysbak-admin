@@ -466,10 +466,6 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
 					     shift_len);
 			key.offset = bytenr;
 
-			/*
-			 * btrfs_split_item returns -EAGAIN when the
-			 * item changed size or key
-			 */
 			ret = btrfs_split_item(trans, root, path, &key, offset);
 			BUG_ON(ret && ret != -EAGAIN);
 

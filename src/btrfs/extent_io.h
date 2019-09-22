@@ -124,7 +124,6 @@ struct extent_buffer *find_first_extent_buffer(struct extent_io_tree *tree,
 					       u64 start);
 struct extent_buffer *alloc_extent_buffer(struct extent_io_tree *tree,
 					  u64 bytenr, u32 blocksize);
-struct extent_buffer *btrfs_clone_extent_buffer(struct extent_buffer *src);
 void free_extent_buffer(struct extent_buffer *eb);
 int read_extent_from_disk(struct extent_buffer *eb,
 			  unsigned long offset, unsigned long len);
@@ -142,12 +141,6 @@ void memmove_extent_buffer(struct extent_buffer *dst, unsigned long dst_offset,
 			   unsigned long src_offset, unsigned long len);
 void memset_extent_buffer(struct extent_buffer *eb, char c,
 			  unsigned long start, unsigned long len);
-int extent_buffer_test_bit(struct extent_buffer *eb, unsigned long start,
-			   unsigned long nr);
 int set_extent_buffer_dirty(struct extent_buffer *eb);
 int clear_extent_buffer_dirty(struct extent_buffer *eb);
-int read_data_from_disk(struct btrfs_fs_info *info, void *buf, u64 offset,
-			u64 bytes, int mirror);
-int write_data_to_disk(struct btrfs_fs_info *info, void *buf, u64 offset,
-		       u64 bytes, int mirror);
 #endif

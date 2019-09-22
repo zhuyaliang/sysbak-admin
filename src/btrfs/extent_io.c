@@ -557,20 +557,6 @@ static struct extent_buffer *__alloc_extent_buffer(struct extent_io_tree *tree,
 	return eb;
 }
 
-struct extent_buffer *btrfs_clone_extent_buffer(struct extent_buffer *src)
-{
-	struct extent_buffer *new;
-
-	new = __alloc_extent_buffer(NULL, src->start, src->len);
-	if (new == NULL)
-		return NULL;
-
-	copy_extent_buffer(new, src, 0, 0, src->len);
-	new->flags |= EXTENT_BUFFER_DUMMY;
-
-	return new;
-}
-
 void free_extent_buffer(struct extent_buffer *eb)
 {
 	if (!eb || IS_ERR(eb))
@@ -690,140 +676,6 @@ out:
 	return ret;
 }
 
-int read_data_from_disk(struct btrfs_fs_info *info, void *buf, u64 offset,
-			u64 bytes, int mirror)
-{
-	struct btrfs_multi_bio *multi = NULL;
-	struct btrfs_device *device;
-	u64 bytes_left = bytes;
-	u64 read_len;
-	u64 total_read = 0;
-	int ret;
-
-	while (bytes_left) {
-		read_len = bytes_left;
-		ret = btrfs_map_block(&info->mapping_tree, READ, offset,
-				      &read_len, &multi, mirror, NULL);
-		if (ret) {
-			fprintf(stderr, "Couldn't map the block %Lu\n",
-				offset);
-			return -EIO;
-		}
-		device = multi->stripes[0].dev;
-
-		read_len = min(bytes_left, read_len);
-		if (device->fd <= 0) {
-			kfree(multi);
-			return -EIO;
-		}
-
-		ret = pread(device->fd, buf + total_read, read_len,
-			    multi->stripes[0].physical);
-		kfree(multi);
-		if (ret < 0) {
-			fprintf(stderr, "Error reading %Lu, %d\n", offset,
-				ret);
-			return ret;
-		}
-		if (ret != read_len) {
-			fprintf(stderr, "Short read for %Lu, read %d, "
-				"read_len %Lu\n", offset, ret, read_len);
-			return -EIO;
-		}
-
-		bytes_left -= read_len;
-		offset += read_len;
-		total_read += read_len;
-	}
-
-	return 0;
-}
-
-int write_data_to_disk(struct btrfs_fs_info *info, void *buf, u64 offset,
-		      u64 bytes, int mirror)
-{
-	struct btrfs_multi_bio *multi = NULL;
-	struct btrfs_device *device;
-	u64 bytes_left = bytes;
-	u64 this_len;
-	u64 total_write = 0;
-	u64 *raid_map = NULL;
-	u64 dev_bytenr;
-	int dev_nr;
-	int ret = 0;
-
-	while (bytes_left > 0) {
-		this_len = bytes_left;
-		dev_nr = 0;
-
-		ret = btrfs_map_block(&info->mapping_tree, WRITE, offset,
-				      &this_len, &multi, mirror, &raid_map);
-		if (ret) {
-			fprintf(stderr, "Couldn't map the block %Lu\n",
-				offset);
-			return -EIO;
-		}
-
-		if (raid_map) {
-			struct extent_buffer *eb;
-			u64 stripe_len = this_len;
-
-			this_len = min(this_len, bytes_left);
-			this_len = min(this_len, (u64)info->tree_root->nodesize);
-
-			eb = malloc(sizeof(struct extent_buffer) + this_len);
-			BUG_ON(!eb);
-
-			memset(eb, 0, sizeof(struct extent_buffer) + this_len);
-			eb->start = offset;
-			eb->len = this_len;
-
-			memcpy(eb->data, buf + total_write, this_len);
-			ret = write_raid56_with_parity(info, eb, multi,
-						       stripe_len, raid_map);
-			BUG_ON(ret);
-
-			free(eb);
-			kfree(raid_map);
-			raid_map = NULL;
-		} else while (dev_nr < multi->num_stripes) {
-			device = multi->stripes[dev_nr].dev;
-			if (device->fd <= 0) {
-				kfree(multi);
-				return -EIO;
-			}
-
-			dev_bytenr = multi->stripes[dev_nr].physical;
-			this_len = min(this_len, bytes_left);
-			dev_nr++;
-
-			ret = pwrite(device->fd, buf + total_write, this_len, dev_bytenr);
-			if (ret != this_len) {
-				if (ret < 0) {
-					fprintf(stderr, "Error writing to "
-						"device %d\n", errno);
-					ret = errno;
-					kfree(multi);
-					return ret;
-				} else {
-					fprintf(stderr, "Short write\n");
-					kfree(multi);
-					return -EIO;
-				}
-			}
-		}
-
-		BUG_ON(bytes_left < this_len);
-
-		bytes_left -= this_len;
-		offset += this_len;
-		total_write += this_len;
-
-		kfree(multi);
-		multi = NULL;
-	}
-	return 0;
-}
 
 int set_extent_buffer_dirty(struct extent_buffer *eb)
 {
@@ -884,8 +736,3 @@ void memset_extent_buffer(struct extent_buffer *eb, char c,
 	memset(eb->data + start, c, len);
 }
 
-int extent_buffer_test_bit(struct extent_buffer *eb, unsigned long start,
-			   unsigned long nr)
-{
-	return test_bit(nr, (unsigned long *)(eb->data + start));
-}

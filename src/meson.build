@@ -45,7 +45,6 @@ sources = files(
   'progress.c',
   'gdbus-fatfs.c',
   'gdbus-btrfs.c',
-  'btrfs/btrfs-list.c',
   'btrfs/ctree.c',
   'btrfs/dir-item.c',
   'btrfs/disk-io.c',

@@ -47,4 +47,3 @@ int btrfs_add_corrupt_extent_record(struct btrfs_fs_info *info,
 	BUG_ON(ret && ret != -EEXIST);
 	return ret;
 }
-

@@ -98,4 +98,3 @@ void raid6_gen_syndrome(int disks, size_t bytes, void **ptrs)
 		*(unative_t *)&q[d+NSIZE*0] = wq0;
 	}
 }
-

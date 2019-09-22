@@ -67,7 +67,6 @@ sources = files(
   'btrfs/radix-tree.c',
   'btrfs/ulist.c',
   'btrfs/utils.c',
-  'btrfs/utils-lib.c',
   'btrfs/uuid-tree.c',
   'btrfs/volumes.c',
 )

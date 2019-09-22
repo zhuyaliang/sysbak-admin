@@ -19,7 +19,7 @@
 #include "qgroup.h"
 #include <sys/ioctl.h>
 #include "ctree.h"
-#include "ioctl.h"
+#include <btrfs/ioctl.h>
 #include "utils.h"
 #include <errno.h>
 

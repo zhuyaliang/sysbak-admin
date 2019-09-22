@@ -29,7 +29,6 @@
 #include "ctree.h"
 #include "transaction.h"
 #include "utils.h"
-#include "ioctl.h"
 #include <uuid/uuid.h>
 #include "btrfs-list.h"
 #include "rbtree-utils.h"

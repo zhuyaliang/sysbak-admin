@@ -46,7 +46,7 @@
 #include "transaction.h"
 #include "utils.h"
 #include "volumes.h"
-#include "ioctl.h"
+#include <btrfs/ioctl.h>
 #include "commands.h"
 
 #ifndef BLKDISCARD

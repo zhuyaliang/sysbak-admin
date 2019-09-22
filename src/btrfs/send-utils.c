@@ -25,7 +25,7 @@
 
 #include "ctree.h"
 #include "send-utils.h"
-#include "ioctl.h"
+#include <btrfs/ioctl.h>
 #include "btrfs-list.h"
 
 static int btrfs_subvolid_resolve_sub(int fd, char *path, size_t *path_len,

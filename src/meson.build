@@ -54,7 +54,6 @@ sources = files(
   'btrfs/file-item.c',
   'btrfs/free-space-cache.c',
   'btrfs/list_sort.c',
-  'btrfs/qgroup.c',
   'btrfs/qgroup-verify.c',
   'btrfs/raid6.c',
   'btrfs/rbtree-utils.c',

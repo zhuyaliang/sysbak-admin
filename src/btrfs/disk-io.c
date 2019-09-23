@@ -138,7 +138,7 @@ static int csum_tree_block_fs_info(struct btrfs_fs_info *fs_info,
 	return csum_tree_block_size(buf, csum_size, verify);
 }
 
-int csum_tree_block(struct btrfs_root *root, struct extent_buffer *buf,
+static int csum_tree_block(struct btrfs_root *root, struct extent_buffer *buf,
 			   int verify)
 {
 	return csum_tree_block_fs_info(root->fs_info, buf, verify);
@@ -1316,11 +1316,8 @@ static int check_super(struct btrfs_super_block *sb)
 		goto error_out;
 	}
 
-	/*
-	 * Hint to catch really bogus numbers, bitflips or so
-	 */
-	btrfs_super_num_devices(sb) > (1UL << 31);
-	if (btrfs_super_num_devices(sb) == 0) {
+	if (btrfs_super_num_devices(sb) == 0) 
+    {
 		goto error_out;
 	}
 

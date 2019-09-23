@@ -649,7 +649,7 @@ int read_extent_from_disk(struct extent_buffer *eb,
 		ret = -errno;
 		goto out;
 	}
-	if (ret != len) {
+	if (ret != (int)len) {
 		ret = -EIO;
 		goto out;
 	}
@@ -664,7 +664,7 @@ int write_extent_to_disk(struct extent_buffer *eb)
 	ret = pwrite(eb->fd, eb->data, eb->len, eb->dev_bytenr);
 	if (ret < 0)
 		goto out;
-	if (ret != eb->len) {
+	if (ret != (int)eb->len) {
 		ret = -EIO;
 		goto out;
 	}

@@ -102,7 +102,11 @@ static void dump_file_extent_item(unsigned long* bitmap, struct extent_buffer *e
 	set_bitmap(bitmap, (unsigned long long)btrfs_file_extent_disk_bytenr(eb, fi),
 		                   (unsigned long long)btrfs_file_extent_disk_num_bytes(eb, fi) );
 }
-static void dump_start_leaf(ul *bitmap, struct btrfs_root *root, struct extent_buffer *eb, int follow){
+static void dump_start_leaf(ul    *bitmap, 
+                            struct btrfs_root *btr_root, 
+                            struct extent_buffer *eb, 
+                            int    follow)
+{
 
     u64 bytenr;
     u64 size;
@@ -148,27 +152,21 @@ static void dump_start_leaf(ul *bitmap, struct btrfs_root *root, struct extent_b
     }
     if (!follow)
 	    return;
-    leaf_size = root->nodesize;
+    leaf_size = btr_root->nodesize;
     for (i = 0; i < nr; i++) 
     {
 	    bytenr = (unsigned long long)btrfs_header_bytenr(eb);
 	    check_extent_bitmap(bitmap, bytenr, &size, 0);
 	    bytenr = btrfs_node_blockptr(eb, i);
         parent_transid = btrfs_node_ptr_generation(eb, i);
-        next = read_tree_block(root,bytenr,leaf_size,parent_transid);
+        next = read_tree_block(btr_root,bytenr,leaf_size,parent_transid);
 	    bytenr = (unsigned long long)btrfs_header_bytenr(next);
 	    check_extent_bitmap(bitmap, bytenr, &size, 0);
 	    if (!extent_buffer_uptodate(next)) 
         {
 	        continue;
 	    }
-        /*
-        if (btrfs_is_leaf(next) && btrfs_header_level(eb) != 1)
-            g_print("%s(%i): BUG\r\n", __FILE__, __LINE__);
-        if (btrfs_header_level(next) != btrfs_header_level(eb) - 1)
-            g_print("%s(%i): BUG\r\n", __FILE__, __LINE__);
-*/
-	    dump_start_leaf(bitmap, root, next, 1);
+	    dump_start_leaf(bitmap, btr_root, next, 1);
 	    free_extent_buffer(next);
     }
 

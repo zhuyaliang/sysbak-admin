@@ -83,7 +83,7 @@ void raid6_gen_syndrome(int disks, size_t bytes, void **ptrs)
 	p = dptr[z0+1];		/* XOR parity */
 	q = dptr[z0+2];		/* RS syndrome */
 
-	for ( d = 0 ; d < bytes ; d += NSIZE*1 ) {
+	for ( d = 0 ; d < (int)bytes ; d += NSIZE*1 ) {
 		wq0 = wp0 = *(unative_t *)&dptr[z0][d+0*NSIZE];
 		for ( z = z0-1 ; z >= 0 ; z-- ) {
 			wd0 = *(unative_t *)&dptr[z][d+0*NSIZE];

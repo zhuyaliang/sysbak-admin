@@ -83,7 +83,7 @@ void btrfs_radix_tree_init(void)
 
 char *__strncpy_null(char *dest, const char *src, size_t n)
 {
-	strncpy(dest, src, n);
+	memcpy(dest, src, n);
 	if (n > 0)
 		dest[n - 1] = '\0';
 	return dest;
@@ -143,7 +143,7 @@ int find_next_key(struct btrfs_path *path, struct btrfs_key *key)
 		if (!path->nodes[level])
 			break;
 		if (path->slots[level] + 1 >=
-		    btrfs_header_nritems(path->nodes[level]))
+		    (int)btrfs_header_nritems(path->nodes[level]))
 			continue;
 		if (level == 0)
 			btrfs_item_key_to_cpu(path->nodes[level], key,

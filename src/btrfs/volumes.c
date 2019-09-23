@@ -285,7 +285,7 @@ static int find_free_dev_extent(struct btrfs_trans_handle *trans,
 	u64 search_start = root->fs_info->alloc_start;
 	u64 search_end = device->total_bytes;
 	int ret;
-	int slot = 0;
+	uint slot = 0;
 	int start_found;
 	struct extent_buffer *l;
 
@@ -602,7 +602,7 @@ static int btrfs_device_avail_bytes(struct btrfs_trans_handle *trans,
 	u64 extent_end = 0;
 	u64 free_bytes = 0;
 	int ret;
-	int slot = 0;
+	uint slot = 0;
 
 	search_start = max(BTRFS_BLOCK_RESERVED_1M_FOR_SUPER, search_start);
 
@@ -1662,7 +1662,7 @@ int btrfs_read_chunk_tree(struct btrfs_root *root)
 	struct btrfs_key key;
 	struct btrfs_key found_key;
 	int ret;
-	int slot;
+	uint slot;
 
 	root = root->fs_info->chunk_root;
 
@@ -1793,7 +1793,7 @@ int write_raid56_with_parity(struct btrfs_fs_info *info,
 	int i;
 	int j;
 	int ret;
-	int alloc_size = eb->len;
+	uint alloc_size = eb->len;
 
 	ebs = kmalloc(sizeof(*ebs) * multi->num_stripes, GFP_NOFS);
 	BUG_ON(!ebs);
@@ -1844,7 +1844,7 @@ int write_raid56_with_parity(struct btrfs_fs_info *info,
 		ebs[multi->num_stripes - 1] = p_eb;
 		memcpy(p_eb->data, ebs[0]->data, stripe_len);
 		for (j = 1; j < multi->num_stripes - 1; j++) {
-			for (i = 0; i < stripe_len; i += sizeof(unsigned long)) {
+			for (i = 0; (uint)i < stripe_len; i += sizeof(unsigned long)) {
 				*(unsigned long *)(p_eb->data + i) ^=
 					*(unsigned long *)(ebs[j]->data + i);
 			}

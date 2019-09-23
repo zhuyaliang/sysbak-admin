@@ -116,7 +116,7 @@ static int cache_block_group(struct btrfs_root *root,
 	struct btrfs_key key;
 	struct extent_buffer *leaf;
 	struct extent_io_tree *free_space_cache;
-	int slot;
+	uint slot;
 	u64 last;
 	u64 hole_size;
 
@@ -292,7 +292,7 @@ again:
 
 		start = max(last, start);
 		last = end + 1;
-		if (last - start < num) {
+		if (last - start < (u64)num) {
 			continue;
 		}
 		if (start + num > cache->key.objectid + cache->key.offset) {
@@ -457,7 +457,7 @@ static int convert_extent_item_v0(struct btrfs_trans_handle *trans,
 
 	if (owner == (u64)-1) {
 		while (1) {
-			if (path->slots[0] >= btrfs_header_nritems(leaf)) {
+			if (path->slots[0] >= (int)btrfs_header_nritems(leaf)) {
 				ret = btrfs_next_leaf(root, path);
 				if (ret < 0)
 					return ret;
@@ -597,7 +597,7 @@ again:
 	leaf = path->nodes[0];
 	nritems = btrfs_header_nritems(leaf);
 	while (1) {
-		if (path->slots[0] >= nritems) {
+		if (path->slots[0] >= (int)nritems) {
 			ret = btrfs_next_leaf(root, path);
 			if (ret < 0)
 				err = ret;
@@ -746,7 +746,6 @@ static noinline int remove_extent_data_ref(struct btrfs_trans_handle *trans,
 		BUG();
 	}
 
-	BUG_ON(num_refs < refs_to_drop);
 	num_refs -= refs_to_drop;
 
 	if (num_refs == 0) {
@@ -768,49 +767,6 @@ static noinline int remove_extent_data_ref(struct btrfs_trans_handle *trans,
 	}
 	return ret;
 }
-
-static noinline u32 extent_data_ref_count(struct btrfs_root *root,
-					  struct btrfs_path *path,
-					  struct btrfs_extent_inline_ref *iref)
-{
-	struct btrfs_key key;
-	struct extent_buffer *leaf;
-	struct btrfs_extent_data_ref *ref1;
-	struct btrfs_shared_data_ref *ref2;
-	u32 num_refs = 0;
-
-	leaf = path->nodes[0];
-	btrfs_item_key_to_cpu(leaf, &key, path->slots[0]);
-	if (iref) {
-		if (btrfs_extent_inline_ref_type(leaf, iref) ==
-		    BTRFS_EXTENT_DATA_REF_KEY) {
-			ref1 = (struct btrfs_extent_data_ref *)(&iref->offset);
-			num_refs = btrfs_extent_data_ref_count(leaf, ref1);
-		} else {
-			ref2 = (struct btrfs_shared_data_ref *)(iref + 1);
-			num_refs = btrfs_shared_data_ref_count(leaf, ref2);
-		}
-	} else if (key.type == BTRFS_EXTENT_DATA_REF_KEY) {
-		ref1 = btrfs_item_ptr(leaf, path->slots[0],
-				      struct btrfs_extent_data_ref);
-		num_refs = btrfs_extent_data_ref_count(leaf, ref1);
-	} else if (key.type == BTRFS_SHARED_DATA_REF_KEY) {
-		ref2 = btrfs_item_ptr(leaf, path->slots[0],
-				      struct btrfs_shared_data_ref);
-		num_refs = btrfs_shared_data_ref_count(leaf, ref2);
-#ifdef BTRFS_COMPAT_EXTENT_TREE_V0
-	} else if (key.type == BTRFS_EXTENT_REF_V0_KEY) {
-		struct btrfs_extent_ref_v0 *ref0;
-		ref0 = btrfs_item_ptr(leaf, path->slots[0],
-				      struct btrfs_extent_ref_v0);
-		num_refs = btrfs_ref_count_v0(leaf, ref0);
-#endif
-	} else {
-		BUG();
-	}
-	return num_refs;
-}
-
 static noinline int lookup_tree_block_ref(struct btrfs_trans_handle *trans,
 					  struct btrfs_root *root,
 					  struct btrfs_path *path,
@@ -1189,7 +1145,6 @@ static int update_inline_extent_backref(struct btrfs_trans_handle *trans,
 		BUG_ON(refs_to_mod != -1);
 	}
 
-	BUG_ON(refs_to_mod < 0 && refs < -refs_to_mod);
 	refs += refs_to_mod;
 
 	if (refs > 0) {
@@ -1513,7 +1468,7 @@ static int __btrfs_mod_ref(struct btrfs_trans_handle *trans,
 	u32 nritems;
 	struct btrfs_key key;
 	struct btrfs_file_extent_item *fi;
-	int i;
+	uint i;
 	int level;
 	int ret = 0;
 	int (*process_func)(struct btrfs_trans_handle *trans,
@@ -2014,7 +1969,6 @@ static int __free_extent(struct btrfs_trans_handle *trans,
 	is_data = owner_objectid >= BTRFS_FIRST_FREE_OBJECTID;
 	if (is_data)
 		skinny_metadata = 0;
-	BUG_ON(!is_data && refs_to_drop != 1);
 
 	ret = lookup_extent_backref(trans, extent_root, path, &iref,
 				    bytenr, num_bytes, parent,
@@ -2129,7 +2083,6 @@ static int __free_extent(struct btrfs_trans_handle *trans,
 	}
 
 	refs = btrfs_extent_refs(leaf, ei);
-	BUG_ON(refs < refs_to_drop);
 	refs -= refs_to_drop;
 
 	if (refs > 0) {
@@ -2149,12 +2102,14 @@ static int __free_extent(struct btrfs_trans_handle *trans,
 		int mark_free = 0;
 		int pin = 1;
 
-		if (found_extent) {
-			BUG_ON(is_data && refs_to_drop !=
-			       extent_data_ref_count(root, path, iref));
-			if (iref) {
+		if (found_extent)
+        {
+			if (iref)
+            {
 				BUG_ON(path->slots[0] != extent_slot);
-			} else {
+			} 
+            else 
+            {
 				BUG_ON(path->slots[0] != extent_slot + 1);
 				path->slots[0] = extent_slot;
 				num_to_del = 2;
@@ -2664,7 +2619,7 @@ static int find_first_block_group(struct btrfs_root *root,
 	int ret;
 	struct btrfs_key found_key;
 	struct extent_buffer *leaf;
-	int slot;
+	uint slot;
 
 	ret = btrfs_search_slot(NULL, root, key, path, 0, 0);
 	if (ret < 0)

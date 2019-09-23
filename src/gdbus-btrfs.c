@@ -102,7 +102,7 @@ static void dump_file_extent_item(unsigned long* bitmap, struct extent_buffer *e
 	set_bitmap(bitmap, (unsigned long long)btrfs_file_extent_disk_bytenr(eb, fi),
 		                   (unsigned long long)btrfs_file_extent_disk_num_bytes(eb, fi) );
 }
-static void dump_start_leaf(unsigned long* bitmap, struct btrfs_root *root, struct extent_buffer *eb, int follow){
+static void dump_start_leaf(ul *bitmap, struct btrfs_root *root, struct extent_buffer *eb, int follow){
 
     u64 bytenr;
     u64 size;
@@ -110,7 +110,8 @@ static void dump_start_leaf(unsigned long* bitmap, struct btrfs_root *root, stru
     u64 offset;
     u64 parent_transid;
     u32 type;
-    int i;
+    u32 nr;
+    uint i;
     struct btrfs_item *item;
     struct btrfs_disk_key disk_key;
     struct btrfs_file_extent_item *fi;
@@ -119,7 +120,7 @@ static void dump_start_leaf(unsigned long* bitmap, struct btrfs_root *root, stru
 
     if (!eb)
 	return;
-    u32 nr = btrfs_header_nritems(eb);
+    nr = btrfs_header_nritems(eb);
     if (btrfs_is_leaf(eb)) 
     {
 	    size = (u64)root->nodesize;
@@ -161,11 +162,12 @@ static void dump_start_leaf(unsigned long* bitmap, struct btrfs_root *root, stru
         {
 	        continue;
 	    }
+        /*
         if (btrfs_is_leaf(next) && btrfs_header_level(eb) != 1)
             g_print("%s(%i): BUG\r\n", __FILE__, __LINE__);
         if (btrfs_header_level(next) != btrfs_header_level(eb) - 1)
             g_print("%s(%i): BUG\r\n", __FILE__, __LINE__);
-
+*/
 	    dump_start_leaf(bitmap, root, next, 1);
 	    free_extent_buffer(next);
     }
@@ -179,7 +181,7 @@ static gboolean fs_open(char* device)
     u64 bytenr = 0;
     enum btrfs_open_ctree_flags ctree_flags = OPEN_CTREE_PARTIAL;
 
-    radix_tree_init();
+    btrfs_radix_tree_init();
     cache_tree_init(&root_cache);
     info = open_ctree_fs_info(device, bytenr, 0, 0, ctree_flags);
     root = info->fs_root;
@@ -200,7 +202,7 @@ static gboolean fs_open(char* device)
 }
 
 /// close device
-static void fs_close()
+static void fs_close(void)
 {
     close_ctree(root);
 }
@@ -214,7 +216,9 @@ static gboolean read_bitmap_info (char* device, file_system_info fs_info, ul *bi
     struct btrfs_key found_key;
     struct extent_buffer *leaf;
     struct btrfs_root_item ri;
-    int slot;
+    ul offset;
+    struct extent_buffer *buf;
+    uint slot;
     u64 bsize;
 
     total_block = fs_info.totalblock;
@@ -263,8 +267,6 @@ static gboolean read_bitmap_info (char* device, file_system_info fs_info, ul *bi
 	btrfs_disk_key_to_cpu(&found_key, &disk_key);
 	if (btrfs_key_type(&found_key) == BTRFS_ROOT_ITEM_KEY)
     {
-	    unsigned long offset;
-	    struct extent_buffer *buf;
 
 	    offset = btrfs_item_ptr_offset(leaf, slot);
 	    read_extent_buffer(leaf, &ri, offset, sizeof(ri));
@@ -340,7 +342,6 @@ static ull get_read_blocks_size (file_system_info *fs_info,ull *block_id,ul *bit
 {
     ull blocks_skip,blocks_read;
     const ull  blocks_total = fs_info->totalblock;
-    const uint block_size = fs_info->block_size;
     const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? DEFAULT_BUFFER_SIZE / block_size : 1;
 
     /// skip unused blocks
@@ -373,7 +374,6 @@ static gboolean read_write_data_ptf (SysbakGdbus      *object,
                                      int              *dfr,
                                      int              *dfw)
 {
-    const uint block_size = fs_info->block_size; //Data size per block
     const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? 
                                  DEFAULT_BUFFER_SIZE / block_size : 1; // in blocks
     guchar checksum[img_opt->checksum_size];
@@ -594,7 +594,6 @@ static gboolean read_write_data_ptp (SysbakGdbus      *object,
                                      int              *dfr,
                                      int              *dfw)
 {
-    const uint block_size = fs_info->block_size; //Data size per block
     const uint buffer_capacity = DEFAULT_BUFFER_SIZE > block_size ? 
                                  DEFAULT_BUFFER_SIZE / block_size : 1; // in blocks
     char *buffer;

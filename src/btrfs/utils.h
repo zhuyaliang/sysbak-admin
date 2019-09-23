@@ -45,9 +45,9 @@
 char *__strncpy_null(char *dest, const char *src, size_t n);
 #define strncpy_null(dest, src) __strncpy_null(dest, src, sizeof(dest))
 
-int btrfs_scan_lblkid(void);
-int find_next_key(struct btrfs_path *path, struct btrfs_key *key);
-u64 div_factor(u64 num, int factor);
-void radix_tree_init(void);
+int  btrfs_scan_lblkid(void);
+int  find_next_key(struct btrfs_path *path, struct btrfs_key *key);
+u64  div_factor(u64 num, int factor);
+void btrfs_radix_tree_init(void);
 
 #endif

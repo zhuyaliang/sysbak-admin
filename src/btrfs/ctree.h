@@ -2026,7 +2026,6 @@ BTRFS_SETGET_STACK_FUNCS(super_magic, struct btrfs_super_block, magic, 64);
 static inline int btrfs_super_csum_size(struct btrfs_super_block *s)
 {
 	int t = btrfs_super_csum_type(s);
-	BUG_ON(t >= ARRAY_SIZE(btrfs_csum_sizes));
 	return btrfs_csum_sizes[t];
 }
 

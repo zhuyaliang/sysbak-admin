@@ -52,34 +52,35 @@
 #define BLKDISCARD	_IO(0x12,119)
 #endif
 #ifdef __KERNEL__
-#define RADIX_TREE_MAP_SHIFT	(CONFIG_BASE_SMALL ? 4 : 6)
+#define RADIX_TREE_MAP_SHIFT   (CONFIG_BASE_SMALL ? 4 : 6)
 #else
-#define RADIX_TREE_MAP_SHIFT	3	/* For more stressful testing */
+#define RADIX_TREE_MAP_SHIFT   3       /* For more stressful testing */
 #endif
 
 #define RADIX_TREE_INDEX_BITS  (8 /* CHAR_BIT */ * sizeof(unsigned long))
 #define RADIX_TREE_MAX_PATH (RADIX_TREE_INDEX_BITS/RADIX_TREE_MAP_SHIFT + 2)
 
 static unsigned long height_to_maxindex[RADIX_TREE_MAX_PATH] __read_mostly;
+
 static int btrfs_scan_done = 0;
 
 static unsigned long __maxindex(unsigned int height)
 {
-	unsigned int tmp = height * RADIX_TREE_MAP_SHIFT;
-	unsigned long index = ~0UL;
+    unsigned int tmp = height * RADIX_TREE_MAP_SHIFT;
+    unsigned long index = ~0UL;
 
-	if (tmp < RADIX_TREE_INDEX_BITS)
-		index = (index >> (RADIX_TREE_INDEX_BITS - tmp - 1)) >> 1;
-	return index;
+    if (tmp < RADIX_TREE_INDEX_BITS)
+            index = (index >> (RADIX_TREE_INDEX_BITS - tmp - 1)) >> 1;
+    return index;
 }
 
-void radix_tree_init(void)
+void btrfs_radix_tree_init(void)
 {
-	unsigned int i;
-
-	for (i = 0; i < ARRAY_SIZE(height_to_maxindex); i++)
-		height_to_maxindex[i] = __maxindex(i);
+    unsigned int i;
+    for (i = 0; i < ARRAY_SIZE(height_to_maxindex); i++)
+               height_to_maxindex[i] = __maxindex(i);
 }
+
 char *__strncpy_null(char *dest, const char *src, size_t n)
 {
 	strncpy(dest, src, n);

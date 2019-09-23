@@ -881,10 +881,6 @@ static inline u64 btrfs_qgroup_subvid(u64 qgroupid)
 	return qgroupid & ((1ULL << BTRFS_QGROUP_LEVEL_SHIFT) - 1);
 }
 
-#define BTRFS_QGROUP_STATUS_FLAG_ON		(1ULL << 0)
-#define BTRFS_QGROUP_STATUS_FLAG_RESCAN		(1ULL << 1)
-#define BTRFS_QGROUP_STATUS_FLAG_INCONSISTENT	(1ULL << 2)
-
 struct btrfs_qgroup_status_item {
 	__le64 version;
 	__le64 generation;
@@ -912,14 +908,6 @@ struct btrfs_qgroup_info_item {
 	__le64 exclusive;
 	__le64 exclusive_compressed;
 } __attribute__ ((__packed__));
-
-/* flags definition for qgroup limits */
-#define BTRFS_QGROUP_LIMIT_MAX_RFER	(1ULL << 0)
-#define BTRFS_QGROUP_LIMIT_MAX_EXCL	(1ULL << 1)
-#define BTRFS_QGROUP_LIMIT_RSV_RFER	(1ULL << 2)
-#define BTRFS_QGROUP_LIMIT_RSV_EXCL	(1ULL << 3)
-#define BTRFS_QGROUP_LIMIT_RFER_CMPR	(1ULL << 4)
-#define BTRFS_QGROUP_LIMIT_EXCL_CMPR	(1ULL << 5)
 
 struct btrfs_qgroup_limit_item {
 	__le64 flags;
@@ -1734,12 +1722,6 @@ BTRFS_SETGET_FUNCS(dir_transid, struct btrfs_dir_item, transid, 64);
 
 BTRFS_SETGET_STACK_FUNCS(stack_dir_name_len, struct btrfs_dir_item, name_len, 16);
 
-static inline void btrfs_dir_item_key(struct extent_buffer *eb,
-				      struct btrfs_dir_item *item,
-				      struct btrfs_disk_key *key)
-{
-	read_eb_member(eb, item, struct btrfs_dir_item, location, key);
-}
 
 static inline void btrfs_set_dir_item_key(struct extent_buffer *eb,
 					  struct btrfs_dir_item *item,
@@ -1805,15 +1787,6 @@ static inline void btrfs_item_key_to_cpu(struct extent_buffer *eb,
 {
 	struct btrfs_disk_key disk_key;
 	btrfs_item_key(eb, &disk_key, nr);
-	btrfs_disk_key_to_cpu(key, &disk_key);
-}
-
-static inline void btrfs_dir_item_key_to_cpu(struct extent_buffer *eb,
-				      struct btrfs_dir_item *item,
-				      struct btrfs_key *key)
-{
-	struct btrfs_disk_key disk_key;
-	btrfs_dir_item_key(eb, item, &disk_key);
 	btrfs_disk_key_to_cpu(key, &disk_key);
 }
 
@@ -2095,8 +2068,6 @@ BTRFS_SETGET_STACK_FUNCS(stack_file_extent_offset, struct btrfs_file_extent_item
 		  offset, 64);
 BTRFS_SETGET_FUNCS(file_extent_num_bytes, struct btrfs_file_extent_item,
 		   num_bytes, 64);
-BTRFS_SETGET_STACK_FUNCS(stack_file_extent_num_bytes, struct btrfs_file_extent_item,
-		   num_bytes, 64);
 BTRFS_SETGET_FUNCS(file_extent_ram_bytes, struct btrfs_file_extent_item,
 		   ram_bytes, 64);
 BTRFS_SETGET_STACK_FUNCS(stack_file_extent_ram_bytes, struct btrfs_file_extent_item,
@@ -2212,28 +2183,6 @@ static inline u32 btrfs_search_header_type(struct btrfs_ioctl_search_header *sh)
 static inline u32 btrfs_search_header_len(struct btrfs_ioctl_search_header *sh)
 {
 	return get_unaligned_32(&sh->len);
-}
-
-/* this returns the number of file bytes represented by the inline item.
- * If an item is compressed, this is the uncompressed size
- */
-static inline u32 btrfs_file_extent_inline_len(struct extent_buffer *eb,
-					       int slot,
-					       struct btrfs_file_extent_item *fi)
-{
-	/*
-	 * return the space used on disk if this item isn't
-	 * compressed or encoded
-	 */
-	if (btrfs_file_extent_compression(eb, fi) == 0 &&
-	    btrfs_file_extent_encryption(eb, fi) == 0 &&
-	    btrfs_file_extent_other_encoding(eb, fi) == 0) {
-		return btrfs_file_extent_inline_item_len(eb,
-							 btrfs_item_nr(slot));
-	}
-
-	/* otherwise use the ram bytes field */
-	return btrfs_file_extent_ram_bytes(eb, fi);
 }
 
 /*
@@ -2423,15 +2372,6 @@ static inline int btrfs_insert_empty_item(struct btrfs_trans_handle *trans,
 }
 
 int btrfs_next_leaf(struct btrfs_root *root, struct btrfs_path *path);
-static inline int btrfs_next_item(struct btrfs_root *root,
-				  struct btrfs_path *p)
-{
-	++p->slots[0];
-	if (p->slots[0] >= btrfs_header_nritems(p->nodes[0]))
-		return btrfs_next_leaf(root, p);
-	return 0;
-}
-
 int btrfs_prev_leaf(struct btrfs_root *root, struct btrfs_path *path);
 int btrfs_leaf_free_space(struct btrfs_root *root, struct extent_buffer *leaf);
 void btrfs_fixup_low_keys(struct btrfs_root *root, struct btrfs_path *path,
@@ -2449,43 +2389,4 @@ int btrfs_find_last_root(struct btrfs_root *root, u64 objectid, struct
 /* file-item.c */
 int btrfs_del_csums(struct btrfs_trans_handle *trans,
 		    struct btrfs_root *root, u64 bytenr, u64 len);
-
-/* uuid-tree.c */
-int btrfs_lookup_uuid_subvol_item(int fd, const u8 *uuid, u64 *subvol_id);
-int btrfs_lookup_uuid_received_subvol_item(int fd, const u8 *uuid,
-					   u64 *subvol_id);
-
-static inline int is_fstree(u64 rootid)
-{
-	if (rootid == BTRFS_FS_TREE_OBJECTID ||
-	    (signed long long)rootid >= (signed long long)BTRFS_FIRST_FREE_OBJECTID)
-		return 1;
-	return 0;
-}
-
-/* inode.c */
-int check_dir_conflict(struct btrfs_root *root, char *name, int namelen,
-		u64 dir, u64 index);
-int btrfs_new_inode(struct btrfs_trans_handle *trans, struct btrfs_root *root,
-		u64 ino, u32 mode);
-int btrfs_add_link(struct btrfs_trans_handle *trans, struct btrfs_root *root,
-		   u64 ino, u64 parent_ino, char *name, int namelen,
-		   u8 type, u64 *index, int add_backref);
-int btrfs_unlink(struct btrfs_trans_handle *trans, struct btrfs_root *root,
-		 u64 ino, u64 parent_ino, u64 index, const char *name,
-		 int namelen, int add_orphan);
-int btrfs_add_orphan_item(struct btrfs_trans_handle *trans,
-			  struct btrfs_root *root, struct btrfs_path *path,
-			  u64 ino);
-int btrfs_mkdir(struct btrfs_trans_handle *trans, struct btrfs_root *root,
-		char *name, int namelen, u64 parent_ino, u64 *ino, int mode);
-
-/* file.c */
-int btrfs_get_extent(struct btrfs_trans_handle *trans,
-		     struct btrfs_root *root,
-		     struct btrfs_path *path,
-		     u64 ino, u64 offset, u64 len, int ins_len);
-int btrfs_punch_hole(struct btrfs_trans_handle *trans,
-		     struct btrfs_root *root,
-		     u64 ino, u64 offset, u64 len);
 #endif

@@ -32,10 +32,6 @@ typedef void (*rb_free_node)(struct rb_node *node);
 
 int rb_insert(struct rb_root *root, struct rb_node *node,
 	      rb_compare_nodes comp);
-/*
- * In some cases, we need return the next node if we don't find the node we
- * specify. At this time, we can use next_ret.
- */
 struct rb_node *rb_search(struct rb_root *root, void *key, rb_compare_keys comp,
 			  struct rb_node **next_ret);
 void rb_free_nodes(struct rb_root *root, rb_free_node free_node);

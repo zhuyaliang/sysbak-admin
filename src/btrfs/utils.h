@@ -23,67 +23,7 @@
 #include "ctree.h"
 #include <dirent.h>
 #include <stdarg.h>
-
-#define BTRFS_MKFS_SYSTEM_GROUP_SIZE (4 * 1024 * 1024)
-#define BTRFS_MKFS_SMALL_VOLUME_SIZE (1024 * 1024 * 1024)
-#define BTRFS_MKFS_DEFAULT_NODE_SIZE 16384
-#define BTRFS_MKFS_DEFAULT_FEATURES 				\
-		(BTRFS_FEATURE_INCOMPAT_EXTENDED_IREF		\
-		| BTRFS_FEATURE_INCOMPAT_SKINNY_METADATA)
-
-/*
- * Avoid multi-device features (RAID56) and mixed block groups
- */
-
-#define BTRFS_CONVERT_META_GROUP_SIZE (32 * 1024 * 1024)
-
-#define BTRFS_FEATURE_LIST_ALL		(1ULL << 63)
-
-#define BTRFS_SCAN_MOUNTED	(1ULL << 0)
-#define BTRFS_SCAN_LBLKID	(1ULL << 1)
-
-#define BTRFS_UPDATE_KERNEL	1
-
-#define BTRFS_ARG_UNKNOWN	0
-#define BTRFS_ARG_MNTPOINT	1
-#define BTRFS_ARG_UUID		2
-#define BTRFS_ARG_BLKDEV	3
-#define BTRFS_ARG_REG		4
-
 #define BTRFS_UUID_UNPARSED_SIZE	37
-
-#define ARGV0_BUF_SIZE	PATH_MAX
-
-#define GETOPT_VAL_SI				256
-#define GETOPT_VAL_IEC				257
-#define GETOPT_VAL_RAW				258
-#define GETOPT_VAL_HUMAN_READABLE		259
-#define GETOPT_VAL_KBYTES			260
-#define GETOPT_VAL_MBYTES			261
-#define GETOPT_VAL_GBYTES			262
-#define GETOPT_VAL_TBYTES			263
-
-#define GETOPT_VAL_HELP				270
-
-/*
- * Output modes of size
- */
-#define UNITS_RESERVED			(0)
-#define UNITS_BYTES			(1)
-#define UNITS_KBYTES			(2)
-#define UNITS_MBYTES			(3)
-#define UNITS_GBYTES			(4)
-#define UNITS_TBYTES			(5)
-#define UNITS_RAW			(1U << UNITS_MODE_SHIFT)
-#define UNITS_BINARY			(2U << UNITS_MODE_SHIFT)
-#define UNITS_DECIMAL			(3U << UNITS_MODE_SHIFT)
-#define UNITS_MODE_MASK			((1U << UNITS_MODE_SHIFT) - 1)
-#define UNITS_MODE_SHIFT		(8)
-#define UNITS_HUMAN_BINARY		(UNITS_BINARY)
-#define UNITS_HUMAN_DECIMAL		(UNITS_DECIMAL)
-#define UNITS_HUMAN			(UNITS_HUMAN_BINARY)
-#define UNITS_DEFAULT			(UNITS_HUMAN)
-
 #define min(x,y) ({ \
 	typeof(x) _x = (x);	\
 	typeof(y) _y = (y);	\
@@ -105,21 +45,9 @@
 char *__strncpy_null(char *dest, const char *src, size_t n);
 #define strncpy_null(dest, src) __strncpy_null(dest, src, sizeof(dest))
 
-const char *pretty_size_mode(u64 size, unsigned mode);
-int pretty_size_snprintf(u64 size, char *str, size_t str_size, unsigned unit_mode);
-u64 parse_qgroupid(const char *p);
 int btrfs_scan_lblkid(void);
-int lookup_ino_rootid(int fd, u64 *rootid);
 int find_next_key(struct btrfs_path *path, struct btrfs_key *key);
-int test_issubvolume(const char *path);
-u64 arg_strtou64(const char *str);
-static inline u64 div_factor(u64 num, int factor)
-{
-	if (factor == 10)
-		return num;
-	num *= factor;
-	num /= 10;
-	return num;
-}
+u64 div_factor(u64 num, int factor);
+void radix_tree_init(void);
 
 #endif

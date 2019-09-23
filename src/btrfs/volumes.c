@@ -167,14 +167,12 @@ again:
         assert(device != NULL);
 		if (device->fd != -1) {
 			fsync(device->fd);
-			if (posix_fadvise(device->fd, 0, 0, POSIX_FADV_DONTNEED))
-				fprintf(stderr, "Warning, could not drop caches\n");
+			posix_fadvise(device->fd, 0, 0, POSIX_FADV_DONTNEED);
 			close(device->fd);
 			device->fd = -1;
 		}
 		device->writeable = 0;
 		list_del(&device->dev_list);
-		/* free the memory */
 		free(device->name);
 		free(device->label);
 		free(device);
@@ -220,7 +218,6 @@ int btrfs_open_devices(struct btrfs_fs_devices *fs_devices, int flags)
 	list_for_each(cur, head) {
 		device = list_entry(cur, struct btrfs_device, dev_list);
 		if (!device->name) {
-			printk("no name for device %llu, skip it now\n", device->devid);
 			continue;
 		}
 
@@ -230,8 +227,7 @@ int btrfs_open_devices(struct btrfs_fs_devices *fs_devices, int flags)
 			goto fail;
 		}
 
-		if (posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED))
-			fprintf(stderr, "Warning, could not drop caches\n");
+		posix_fadvise(fd, 0, 0, POSIX_FADV_DONTNEED);
 
 		if (device->devid == fs_devices->latest_devid)
 			fs_devices->latest_bdev = fd;
@@ -948,17 +944,9 @@ int btrfs_num_copies(struct btrfs_mapping_tree *map_tree, u64 logical, u64 len)
 
 	ce = search_cache_extent(&map_tree->cache_tree, logical);
 	if (!ce) {
-		fprintf(stderr, "No mapping for %llu-%llu\n",
-			(unsigned long long)logical,
-			(unsigned long long)logical+len);
 		return 1;
 	}
 	if (ce->start > logical || ce->start + ce->size < logical) {
-		fprintf(stderr, "Invalid mapping for %llu-%llu, got "
-			"%llu-%llu\n", (unsigned long long)logical,
-			(unsigned long long)logical+len,
-			(unsigned long long)ce->start,
-			(unsigned long long)ce->start + ce->size);
 		return 1;
 	}
 	map = container_of(ce, struct map_lookup, ce);
@@ -1482,8 +1470,6 @@ static int read_one_chunk(struct btrfs_root *root, struct btrfs_key *key,
 							NULL);
 		if (!map->stripes[i].dev) {
 			map->stripes[i].dev = fill_missing_device(devid);
-			printf("warning, device %llu is missing\n",
-			       (unsigned long long)devid);
 		}
 
 	}
@@ -1642,9 +1628,6 @@ int btrfs_read_sys_array(struct btrfs_root *root)
 
 			num_stripes = btrfs_chunk_num_stripes(sb, chunk);
 			if (!num_stripes) {
-				printk(
-	    "ERROR: invalid number of stripes %u in sys_array at offset %u\n",
-					num_stripes, cur_offset);
 				ret = -EIO;
 				break;
 			}
@@ -1657,9 +1640,6 @@ int btrfs_read_sys_array(struct btrfs_root *root)
 			if (ret)
 				break;
 		} else {
-			printk(
-		"ERROR: unexpected item type %u in sys_array at offset %u\n",
-				(u32)key.type, cur_offset);
  			ret = -EIO;
  			break;
 		}
@@ -1671,8 +1651,6 @@ int btrfs_read_sys_array(struct btrfs_root *root)
 	return ret;
 
 out_short_read:
-	printk("ERROR: sys_array too short to read %u bytes at offset %u\n",
-			len, cur_offset);
 	free_extent_buffer(sb);
 	return -EIO;
 }

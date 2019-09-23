@@ -27,7 +27,6 @@
 #include "disk-io.h"
 #include "transaction.h"
 #include "volumes.h"
-#include "free-space-cache.h"
 #include "utils.h"
 
 #define PENDING_EXTENT_INSERT 0
@@ -41,6 +40,26 @@ struct pending_extent_op {
 	u64 flags;
 	struct btrfs_disk_key key;
 	int level;
+};
+
+struct btrfs_free_space {
+	struct rb_node offset_index;
+	u64 offset;
+	u64 bytes;
+	unsigned long *bitmap;
+	struct list_head list;
+};
+
+struct btrfs_free_space_ctl {
+	struct rb_root free_space_offset;
+	u64 free_space;
+	int extents_thresh;
+	int free_extents;
+	int total_bitmaps;
+	int unit;
+	u64 start;
+	void *private;
+	u32 sectorsize;
 };
 
 static int alloc_reserved_tree_block(struct btrfs_trans_handle *trans,
@@ -286,8 +305,6 @@ out:
 	*start_ret = last;
 	cache = btrfs_lookup_block_group(root->fs_info, search_start);
 	if (!cache) {
-		printk("Unable to find block group for %llu\n",
-			(unsigned long long)search_start);
 		WARN_ON(1);
 	}
 	return -ENOSPC;
@@ -938,7 +955,6 @@ again:
 	}
 
 	if (ret) {
-		printf("Failed to find [%llu, %u, %llu]\n", key.objectid, key.type, key.offset);
 		return -ENOENT;
 	}
 
@@ -963,9 +979,6 @@ again:
 	}
 #endif
 	if (item_size < sizeof(*ei)) {
-		printf("Size is %u, needs to be %u, slot %d\n",
-		       (unsigned)item_size,
-		       (unsigned)sizeof(*ei), path->slots[0]);
 		return -EINVAL;
 	}
 	BUG_ON(item_size < sizeof(*ei));
@@ -1462,8 +1475,6 @@ again:
 	}
 
 	if (ret != 0) {
-		printk("failed to find block number %Lu\n",
-			(unsigned long long)bytenr);
 		BUG();
 	}
 	l = path->nodes[0];
@@ -1676,12 +1687,6 @@ static int update_space_info(struct btrfs_fs_info *info, u64 flags,
 	if (found) {
 		found->total_bytes += total_bytes;
 		found->bytes_used += bytes_used;
-		if (found->total_bytes < found->bytes_used) {
-			fprintf(stderr, "warning, bad space info total_bytes "
-				"%llu used %llu\n",
-			       (unsigned long long)found->total_bytes,
-			       (unsigned long long)found->bytes_used);
-		}
 		*space_info = found;
 		return 0;
 	}
@@ -2081,22 +2086,10 @@ static int __free_extent(struct btrfs_trans_handle *trans,
 							&key, path, -1, 1);
 			}
 
-			if (ret) {
-				printk(KERN_ERR "umm, got %d back from search"
-				       ", was looking for %llu\n", ret,
-				       (unsigned long long)bytenr);
-			}
 			BUG_ON(ret);
 			extent_slot = path->slots[0];
 		}
 	} else {
-		printk(KERN_ERR "btrfs unable to find ref byte nr %llu "
-		       "parent %llu root %llu  owner %llu offset %llu\n",
-		       (unsigned long long)bytenr,
-		       (unsigned long long)parent,
-		       (unsigned long long)root_objectid,
-		       (unsigned long long)owner_objectid,
-		       (unsigned long long)owner_offset);
 		ret = -EIO;
 		goto fail;
 	}
@@ -2118,11 +2111,6 @@ static int __free_extent(struct btrfs_trans_handle *trans,
 
 		ret = btrfs_search_slot(trans, extent_root, &key, path,
 					-1, 1);
-		if (ret) {
-			printk(KERN_ERR "umm, got %d back from search"
-			       ", was looking for %llu\n", ret,
-			       (unsigned long long)bytenr);
-		}
 		BUG_ON(ret);
 		extent_slot = path->slots[0];
 		leaf = path->nodes[0];
@@ -2601,6 +2589,31 @@ struct extent_buffer *btrfs_alloc_free_block(struct btrfs_trans_handle *trans,
 	return buf;
 }
 
+static void unlink_free_space(struct btrfs_free_space_ctl *ctl,
+		       struct btrfs_free_space *info)
+{
+	rb_erase(&info->offset_index, &ctl->free_space_offset);
+	ctl->free_extents--;
+	ctl->free_space -= info->bytes;
+}
+
+static void __btrfs_remove_free_space_cache(struct btrfs_free_space_ctl *ctl)
+{
+	struct btrfs_free_space *info;
+	struct rb_node *node;
+
+	while ((node = rb_last(&ctl->free_space_offset)) != NULL) {
+		info = rb_entry(node, struct btrfs_free_space, offset_index);
+		unlink_free_space(ctl, info);
+		free(info->bitmap);
+		free(info);
+	}
+}
+
+static void btrfs_remove_free_space_cache(struct btrfs_block_group_cache *block_group)
+{
+	__btrfs_remove_free_space_cache(block_group->free_space_ctl);
+}
 int btrfs_free_block_groups(struct btrfs_fs_info *info)
 {
 	struct btrfs_space_info *sinfo;

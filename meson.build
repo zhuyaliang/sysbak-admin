@@ -74,7 +74,6 @@ test_args = [
   '-Wno-unused-parameter',
   '-Wold-style-definition',
   '-Woverride-init',
-  '-Wpacked',
   '-Wpointer-arith',
   '-Wredundant-decls',
   '-Wreturn-type',

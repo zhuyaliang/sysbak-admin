@@ -51,12 +51,9 @@ sources = files(
   'btrfs/extent-tree.c',
   'btrfs/extent-cache.c',
   'btrfs/file-item.c',
-  'btrfs/free-space-cache.c',
   'btrfs/raid6.c',
   'btrfs/rbtree-utils.c',
-  'btrfs/repair.c',
   'btrfs/root-tree.c',
-  'btrfs/radix-tree.c',
   'btrfs/utils.c',
   'btrfs/volumes.c',
 )

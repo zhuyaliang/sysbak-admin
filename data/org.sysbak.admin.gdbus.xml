@@ -64,6 +64,22 @@
         <arg name="overwrite" direction="in" type="b">
         </arg>
     </method>
+    <method name="SysbakXfsfsPtp">
+        <arg name="source" direction="in" type="s">
+        </arg>
+        <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="overwrite" direction="in" type="b">
+        </arg>
+    </method>
+    <method name="SysbakXfsfsPtf">
+        <arg name="source" direction="in" type="s">
+        </arg>
+        <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="overwrite" direction="in" type="b">
+        </arg>
+    </method>
     <method name="SysbakBtrfsPtp">
         <arg name="source" direction="in" type="s">
         </arg>

@@ -22,6 +22,7 @@
 #include "gdbus-extfs.h"
 #include "gdbus-fatfs.h"
 #include "gdbus-btrfs.h"
+#include "gdbus-xfsfs.h"
 
 #define ORG_NAME  "org.sysbak.admin.gdbus"
 #define DBS_NAME  "/org/sysbak/admin/gdbus"
@@ -45,6 +46,8 @@ static void AcquiredCallback (GDBusConnection *Connection,
 	iface->handle_sysbak_fatfs_ptp  = gdbus_sysbak_fatfs_ptp;
     iface->handle_sysbak_btrfs_ptf  = gdbus_sysbak_btrfs_ptf;
 	iface->handle_sysbak_btrfs_ptp  = gdbus_sysbak_btrfs_ptp;
+    iface->handle_sysbak_xfsfs_ptf  = gdbus_sysbak_xfsfs_ptf;
+//	iface->handle_sysbak_xfsfs_ptp  = gdbus_sysbak_xfsfs_ptp;
 	iface->handle_sysbak_restore    = gdbus_sysbak_restore;
 	iface->handle_get_extfs_device_info   = gdbus_get_extfs_device_info;
     iface->handle_get_fs_image_info = gdbus_get_fs_image_info; 

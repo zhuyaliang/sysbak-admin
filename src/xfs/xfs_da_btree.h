@@ -157,13 +157,6 @@ struct xfs_nameops {
 /*
  * Utility routines.
  */
-int	xfs_da_get_buf(struct xfs_trans *trans, struct xfs_inode *dp,
-			      xfs_dablk_t bno, xfs_daddr_t mappedbno,
-			      struct xfs_buf **bp, int whichfork);
-int	xfs_da_read_buf(struct xfs_trans *trans, struct xfs_inode *dp,
-			       xfs_dablk_t bno, xfs_daddr_t mappedbno,
-			       struct xfs_buf **bpp, int whichfork,
-			       const struct xfs_buf_ops *ops);
 uint xfs_da_hashname(const __uint8_t *name_string, int name_length);
 enum xfs_dacmp xfs_da_compname(struct xfs_da_args *args,
 				const unsigned char *name, int len);

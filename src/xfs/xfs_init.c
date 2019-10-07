@@ -33,7 +33,6 @@
 #include "xfs_inode.h"
 #include "xfs_trans.h"
 #include "xfs_rmap_btree.h"
-#include "xfs_refcount_btree.h"
 #include "libxfs_priv.h"
 #include "libxfs.h"		/* for now */
 
@@ -334,7 +333,6 @@ manage_zones(int release)
 	if (release) {	/* free zone allocation */
 		kmem_free(xfs_buf_zone);
 		kmem_free(xfs_inode_zone);
-		kmem_free(xfs_ifork_zone);
 		kmem_free(xfs_buf_item_zone);
 		kmem_free(xfs_da_state_zone);
 		kmem_free(xfs_btree_cur_zone);
@@ -345,7 +343,6 @@ manage_zones(int release)
 	/* otherwise initialise zone allocation */
 	xfs_buf_zone = kmem_zone_init(sizeof(xfs_buf_t), "xfs_buffer");
 	xfs_inode_zone = kmem_zone_init(sizeof(struct xfs_inode), "xfs_inode");
-	xfs_ifork_zone = kmem_zone_init(sizeof(xfs_ifork_t), "xfs_ifork");
 	xfs_ili_zone = kmem_zone_init(
 			sizeof(xfs_inode_log_item_t), "xfs_inode_log_item");
 	xfs_buf_item_zone = kmem_zone_init(
@@ -586,7 +583,45 @@ libxfs_buftarg_init(
 		mp->m_logdev_targp = libxfs_buftarg_alloc(mp, logdev);
 	mp->m_rtdev_targp = libxfs_buftarg_alloc(mp, rtdev);
 }
+static uint
+xfs_btree_compute_maxlevels(
+    struct xfs_mount    *mp,
+    uint            *limits,
+    unsigned long       len)
+{
+    uint            level;
+    unsigned long       maxblocks;
 
+    maxblocks = (len + limits[0] - 1) / limits[0];
+    for (level = 1; maxblocks > 1; level++)
+        maxblocks = (maxblocks + limits[1] - 1) / limits[1];
+    return level;
+}
+
+static void
+xfs_refcountbt_compute_maxlevels(
+    struct xfs_mount        *mp)
+{    
+    mp->m_refc_maxlevels = xfs_btree_compute_maxlevels(mp,
+            mp->m_refc_mnr, mp->m_sb.sb_agblocks);
+}
+static void
+xfs_ialloc_compute_maxlevels(
+    xfs_mount_t *mp)        /* file system mount structure */
+{
+    uint        inodes;
+
+    inodes = (1LL << XFS_INO_AGINO_BITS(mp)) >> XFS_INODES_PER_CHUNK_LOG;
+    mp->m_in_maxlevels = xfs_btree_compute_maxlevels(mp, mp->m_inobt_mnr,
+                             inodes);
+}
+static void
+xfs_alloc_compute_maxlevels(
+    xfs_mount_t *mp)    /* file system mount structure */
+{
+    mp->m_ag_maxlevels = xfs_btree_compute_maxlevels(mp, mp->m_alloc_mnr,
+            (mp->m_sb.sb_agblocks + 1) / 2);
+}
 /*
  * Mount structure initialization, provides a filled-in xfs_mount_t
  * such that the numerous XFS_* macros can be used.  If dev is zero,
@@ -753,40 +788,6 @@ libxfs_mount(
 	}
 
 	return mp;
-}
-
-void
-libxfs_rtmount_destroy(xfs_mount_t *mp)
-{
-	if (mp->m_rsumip)
-		IRELE(mp->m_rsumip);
-	if (mp->m_rbmip)
-		IRELE(mp->m_rbmip);
-	mp->m_rsumip = mp->m_rbmip = NULL;
-}
-
-void
-libxfs_umount(xfs_mount_t *mp)
-{
-	struct xfs_perag	*pag;
-	int			agno;
-
-	libxfs_rtmount_destroy(mp);
-	libxfs_bcache_purge();
-
-	for (agno = 0; agno < mp->m_maxagi; agno++) {
-		pag = radix_tree_delete(&mp->m_perag_tree, agno);
-		kmem_free(pag);
-	}
-
-	kmem_free(mp->m_attr_geo);
-	kmem_free(mp->m_dir_geo);
-
-	kmem_free(mp->m_rtdev_targp);
-	if (mp->m_logdev_targp != mp->m_ddev_targp)
-		kmem_free(mp->m_logdev_targp);
-	kmem_free(mp->m_ddev_targp);
-
 }
 
 void

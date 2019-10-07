@@ -118,18 +118,9 @@ xfs_alloc_allow_busy_reuse(int datatype)
 unsigned int xfs_alloc_set_aside(struct xfs_mount *mp);
 unsigned int xfs_alloc_ag_max_usable(struct xfs_mount *mp);
 
-xfs_extlen_t xfs_alloc_longest_free_extent(struct xfs_mount *mp,
-		struct xfs_perag *pag, xfs_extlen_t need,
-		xfs_extlen_t reserved);
 unsigned int xfs_alloc_min_freelist(struct xfs_mount *mp,
 		struct xfs_perag *pag);
 
-/*
- * Compute and fill in value of m_ag_maxlevels.
- */
-void
-xfs_alloc_compute_maxlevels(
-	struct xfs_mount	*mp);	/* file system mount structure */
 
 /*
  * Get a block from the freelist.
@@ -183,23 +174,6 @@ xfs_alloc_read_agf(
 	int		flags,		/* XFS_ALLOC_FLAG_... */
 	struct xfs_buf	**bpp);		/* buffer for the ag freelist header */
 
-/*
- * Allocate an extent (variable-size).
- */
-int				/* error */
-xfs_alloc_vextent(
-	xfs_alloc_arg_t	*args);	/* allocation argument structure */
-
-/*
- * Free an extent.
- */
-int				/* error */
-xfs_free_extent(
-	struct xfs_trans	*tp,	/* transaction pointer */
-	xfs_fsblock_t		bno,	/* starting block number of extent */
-	xfs_extlen_t		len,	/* length of extent */
-	struct xfs_owner_info	*oinfo,	/* extent owner */
-	enum xfs_ag_resv_type	type);	/* block reservation type */
 
 int				/* error */
 xfs_alloc_lookup_ge(
@@ -208,18 +182,9 @@ xfs_alloc_lookup_ge(
 	xfs_extlen_t		len,	/* length of extent */
 	int			*stat);	/* success/failure */
 
-int					/* error */
-xfs_alloc_get_rec(
-	struct xfs_btree_cur	*cur,	/* btree cursor */
-	xfs_agblock_t		*bno,	/* output: starting block of extent */
-	xfs_extlen_t		*len,	/* output: length of extent */
-	int			*stat);	/* output: success/failure */
 
 int xfs_read_agf(struct xfs_mount *mp, struct xfs_trans *tp,
 			xfs_agnumber_t agno, int flags, struct xfs_buf **bpp);
-int xfs_alloc_fix_freelist(struct xfs_alloc_arg *args, int flags);
-int xfs_free_extent_fix_freelist(struct xfs_trans *tp, xfs_agnumber_t agno,
-		struct xfs_buf **agbp);
 
 xfs_extlen_t xfs_prealloc_blocks(struct xfs_mount *mp);
 

@@ -261,3 +261,33 @@ xfs_log_check_lsn(
 	return true;
 }
 
+static struct xfs_buftarg *
+xfs_find_bdev_for_inode(
+    struct xfs_inode    *ip)
+{
+    struct xfs_mount    *mp = ip->i_mount;
+
+    if (XFS_IS_REALTIME_INODE(ip))
+        return mp->m_rtdev_targp;
+    return mp->m_ddev_targp;
+}
+static xfs_daddr_t
+xfs_fsb_to_db(struct xfs_inode *ip, xfs_fsblock_t fsb)
+{
+    if (XFS_IS_REALTIME_INODE(ip))
+         return XFS_FSB_TO_BB(ip->i_mount, fsb);
+    return XFS_FSB_TO_DADDR(ip->i_mount, (fsb));
+}    
+
+int  
+xfs_zero_extent(
+    struct xfs_inode *ip,
+    xfs_fsblock_t   start_fsb,
+    xfs_off_t   count_fsb)
+{
+    xfs_daddr_t sector = xfs_fsb_to_db(ip, start_fsb);
+    ssize_t     size = XFS_FSB_TO_BB(ip->i_mount, count_fsb);
+
+    return libxfs_device_zero(xfs_find_bdev_for_inode(ip), sector, size);
+}
+

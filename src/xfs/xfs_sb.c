@@ -22,7 +22,6 @@
 #include <xfs/xfs_log_format.h>
 #include "xfs_trans_resv.h"
 #include "xfs_bit.h"
-#include "xfs_sb.h"
 #include "xfs_mount.h"
 #include "xfs_defer.h"
 #include "xfs_inode.h"
@@ -37,7 +36,6 @@
 #include "xfs_ialloc_btree.h"
 #include "xfs_rmap_btree.h"
 #include "xfs_bmap.h"
-#include "xfs_refcount_btree.h"
 
 /*
  * Physical superblock buffer manipulations. Shared with libxfs in userspace.
@@ -678,6 +676,19 @@ const struct xfs_buf_ops xfs_sb_quiet_buf_ops = {
 	.verify_read = xfs_sb_quiet_read_verify,
 	.verify_write = xfs_sb_write_verify,
 };
+static int
+xfs_refcountbt_maxrecs(
+    struct xfs_mount    *mp,
+    int         blocklen,
+    bool            leaf)
+{
+    blocklen -= XFS_BTREE_SBLOCK_CRC_LEN;
+
+    if (leaf)
+        return blocklen / sizeof(struct xfs_refcount_rec);
+    return blocklen / (sizeof(struct xfs_refcount_key) +
+               sizeof(xfs_refcount_ptr_t));
+}
 
 /*
  * xfs_mount_common
@@ -739,63 +750,6 @@ xfs_sb_mount_common(
 		mp->m_ialloc_min_blks = mp->m_ialloc_blks;
 	mp->m_alloc_set_aside = xfs_alloc_set_aside(mp);
 	mp->m_ag_max_usable = xfs_alloc_ag_max_usable(mp);
-}
-
-/*
- * xfs_initialize_perag_data
- *
- * Read in each per-ag structure so we can count up the number of
- * allocated inodes, free inodes and used filesystem blocks as this
- * information is no longer persistent in the superblock. Once we have
- * this information, write it into the in-core superblock structure.
- */
-int
-xfs_initialize_perag_data(
-	struct xfs_mount *mp,
-	xfs_agnumber_t	agcount)
-{
-	xfs_agnumber_t	index;
-	xfs_perag_t	*pag;
-	xfs_sb_t	*sbp = &mp->m_sb;
-	uint64_t	ifree = 0;
-	uint64_t	ialloc = 0;
-	uint64_t	bfree = 0;
-	uint64_t	bfreelst = 0;
-	uint64_t	btree = 0;
-	int		error;
-
-	for (index = 0; index < agcount; index++) {
-		/*
-		 * read the agf, then the agi. This gets us
-		 * all the information we need and populates the
-		 * per-ag structures for us.
-		 */
-		error = xfs_alloc_pagf_init(mp, NULL, index, 0);
-		if (error)
-			return error;
-
-		error = xfs_ialloc_pagi_init(mp, NULL, index);
-		if (error)
-			return error;
-		pag = xfs_perag_get(mp, index);
-		ifree += pag->pagi_freecount;
-		ialloc += pag->pagi_count;
-		bfree += pag->pagf_freeblks;
-		bfreelst += pag->pagf_flcount;
-		btree += pag->pagf_btreeblks;
-		xfs_perag_put(pag);
-	}
-
-	/* Overwrite incore superblock counters with just-read data */
-	spin_lock(&mp->m_sb_lock);
-	sbp->sb_ifree = ifree;
-	sbp->sb_icount = ialloc;
-	sbp->sb_fdblocks = bfree + bfreelst + btree;
-	spin_unlock(&mp->m_sb_lock);
-
-	xfs_reinit_percpu_counters(mp);
-
-	return 0;
 }
 
 /*

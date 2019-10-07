@@ -28,7 +28,6 @@
 #include "xfs_inode_fork.h"
 #include "xfs_inode.h"
 #include "xfs_trans.h"
-#include "xfs_sb.h"
 #include "kmem.h"
 static void xfs_trans_free_items(struct xfs_trans *tp);
 

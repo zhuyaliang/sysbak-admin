@@ -23,7 +23,6 @@
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
 #include "xfs_trans_resv.h"
-#include "xfs_sb.h"
 #include "xfs_mount.h"
 #include "xfs_defer.h"
 #include "xfs_alloc.h"
@@ -37,7 +36,6 @@
 #include "xfs_trans_space.h"
 #include "xfs_rmap_btree.h"
 #include "xfs_btree.h"
-#include "xfs_refcount_btree.h"
 
 bool
 xfs_ag_resv_critical(

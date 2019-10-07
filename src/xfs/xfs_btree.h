@@ -437,9 +437,6 @@ int xfs_btree_increment(struct xfs_btree_cur *, int, int *);
 int xfs_btree_decrement(struct xfs_btree_cur *, int, int *);
 int xfs_btree_lookup(struct xfs_btree_cur *, xfs_lookup_t, int *);
 int xfs_btree_update(struct xfs_btree_cur *, union xfs_btree_rec *);
-int xfs_btree_new_iroot(struct xfs_btree_cur *, int *, int *);
-int xfs_btree_insert(struct xfs_btree_cur *, int *);
-int xfs_btree_delete(struct xfs_btree_cur *, int *);
 int xfs_btree_get_rec(struct xfs_btree_cur *, union xfs_btree_rec **, int *);
 int xfs_btree_change_owner(struct xfs_btree_cur *cur, __uint64_t new_owner,
 			   struct list_head *buffer_list);
@@ -515,8 +512,6 @@ static inline int xfs_btree_get_level(struct xfs_btree_block *block)
 
 bool xfs_btree_sblock_v5hdr_verify(struct xfs_buf *bp);
 bool xfs_btree_sblock_verify(struct xfs_buf *bp, unsigned int max_recs);
-uint xfs_btree_compute_maxlevels(struct xfs_mount *mp, uint *limits,
-				 unsigned long len);
 xfs_extlen_t xfs_btree_calc_size(struct xfs_mount *mp, uint *limits,
 		unsigned long long len);
 
@@ -525,10 +520,6 @@ xfs_extlen_t xfs_btree_calc_size(struct xfs_mount *mp, uint *limits,
 #define XFS_BTREE_QUERY_RANGE_ABORT	1	/* stop iterating */
 typedef int (*xfs_btree_query_range_fn)(struct xfs_btree_cur *cur,
 		union xfs_btree_rec *rec, void *priv);
-
-int xfs_btree_query_range(struct xfs_btree_cur *cur,
-		union xfs_btree_irec *low_rec, union xfs_btree_irec *high_rec,
-		xfs_btree_query_range_fn fn, void *priv);
 
 typedef int (*xfs_btree_visit_blocks_fn)(struct xfs_btree_cur *cur, int level,
 		void *data);

@@ -55,18 +55,14 @@
 #define xfs_attr_remove			libxfs_attr_remove
 #define xfs_attr_leaf_newentsize	libxfs_attr_leaf_newentsize
 
-#define xfs_alloc_fix_freelist		libxfs_alloc_fix_freelist
 #define xfs_alloc_min_freelist		libxfs_alloc_min_freelist
 #define xfs_alloc_read_agf		libxfs_alloc_read_agf
-#define xfs_bmap_search_extents		libxfs_bmap_search_extents
-#define xfs_bmapi_read			libxfs_bmapi_read
 #define xfs_bmbt_get_all		libxfs_bmbt_get_all
 #define xfs_defer_init			libxfs_defer_init
 #define xfs_defer_cancel		libxfs_defer_cancel
 
 #define xfs_da_brelse			libxfs_da_brelse
 #define xfs_da_hashname			libxfs_da_hashname
-#define xfs_da_read_buf			libxfs_da_read_buf
 #define __xfs_dir2_data_freescan	libxfs_dir2_data_freescan
 #define xfs_dir2_data_log_entry		libxfs_dir2_data_log_entry
 #define xfs_dir2_data_log_header	libxfs_dir2_data_log_header
@@ -81,10 +77,7 @@
 #define xfs_idestroy_fork		libxfs_idestroy_fork
 
 #define xfs_rmap_ag_owner		libxfs_rmap_ag_owner
-#define xfs_rmap_alloc			libxfs_rmap_alloc
-#define xfs_rmap_query_range		libxfs_rmap_query_range
 #define xfs_rmap_lookup_le		libxfs_rmap_lookup_le
-#define xfs_rmap_get_rec		libxfs_rmap_get_rec
 #define xfs_rmap_irec_offset_pack	libxfs_rmap_irec_offset_pack
 #define xfs_rmap_irec_offset_unpack	libxfs_rmap_irec_offset_unpack
 #define xfs_rmapbt_init_cursor		libxfs_rmapbt_init_cursor
@@ -107,20 +100,16 @@
 #define xfs_bmdr_maxrecs		libxfs_bmdr_maxrecs
 #define xfs_btree_init_block		libxfs_btree_init_block
 #define xfs_dir_ino_validate		libxfs_dir_ino_validate
-#define xfs_initialize_perag_data	libxfs_initialize_perag_data
 #define xfs_inobt_maxrecs		libxfs_inobt_maxrecs
-#define xfs_iread_extents		libxfs_iread_extents
 #define xfs_log_calc_minimum_size	libxfs_log_calc_minimum_size
 #define xfs_perag_get			libxfs_perag_get
 #define xfs_perag_put			libxfs_perag_put
 #define xfs_prealloc_blocks		libxfs_prealloc_blocks
 #define xfs_dinode_good_version		libxfs_dinode_good_version
-#define xfs_free_extent			libxfs_free_extent
 
 #define xfs_refcountbt_init_cursor	libxfs_refcountbt_init_cursor
 #define xfs_refcount_lookup_le		libxfs_refcount_lookup_le
 #define xfs_refcount_get_rec		libxfs_refcount_get_rec
-#define xfs_rmap_lookup_le_range	libxfs_rmap_lookup_le_range
 #define xfs_refc_block			libxfs_refc_block
 
 #endif /* __LIBXFS_API_DEFS_H__ */

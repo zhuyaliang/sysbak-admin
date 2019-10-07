@@ -202,7 +202,5 @@ xfs_perag_resv(
 
 extern xfs_mount_t	*libxfs_mount (xfs_mount_t *, xfs_sb_t *,
 				dev_t, dev_t, dev_t, int);
-extern void	libxfs_umount (xfs_mount_t *);
-extern void	libxfs_rtmount_destroy (xfs_mount_t *);
 
 #endif	/* __XFS_MOUNT_H__ */

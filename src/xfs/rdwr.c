@@ -1303,29 +1303,3 @@ struct cache_operations libxfs_bcache_operations = {
 
 extern kmem_zone_t	*xfs_ili_zone;
 extern kmem_zone_t	*xfs_inode_zone;
-
-static void
-libxfs_idestroy(xfs_inode_t *ip)
-{
-	switch (VFS_I(ip)->i_mode & S_IFMT) {
-		case S_IFREG:
-		case S_IFDIR:
-		case S_IFLNK:
-			libxfs_idestroy_fork(ip, XFS_DATA_FORK);
-			break;
-	}
-	if (ip->i_afp)
-		libxfs_idestroy_fork(ip, XFS_ATTR_FORK);
-	if (ip->i_cowfp)
-		xfs_idestroy_fork(ip, XFS_COW_FORK);
-}
-
-void
-libxfs_iput(xfs_inode_t *ip)
-{
-	if (ip->i_itemp)
-		kmem_zone_free(xfs_ili_zone, ip->i_itemp);
-	ip->i_itemp = NULL;
-	libxfs_idestroy(ip);
-	kmem_zone_free(xfs_inode_zone, ip);
-}

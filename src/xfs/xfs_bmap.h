@@ -17,6 +17,7 @@
  */
 #ifndef __XFS_BMAP_H__
 #define	__XFS_BMAP_H__
+#include <xfs/xfs_format.h>
 
 struct getbmap;
 struct xfs_bmbt_irec;
@@ -194,25 +195,7 @@ void	xfs_bmap_add_free(struct xfs_mount *mp, struct xfs_defer_ops *dfops,
 			  xfs_fsblock_t bno, xfs_filblks_t len,
 			  struct xfs_owner_info *oinfo);
 void	xfs_bmap_compute_maxlevels(struct xfs_mount *mp, int whichfork);
-int	xfs_bmap_one_block(struct xfs_inode *ip, int whichfork);
-int	xfs_bmap_read_extents(struct xfs_trans *tp, struct xfs_inode *ip,
-		int whichfork);
-int	xfs_bmapi_read(struct xfs_inode *ip, xfs_fileoff_t bno,
-		xfs_filblks_t len, struct xfs_bmbt_irec *mval,
-		int *nmap, int flags);
-int	xfs_check_nostate_extents(struct xfs_ifork *ifp, xfs_extnum_t idx,
-		xfs_extnum_t num);
 uint	xfs_default_attroffset(struct xfs_inode *ip);
-struct xfs_bmbt_rec_host *
-	xfs_bmap_search_extents(struct xfs_inode *ip, xfs_fileoff_t bno,
-		int fork, int *eofp, xfs_extnum_t *lastxp,
-		struct xfs_bmbt_irec *gotp, struct xfs_bmbt_irec *prevp);
-struct xfs_bmbt_rec_host *
-	xfs_bmap_search_extents(struct xfs_inode *ip, xfs_fileoff_t bno,
-				int fork, int *eofp, xfs_extnum_t *lastxp,
-				struct xfs_bmbt_irec *gotp,
-				struct xfs_bmbt_irec *prevp);
-
 
 enum xfs_bmap_intent_type {
 	XFS_BMAP_MAP = 1,

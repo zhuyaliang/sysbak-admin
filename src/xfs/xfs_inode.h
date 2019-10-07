@@ -143,9 +143,5 @@ extern void	libxfs_trans_inode_alloc_buf (struct xfs_trans *,
 extern void	libxfs_trans_ichgtime(struct xfs_trans *,
 				struct xfs_inode *, int);
 
-/* Inode Cache Interfaces */
-extern void	libxfs_iput(struct xfs_inode *);
-
-#define IRELE(ip) libxfs_iput(ip)
 
 #endif /* __XFS_INODE_H__ */

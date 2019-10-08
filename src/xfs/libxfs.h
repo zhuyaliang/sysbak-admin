@@ -198,19 +198,6 @@ xfs_inobt_is_sparse_disk(
 	return false;
 }
 
-static inline void
-libxfs_bmbt_disk_get_all(
-	struct xfs_bmbt_rec	*rp,
-	struct xfs_bmbt_irec	*irec)
-{
-	struct xfs_bmbt_rec_host hrec;
-
-	hrec.l0 = get_unaligned_be64(&rp->l0);
-	hrec.l1 = get_unaligned_be64(&rp->l1);
-	libxfs_bmbt_get_all(&hrec, irec);
-}
-
-
 /* XXX: need parts of xfs_attr.h in userspace */
 #define LIBXFS_ATTR_ROOT	0x0002	/* use attrs in root namespace */
 #define LIBXFS_ATTR_SECURE	0x0008	/* use attrs in security namespace */

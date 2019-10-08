@@ -424,7 +424,7 @@ const struct xfs_nameops xfs_default_nameops = {
 STATIC int
 xfs_da_map_covers_blocks(
 	int		nmap,
-	xfs_bmbt_irec_t	*mapp,
+	xfs_bmbt_irec_t1	*mapp,
 	xfs_dablk_t	bno,
 	int		count)
 {
@@ -457,7 +457,7 @@ xfs_buf_map_from_irec(
 	struct xfs_mount	*mp,
 	struct xfs_buf_map	**mapp,
 	int			*nmaps,
-	struct xfs_bmbt_irec	*irecs,
+	struct xfs_bmbt_irec1	*irecs,
 	int			nirecs)
 {
 	struct xfs_buf_map	*map;

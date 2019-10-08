@@ -689,6 +689,18 @@ xfs_refcountbt_maxrecs(
     return blocklen / (sizeof(struct xfs_refcount_key) +
                sizeof(xfs_refcount_ptr_t));
 }
+static int
+xfs_inobt_maxrecs(
+    struct xfs_mount    *mp,
+    int         blocklen,
+    int         leaf)
+{
+    blocklen -= XFS_INOBT_BLOCK_LEN(mp);
+
+    if (leaf)
+        return blocklen / sizeof(xfs_inobt_rec_t);
+    return blocklen / (sizeof(xfs_inobt_key_t) + sizeof(xfs_inobt_ptr_t));
+}
 
 /*
  * xfs_mount_common
@@ -718,7 +730,9 @@ xfs_sb_mount_common(
 	mp->m_alloc_mxr[1] = xfs_allocbt_maxrecs(mp, sbp->sb_blocksize, 0);
 	mp->m_alloc_mnr[0] = mp->m_alloc_mxr[0] / 2;
 	mp->m_alloc_mnr[1] = mp->m_alloc_mxr[1] / 2;
-
+    
+    mp->m_inobt_mxr[0] = xfs_inobt_maxrecs(mp, sbp->sb_blocksize, 1);
+    mp->m_inobt_mxr[1] = xfs_inobt_maxrecs(mp, sbp->sb_blocksize, 0);
 	mp->m_inobt_mnr[0] = mp->m_inobt_mxr[0] / 2;
 	mp->m_inobt_mnr[1] = mp->m_inobt_mxr[1] / 2;
 

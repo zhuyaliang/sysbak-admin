@@ -590,7 +590,7 @@ gboolean gdbus_sysbak_xfsfs_ptf (SysbakGdbus           *object,
     {
         e_code = 5;
         goto ERROR;
-    }    
+    }
     update_used_blocks_count(&fs_info, bitmap);
     if (!check_system_space (&fs_info,target,&img_opt))
     {

@@ -57,7 +57,6 @@
 
 #define xfs_alloc_min_freelist		libxfs_alloc_min_freelist
 #define xfs_alloc_read_agf		libxfs_alloc_read_agf
-#define xfs_bmbt_get_all		libxfs_bmbt_get_all
 #define xfs_defer_init			libxfs_defer_init
 #define xfs_defer_cancel		libxfs_defer_cancel
 
@@ -100,7 +99,6 @@
 #define xfs_bmdr_maxrecs		libxfs_bmdr_maxrecs
 #define xfs_btree_init_block		libxfs_btree_init_block
 #define xfs_dir_ino_validate		libxfs_dir_ino_validate
-#define xfs_inobt_maxrecs		libxfs_inobt_maxrecs
 #define xfs_log_calc_minimum_size	libxfs_log_calc_minimum_size
 #define xfs_perag_get			libxfs_perag_get
 #define xfs_perag_put			libxfs_perag_put

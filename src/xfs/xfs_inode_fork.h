@@ -151,7 +151,7 @@ void		xfs_init_local_fork(struct xfs_inode *, int, const void *, int);
 struct xfs_bmbt_rec_host *
 		xfs_iext_get_ext(struct xfs_ifork *, xfs_extnum_t);
 void		xfs_iext_insert(struct xfs_inode *, xfs_extnum_t, xfs_extnum_t,
-				struct xfs_bmbt_irec *, int);
+				struct xfs_bmbt_irec1 *, int);
 void		xfs_iext_add(struct xfs_ifork *, xfs_extnum_t, int);
 void		xfs_iext_add_indirect_multi(struct xfs_ifork *, int,
 					    xfs_extnum_t, int);

@@ -56,11 +56,6 @@
 	 XFS_DIRENTER_MAX_SPLIT(mp,nl))
 #define	XFS_DIRREMOVE_SPACE_RES(mp)	\
 	XFS_DAREMOVE_SPACE_RES(mp, XFS_DATA_FORK)
-#define	XFS_IALLOC_SPACE_RES(mp)	\
-	((mp)->m_ialloc_blks + \
-	 (xfs_sb_version_hasfinobt(&mp->m_sb) ? 2 : 1 * \
-	  ((mp)->m_in_maxlevels - 1)))
-
 /*
  * Space reservation values for various transactions.
  */
@@ -70,8 +65,6 @@
 	XFS_DAREMOVE_SPACE_RES(mp, XFS_ATTR_FORK)
 #define	XFS_ATTRSET_SPACE_RES(mp, v)	\
 	(XFS_DAENTER_SPACE_RES(mp, XFS_ATTR_FORK) + XFS_B_TO_FSB(mp, v))
-#define	XFS_CREATE_SPACE_RES(mp,nl)	\
-	(XFS_IALLOC_SPACE_RES(mp) + XFS_DIRENTER_SPACE_RES(mp,nl))
 #define	XFS_DIOSTRAT_SPACE_RES(mp, v)	\
 	(XFS_EXTENTADD_SPACE_RES(mp, XFS_DATA_FORK) + (v))
 #define	XFS_GROWFS_SPACE_RES(mp)	\
@@ -80,21 +73,9 @@
 	((b) + XFS_EXTENTADD_SPACE_RES(mp, XFS_DATA_FORK))
 #define	XFS_LINK_SPACE_RES(mp,nl)	\
 	XFS_DIRENTER_SPACE_RES(mp,nl)
-#define	XFS_MKDIR_SPACE_RES(mp,nl)	\
-	(XFS_IALLOC_SPACE_RES(mp) + XFS_DIRENTER_SPACE_RES(mp,nl))
-#define	XFS_QM_DQALLOC_SPACE_RES(mp)	\
-	(XFS_EXTENTADD_SPACE_RES(mp, XFS_DATA_FORK) + \
-	 XFS_DQUOT_CLUSTER_SIZE_FSB)
-#define	XFS_QM_QINOCREATE_SPACE_RES(mp)	\
-	XFS_IALLOC_SPACE_RES(mp)
 #define	XFS_REMOVE_SPACE_RES(mp)	\
 	XFS_DIRREMOVE_SPACE_RES(mp)
 #define	XFS_RENAME_SPACE_RES(mp,nl)	\
 	(XFS_DIRREMOVE_SPACE_RES(mp) + XFS_DIRENTER_SPACE_RES(mp,nl))
-#define	XFS_SYMLINK_SPACE_RES(mp,nl,b)	\
-	(XFS_IALLOC_SPACE_RES(mp) + XFS_DIRENTER_SPACE_RES(mp,nl) + (b))
-#define XFS_IFREE_SPACE_RES(mp)		\
-	(xfs_sb_version_hasfinobt(&mp->m_sb) ? (mp)->m_in_maxlevels : 0)
-
 
 #endif	/* __XFS_TRANS_SPACE_H__ */

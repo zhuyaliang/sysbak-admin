@@ -201,7 +201,7 @@ __xfs_rmap_add(
 	enum xfs_rmap_intent_type	type,
 	__uint64_t			owner,
 	int				whichfork,
-	struct xfs_bmbt_irec		*bmap)
+	struct xfs_bmbt_irec1		*bmap)
 {
 	struct xfs_rmap_intent	*ri;
 

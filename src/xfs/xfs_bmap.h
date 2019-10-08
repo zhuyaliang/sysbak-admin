@@ -20,7 +20,7 @@
 #include <xfs/xfs_format.h>
 
 struct getbmap;
-struct xfs_bmbt_irec;
+struct xfs_bmbt_irec1;
 struct xfs_ifork;
 struct xfs_inode;
 struct xfs_mount;
@@ -36,8 +36,8 @@ struct xfs_bmalloca {
 	struct xfs_defer_ops	*dfops;	/* bmap freelist */
 	struct xfs_trans	*tp;	/* transaction pointer */
 	struct xfs_inode	*ip;	/* incore inode pointer */
-	struct xfs_bmbt_irec	prev;	/* extent before the new one */
-	struct xfs_bmbt_irec	got;	/* extent after, or delayed */
+	struct xfs_bmbt_irec1	prev;	/* extent before the new one */
+	struct xfs_bmbt_irec1	got;	/* extent after, or delayed */
 
 	xfs_fileoff_t		offset;	/* offset in file filling in */
 	xfs_extlen_t		length;	/* i/o length asked/allocated */
@@ -207,7 +207,7 @@ struct xfs_bmap_intent {
 	enum xfs_bmap_intent_type		bi_type;
 	struct xfs_inode			*bi_owner;
 	int					bi_whichfork;
-	struct xfs_bmbt_irec			bi_bmap;
+	struct xfs_bmbt_irec1			bi_bmap;
 };
 
 const struct xfs_dir_ops *xfs_dir_get_ops(struct xfs_mount    *mp,

@@ -495,11 +495,13 @@ libxfs_initialize_perag(
 				pag->pagf_metadata = 1;
 			xfs_perag_put(pag);
 		}
-	} else {
-		for (index = 0; index < agcount; index++) {
-			pag = xfs_perag_get(mp, index);
-			pag->pagi_inodeok = 1;
-			xfs_perag_put(pag);
+	} 
+    else {
+		for (index = 0; index < agcount; index++)
+        {
+		//	pag = xfs_perag_get(mp, index);
+	//		pag->pagi_inodeok = 1;
+	//		xfs_perag_put(pag);
 		}
 	}
 
@@ -592,9 +594,14 @@ xfs_btree_compute_maxlevels(
     uint            level;
     unsigned long       maxblocks;
 
+    g_print ("sssssssssssssssssssssssssss\r\n");
     maxblocks = (len + limits[0] - 1) / limits[0];
+    g_print ("sssssssssssssssssssssssssss\r\n");
     for (level = 1; maxblocks > 1; level++)
+    {     
         maxblocks = (maxblocks + limits[1] - 1) / limits[1];
+    }
+    g_print ("sssssssssssssssssssssssssss\r\n");
     return level;
 }
 
@@ -612,6 +619,7 @@ xfs_ialloc_compute_maxlevels(
     uint        inodes;
 
     inodes = (1LL << XFS_INO_AGINO_BITS(mp)) >> XFS_INODES_PER_CHUNK_LOG;
+    g_print ("xfs_ialloc_compute_maxlevels \r\n");
     mp->m_in_maxlevels = xfs_btree_compute_maxlevels(mp, mp->m_inobt_mnr,
                              inodes);
 }
@@ -622,11 +630,6 @@ xfs_alloc_compute_maxlevels(
     mp->m_ag_maxlevels = xfs_btree_compute_maxlevels(mp, mp->m_alloc_mnr,
             (mp->m_sb.sb_agblocks + 1) / 2);
 }
-/*
- * Mount structure initialization, provides a filled-in xfs_mount_t
- * such that the numerous XFS_* macros can be used.  If dev is zero,
- * no IO will be performed (no size checks, read root inodes).
- */
 xfs_mount_t *
 libxfs_mount(
 	xfs_mount_t	*mp,
@@ -649,7 +652,6 @@ libxfs_mount(
 	sbp = &(mp->m_sb);
 
 	xfs_sb_mount_common(mp, sb);
-
 	xfs_alloc_compute_maxlevels(mp);
 	xfs_bmap_compute_maxlevels(mp, XFS_DATA_FORK);
 	xfs_bmap_compute_maxlevels(mp, XFS_ATTR_FORK);

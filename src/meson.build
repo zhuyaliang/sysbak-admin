@@ -82,7 +82,7 @@ sources = files(
   'xfs/xfs_dir2.c',
   'xfs/xfs_da_format.c',
   #'xfs/xfs_symlink_remote.c',
-  'xfs/list_sort.c',
+  #'xfs/list_sort.c',
 )
 
 deps = [

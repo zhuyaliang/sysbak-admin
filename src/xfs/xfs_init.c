@@ -36,8 +36,6 @@
 #include "libxfs_priv.h"
 #include "libxfs.h"		/* for now */
 
-char *progname = "libxfs";	/* default, changed by each tool */
-
 struct cache *libxfs_bcache;	/* global buffer cache */
 int libxfs_bhash_size;		/* #buckets in bcache */
 
@@ -90,8 +88,6 @@ libxfs_device_to_fd(dev_t device)
         if (dev_map[d].dev == device)
 			return dev_map[d].fd;
     }    
-	fprintf(stderr, _("%s: %s: device %lld is not open\n"),
-		progname, __FUNCTION__, (long long)device);
 	exit(1);
 }
 
@@ -119,14 +115,10 @@ retry:
 	if ((fd = open(path, flags, 0666)) < 0) {
 		if (errno == EINVAL && --dio == 0)
 			goto retry;
-		fprintf(stderr, _("%s: cannot open %s: %s\n"),
-			progname, path, strerror(errno));
 		exit(1);
 	}
 
 	if (fstat(fd, &statb) < 0) {
-		fprintf(stderr, _("%s: cannot stat %s: %s\n"),
-			progname, path, strerror(errno));
 		exit(1);
 	}
 	if (!readonly && setblksize && (statb.st_mode & S_IFMT) == S_IFBLK) {
@@ -145,8 +137,6 @@ retry:
 	for (d = 0; d < MAX_DEVS; d++)
 		if (dev_map[d].dev == dev) 
         {
-			fprintf(stderr, _("%s: device %lld is already open\n"),
-			    progname, (long long)dev);
 			exit(1);
 		}
 
@@ -158,9 +148,6 @@ retry:
 
 			return dev;
 		}
-
-	fprintf(stderr, _("%s: %s: too many open devices\n"),
-		progname, __FUNCTION__);
 	exit(1);
 	/* NOTREACHED */
 }
@@ -184,8 +171,6 @@ libxfs_device_close(dev_t dev)
 			return;
 		}
 
-	fprintf(stderr, _("%s: %s: device %lld is not open\n"),
-			progname, __FUNCTION__, (long long)dev);
 	exit(1);
 }
 
@@ -202,15 +187,9 @@ check_open(char *path, int flags, char **rawfile, char **blockfile)
 		return 0;
 	}
 	if (!(*rawfile = platform_findrawpath(path))) {
-		fprintf(stderr, _("%s: "
-				  "can't find a character device matching %s\n"),
-			progname, path);
 		return 0;
 	}
 	if (!(*blockfile = platform_findblockpath(path))) {
-		fprintf(stderr, _("%s: "
-				  "can't find a block device matching %s\n"),
-			progname, path);
 		return 0;
 	}
 	if (!readonly && !inactive && platform_check_ismounted(path, *blockfile, NULL, 1))
@@ -292,8 +271,6 @@ libxfs_init(libxfs_init_t *a)
     else
 		a->dsize = 0;
 	if (a->dsize < 0) {
-		fprintf(stderr, _("%s: can't get size for data subvolume\n"),
-			progname);
 		goto done;
 	}
 	if (needcd)
@@ -313,10 +290,7 @@ done:
 	return rval;
 }
 
-
-/*
- * Initialize/destroy all of the zone allocators we use.
- */
+kmem_zone_t *xfs_da_state_zone;	/* anchor for state struct zone */
 static void
 manage_zones(int release)
 {
@@ -368,8 +342,6 @@ rtmount_init(
 	if (sbp->sb_rblocks == 0)
 		return 0;
 	if (mp->m_rtdev_targp->dev == 0 && !(flags & LIBXFS_MOUNT_DEBUGGER)) {
-		fprintf(stderr, _("%s: filesystem has a realtime subvolume\n"),
-			progname);
 		return -1;
 	}
 	mp->m_rsumlevels = sbp->sb_rextslog + 1;
@@ -390,16 +362,11 @@ rtmount_init(
 	 */
 	d = (xfs_daddr_t)XFS_FSB_TO_BB(mp, mp->m_sb.sb_rblocks);
 	if (XFS_BB_TO_FSB(mp, d) != mp->m_sb.sb_rblocks) {
-		fprintf(stderr, _("%s: realtime init - %llu != %llu\n"),
-			progname, (unsigned long long) XFS_BB_TO_FSB(mp, d),
-			(unsigned long long) mp->m_sb.sb_rblocks);
 		return -1;
 	}
 	bp = libxfs_readbuf(mp->m_rtdev,
 			d - XFS_FSB_TO_BB(mp, 1), XFS_FSB_TO_BB(mp, 1), 0, NULL);
 	if (bp == NULL) {
-		fprintf(stderr, _("%s: realtime size check failed\n"),
-			progname);
 		return -1;
 	}
 	libxfs_putbuf(bp);
@@ -522,8 +489,6 @@ libxfs_buftarg_alloc(
 
 	btp = malloc(sizeof(*btp));
 	if (!btp) {
-		fprintf(stderr, _("%s: buftarg init failed\n"),
-			progname);
 		exit(1);
 	}
 	btp->bt_mount = mp;
@@ -542,30 +507,18 @@ libxfs_buftarg_init(
 		/* should already have all buftargs initialised */
 		if (mp->m_ddev_targp->dev != dev ||
 		    mp->m_ddev_targp->bt_mount != mp) {
-			fprintf(stderr,
-				_("%s: bad buftarg reinit, ddev\n"),
-				progname);
 			exit(1);
 		}
 		if (!logdev || logdev == dev) {
 			if (mp->m_logdev_targp != mp->m_ddev_targp) {
-				fprintf(stderr,
-				_("%s: bad buftarg reinit, ldev mismatch\n"),
-					progname);
 				exit(1);
 			}
 		} else if (mp->m_logdev_targp->dev != logdev ||
 			   mp->m_logdev_targp->bt_mount != mp) {
-			fprintf(stderr,
-				_("%s: bad buftarg reinit, logdev\n"),
-				progname);
 			exit(1);
 		}
 		if (rtdev && (mp->m_rtdev_targp->dev != rtdev ||
 			      mp->m_rtdev_targp->bt_mount != mp)) {
-			fprintf(stderr,
-				_("%s: bad buftarg reinit, rtdev\n"),
-				progname);
 			exit(1);
 		}
 		return;
@@ -696,7 +649,6 @@ libxfs_mount(
 	 */
 	d = (xfs_daddr_t) XFS_FSB_TO_BB(mp, mp->m_sb.sb_dblocks);
 	if (XFS_BB_TO_FSB(mp, d) != mp->m_sb.sb_dblocks) {
-		fprintf(stderr, _("%s: size check failed\n"), progname);
 		if (!(flags & LIBXFS_MOUNT_DEBUGGER))
 			return NULL;
 	}
@@ -707,26 +659,17 @@ libxfs_mount(
 	 */
 	if (!(sbp->sb_versionnum & XFS_SB_VERSION_NLINKBIT)) {
 
-		fprintf(stderr, _(
-	"%s: V1 inodes unsupported. Please try an older xfsprogs.\n"),
-				 progname);
 		exit(1);
 	}
 
 	/* Check for supported directory formats */
 	if (!(sbp->sb_versionnum & XFS_SB_VERSION_DIRV2BIT)) {
 
-		fprintf(stderr, _(
-	"%s: V1 directories unsupported. Please try an older xfsprogs.\n"),
-				 progname);
 		exit(1);
 	}
 
 	/* check for unsupported other features */
 	if (!xfs_sb_good_version(sbp)) {
-		fprintf(stderr, _(
-	"%s: Unsupported features detected. Please try a newer xfsprogs.\n"),
-				 progname);
 		exit(1);
 	}
 
@@ -745,7 +688,6 @@ libxfs_mount(
 			d - XFS_FSS_TO_BB(mp, 1), XFS_FSS_TO_BB(mp, 1),
 			!(flags & LIBXFS_MOUNT_DEBUGGER), NULL);
 	if (!bp) {
-		fprintf(stderr, _("%s: data size check failed\n"), progname);
 		if (!(flags & LIBXFS_MOUNT_DEBUGGER))
 			return NULL;
 	} else
@@ -759,8 +701,6 @@ libxfs_mount(
 					d - XFS_FSB_TO_BB(mp, 1),
 					XFS_FSB_TO_BB(mp, 1),
 					!(flags & LIBXFS_MOUNT_DEBUGGER), NULL))) ) {
-			fprintf(stderr, _("%s: log size checks failed\n"),
-					progname);
 			if (!(flags & LIBXFS_MOUNT_DEBUGGER))
 				return NULL;
 		}
@@ -770,18 +710,13 @@ libxfs_mount(
 
 	/* Initialize realtime fields in the mount structure */
 	if (rtmount_init(mp, flags)) {
-		fprintf(stderr, _("%s: realtime device init failed\n"),
-			progname);
 			return NULL;
 	}
 
 	error = libxfs_initialize_perag(mp, sbp->sb_agcount, &mp->m_maxagi);
 	if (error) {
-		fprintf(stderr, _("%s: perag init failed\n"),
-			progname);
 		exit(1);
 	}
-
 	return mp;
 }
 

@@ -62,9 +62,6 @@ libxfs_trans_add_item(
 
 	lidp = calloc(sizeof(struct xfs_log_item_desc), 1);
 	if (!lidp) {
-		fprintf(stderr, _("%s: lidp calloc failed (%d bytes): %s\n"),
-			progname, (int)sizeof(struct xfs_log_item_desc),
-			strerror(errno));
 		exit(1);
 	}
 
@@ -306,8 +303,6 @@ xfs_trans_free_items(
 		else if (lip->li_type == XFS_LI_INODE)
 			inode_item_unlock((xfs_inode_log_item_t *)lip);
 		else {
-			fprintf(stderr, _("%s: unrecognised log item type\n"),
-				progname);
 			ASSERT(0);
 		}
 	}

@@ -115,11 +115,11 @@ xfs_da_mount(
 	dageo->node_ents = (dageo->blksize - nodehdr_size) /
 				(uint)sizeof(xfs_da_node_entry_t);
 	dageo->magicpct = (dageo->blksize * 37) / 100;
-
+/*
 	if (xfs_sb_version_hasasciici(&mp->m_sb))
 		mp->m_dirnameops = &xfs_ascii_ci_nameops;
 	else
 		mp->m_dirnameops = &xfs_default_nameops;
-
+*/
 	return 0;
 }

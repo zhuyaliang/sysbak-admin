@@ -75,12 +75,8 @@ libxfs_device_zero(struct xfs_buftarg *btp, xfs_daddr_t start, uint len)
 	ssize_t		zsize, bytes;
 	char		*z;
 	int		fd;
-    g_print ("libxfs_device_zero = \r\n");
 	zsize = min(BDSTRAT_SIZE, BBTOB(len));
 	if ((z = memalign(libxfs_device_alignment(), zsize)) == NULL) {
-		fprintf(stderr,
-			_("%s: %s can't memalign %d bytes: %s\n"),
-			progname, __FUNCTION__, (int)zsize, strerror(errno));
 		exit(1);
 	}
 	memset(z, 0, zsize);
@@ -89,9 +85,6 @@ libxfs_device_zero(struct xfs_buftarg *btp, xfs_daddr_t start, uint len)
 	start_offset = LIBXFS_BBTOOFF64(start);
 
 	if ((lseek(fd, start_offset, SEEK_SET)) < 0) {
-		fprintf(stderr, _("%s: %s seek to offset %llu failed: %s\n"),
-			progname, __FUNCTION__,
-			(unsigned long long)start_offset, strerror(errno));
 		exit(1);
 	}
 
@@ -99,12 +92,8 @@ libxfs_device_zero(struct xfs_buftarg *btp, xfs_daddr_t start, uint len)
 	for (offset = 0; offset < end_offset; ) {
 		bytes = min((ssize_t)(end_offset - offset), zsize);
 		if ((bytes = write(fd, z, bytes)) < 0) {
-			fprintf(stderr, _("%s: %s write failed: %s\n"),
-				progname, __FUNCTION__, strerror(errno));
 			exit(1);
 		} else if (bytes == 0) {
-			fprintf(stderr, _("%s: %s not progressing?\n"),
-				progname, __FUNCTION__);
 			exit(1);
 		}
 		offset += bytes;
@@ -577,10 +566,6 @@ __initbuf(xfs_buf_t *bp, struct xfs_buftarg *btp, xfs_daddr_t bno,
 	if (!bp->b_addr)
 		bp->b_addr = memalign(libxfs_device_alignment(), bytes);
 	if (!bp->b_addr) {
-		fprintf(stderr,
-			_("%s: %s can't memalign %u bytes: %s\n"),
-			progname, __FUNCTION__, bytes,
-			strerror(errno));
 		exit(1);
 	}
 	memset(bp->b_addr, 0, bytes);
@@ -610,10 +595,6 @@ libxfs_initbuf_map(xfs_buf_t *bp, struct xfs_buftarg *btp,
 	bytes = sizeof(struct xfs_buf_map) * nmaps;
 	bp->b_maps = malloc(bytes);
 	if (!bp->b_maps) {
-		fprintf(stderr,
-			_("%s: %s can't malloc %u bytes: %s\n"),
-			progname, __FUNCTION__, bytes,
-			strerror(errno));
 		exit(1);
 	}
 	bp->b_nmaps = nmaps;
@@ -693,17 +674,10 @@ libxfs_getbufr_map(struct xfs_buftarg *btp, xfs_daddr_t blkno, int bblen,
 	int		blen = BBTOB(bblen);
 
 	if (!map || !nmaps) {
-		fprintf(stderr,
-			_("%s: %s invalid map %p or nmaps %d\n"),
-			progname, __FUNCTION__, map, nmaps);
 		exit(1);
 	}
 
 	if (blkno != map[0].bm_bn) {
-		fprintf(stderr,
-			_("%s: %s map blkno 0x%llx doesn't match key 0x%llx\n"),
-			progname, __FUNCTION__, (long long)map[0].bm_bn,
-			(long long)blkno);
 		exit(1);
 	}
 
@@ -918,14 +892,10 @@ __read_buf(int fd, void *buf, int len, off64_t offset, int flags)
 	sts = pread(fd, buf, len, offset);
 	if (sts < 0) {
 		int error = errno;
-		fprintf(stderr, _("%s: read failed: %s\n"),
-			progname, strerror(error));
 		if (flags & LIBXFS_EXIT_ON_FAILURE)
 			exit(1);
 		return -error;
 	} else if (sts != len) {
-		fprintf(stderr, _("%s: error - read only %d of %d bytes\n"),
-			progname, sts, len);
 		if (flags & LIBXFS_EXIT_ON_FAILURE)
 			exit(1);
 		return -EIO;
@@ -1073,14 +1043,10 @@ __write_buf(int fd, void *buf, int len, off64_t offset, int flags)
 	sts = pwrite(fd, buf, len, offset);
 	if (sts < 0) {
 		int error = errno;
-		fprintf(stderr, _("%s: pwrite failed: %s\n"),
-			progname, strerror(error));
 		if (flags & LIBXFS_B_EXIT)
 			exit(1);
 		return -error;
 	} else if (sts != len) {
-		fprintf(stderr, _("%s: error - pwrite only %d of %d bytes\n"),
-			progname, sts, len);
 		if (flags & LIBXFS_B_EXIT)
 			exit(1);
 		return -EIO;

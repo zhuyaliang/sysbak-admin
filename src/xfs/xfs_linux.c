@@ -26,7 +26,6 @@
 #include "xfs_fs.h"
 
 int platform_has_uuid = 1;
-extern char *progname;
 static int max_block_alignment;
 
 #ifndef BLKGETSIZE64
@@ -72,9 +71,6 @@ platform_check_mount(char *name, char *block, struct stat *s, int flags)
 	strcpy(mounts, (!access(PROC_MOUNTED, R_OK)) ? PROC_MOUNTED : MOUNTED);
 	if ((f = setmntent(mounts, "r")) == NULL) {
 		/* Unexpected failure, warn unconditionally */
-		fprintf(stderr,
-		    _("%s: %s possibly contains a mounted filesystem\n"),
-		    progname, name);
 		return 1;
 	}
 	while ((mnt = getmntent(f)) != NULL) {
@@ -93,18 +89,6 @@ platform_check_mount(char *name, char *block, struct stat *s, int flags)
 	/* No mounts contained the condition we were looking for */
 	if (mnt == NULL)
 		return 0;
-
-	if (flags & CHECK_MOUNT_VERBOSE) {
-		if (flags & CHECK_MOUNT_WRITABLE) {
-			fprintf(stderr,
-_("%s: %s contains a mounted and writable filesystem\n"),
-				progname, name);
-		} else {
-			fprintf(stderr,
-_("%s: %s contains a mounted filesystem\n"),
-				progname, name);
-		}
-	}
 	return 1;
 }
 
@@ -132,13 +116,10 @@ platform_set_blocksize(int fd, char *path, dev_t device, int blocksize, int fata
 {
 	int error = 0;
 
-	if (major(device) != RAMDISK_MAJOR) {
-		if ((error = ioctl(fd, BLKBSZSET, &blocksize)) < 0) {
-			fprintf(stderr, _("%s: %s - cannot set blocksize "
-					"%d on block device %s: %s\n"),
-				progname, fatal ? "error": "warning",
-				blocksize, path, strerror(errno));
-		}
+	if (major(device) != RAMDISK_MAJOR) 
+    {
+	    error = ioctl(fd, BLKBSZSET, &blocksize);
+        
 	}
 	return error;
 }
@@ -167,9 +148,6 @@ platform_findsizes(char *path, int fd, long long *sz, int *bsz)
 	int		error;
 
 	if (fstat(fd, &st) < 0) {
-		fprintf(stderr, _("%s: "
-			"cannot stat the device file \"%s\": %s\n"),
-			progname, path, strerror(errno));
 		exit(1);
 	}
 
@@ -202,17 +180,12 @@ platform_findsizes(char *path, int fd, long long *sz, int *bsz)
 
 		error = ioctl(fd, BLKGETSIZE, &tmpsize);
 		if (error < 0) {
-			fprintf(stderr, _("%s: can't determine device size\n"),
-				progname);
 			exit(1);
 		}
 		*sz = (long long)tmpsize;
 	}
 
 	if (ioctl(fd, BLKSSZGET, bsz) < 0) {
-		fprintf(stderr, _("%s: warning - cannot get sector size "
-				"from block device %s: %s\n"),
-			progname, path, strerror(errno));
 		*bsz = BBSIZE;
 	}
 	if (*bsz > max_block_alignment)
@@ -257,8 +230,6 @@ platform_physmem(void)
 	struct sysinfo  si;
 
 	if (sysinfo(&si) < 0) {
-		fprintf(stderr, _("%s: can't determine memory size\n"),
-			progname);
 		exit(1);
 	}
 	return (si.totalram >> 10) * si.mem_unit;	/* kilobytes */

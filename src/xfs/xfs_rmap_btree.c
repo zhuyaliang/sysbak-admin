@@ -34,39 +34,6 @@
 #include "xfs_cksum.h"
 #include "xfs_ag_resv.h"
 
-/*
- * Reverse map btree.
- *
- * This is a per-ag tree used to track the owner(s) of a given extent. With
- * reflink it is possible for there to be multiple owners, which is a departure
- * from classic XFS. Owner records for data extents are inserted when the
- * extent is mapped and removed when an extent is unmapped.  Owner records for
- * all other block types (i.e. metadata) are inserted when an extent is
- * allocated and removed when an extent is freed. There can only be one owner
- * of a metadata extent, usually an inode or some other metadata structure like
- * an AG btree.
- *
- * The rmap btree is part of the free space management, so blocks for the tree
- * are sourced from the agfl. Hence we need transaction reservation support for
- * this tree so that the freelist is always large enough. This also impacts on
- * the minimum space we need to leave free in the AG.
- *
- * The tree is ordered by [ag block, owner, offset]. This is a large key size,
- * but it is the only way to enforce unique keys when a block can be owned by
- * multiple files at any offset. There's no need to order/search by extent
- * size for online updating/management of the tree. It is intended that most
- * reverse lookups will be to find the owner(s) of a particular block, or to
- * try to recover tree and file data from corrupt primary metadata.
- */
-
-static struct xfs_btree_cur *
-xfs_rmapbt_dup_cursor(
-	struct xfs_btree_cur	*cur)
-{
-	return xfs_rmapbt_init_cursor(cur->bc_mp, cur->bc_tp,
-			cur->bc_private.a.agbp, cur->bc_private.a.agno);
-}
-
 STATIC void
 xfs_rmapbt_set_root(
 	struct xfs_btree_cur	*cur,
@@ -87,75 +54,6 @@ xfs_rmapbt_set_root(
 	xfs_perag_put(pag);
 
 	xfs_alloc_log_agf(cur->bc_tp, agbp, XFS_AGF_ROOTS | XFS_AGF_LEVELS);
-}
-
-STATIC int
-xfs_rmapbt_alloc_block(
-	struct xfs_btree_cur	*cur,
-	union xfs_btree_ptr	*start,
-	union xfs_btree_ptr	*new,
-	int			*stat)
-{
-	struct xfs_buf		*agbp = cur->bc_private.a.agbp;
-	struct xfs_agf		*agf = XFS_BUF_TO_AGF(agbp);
-	int			error;
-	xfs_agblock_t		bno;
-
-	XFS_BTREE_TRACE_CURSOR(cur, XBT_ENTRY);
-
-	/* Allocate the new block from the freelist. If we can't, give up.  */
-	error = xfs_alloc_get_freelist(cur->bc_tp, cur->bc_private.a.agbp,
-				       &bno, 1);
-	if (error) {
-		XFS_BTREE_TRACE_CURSOR(cur, XBT_ERROR);
-		return error;
-	}
-
-	trace_xfs_rmapbt_alloc_block(cur->bc_mp, cur->bc_private.a.agno,
-			bno, 1);
-	if (bno == NULLAGBLOCK) {
-		XFS_BTREE_TRACE_CURSOR(cur, XBT_EXIT);
-		*stat = 0;
-		return 0;
-	}
-
-	xfs_extent_busy_reuse(cur->bc_mp, cur->bc_private.a.agno, bno, 1,
-			false);
-
-	xfs_trans_agbtree_delta(cur->bc_tp, 1);
-	new->s = cpu_to_be32(bno);
-	be32_add_cpu(&agf->agf_rmap_blocks, 1);
-	xfs_alloc_log_agf(cur->bc_tp, agbp, XFS_AGF_RMAP_BLOCKS);
-
-	XFS_BTREE_TRACE_CURSOR(cur, XBT_EXIT);
-	*stat = 1;
-	return 0;
-}
-
-STATIC int
-xfs_rmapbt_free_block(
-	struct xfs_btree_cur	*cur,
-	struct xfs_buf		*bp)
-{
-	struct xfs_buf		*agbp = cur->bc_private.a.agbp;
-	struct xfs_agf		*agf = XFS_BUF_TO_AGF(agbp);
-	xfs_agblock_t		bno;
-	int			error;
-
-	bno = xfs_daddr_to_agbno(cur->bc_mp, XFS_BUF_ADDR(bp));
-	trace_xfs_rmapbt_free_block(cur->bc_mp, cur->bc_private.a.agno,
-			bno, 1);
-	be32_add_cpu(&agf->agf_rmap_blocks, -1);
-	xfs_alloc_log_agf(cur->bc_tp, agbp, XFS_AGF_RMAP_BLOCKS);
-	error = xfs_alloc_put_freelist(cur->bc_tp, agbp, NULL, bno, 1);
-	if (error)
-		return error;
-
-	xfs_extent_busy_insert(cur->bc_tp, be32_to_cpu(agf->agf_seqno), bno, 1,
-			      XFS_EXTENT_BUSY_SKIP_DISCARD);
-	xfs_trans_agbtree_delta(cur->bc_tp, -1);
-
-	return 0;
 }
 
 STATIC int
@@ -436,58 +334,6 @@ xfs_rmapbt_recs_inorder(
 }
 #endif	/* DEBUG */
 
-static const struct xfs_btree_ops xfs_rmapbt_ops = {
-	.rec_len		= sizeof(struct xfs_rmap_rec),
-	.key_len		= 2 * sizeof(struct xfs_rmap_key),
-
-	.dup_cursor		= xfs_rmapbt_dup_cursor,
-	.set_root		= xfs_rmapbt_set_root,
-	.alloc_block		= xfs_rmapbt_alloc_block,
-	.free_block		= xfs_rmapbt_free_block,
-	.get_minrecs		= xfs_rmapbt_get_minrecs,
-	.get_maxrecs		= xfs_rmapbt_get_maxrecs,
-	.init_key_from_rec	= xfs_rmapbt_init_key_from_rec,
-	.init_high_key_from_rec	= xfs_rmapbt_init_high_key_from_rec,
-	.init_rec_from_cur	= xfs_rmapbt_init_rec_from_cur,
-	.init_ptr_from_cur	= xfs_rmapbt_init_ptr_from_cur,
-	.key_diff		= xfs_rmapbt_key_diff,
-	.buf_ops		= &xfs_rmapbt_buf_ops,
-	.diff_two_keys		= xfs_rmapbt_diff_two_keys,
-#if defined(DEBUG) || defined(XFS_WARN)
-	.keys_inorder		= xfs_rmapbt_keys_inorder,
-	.recs_inorder		= xfs_rmapbt_recs_inorder,
-#endif
-};
-
-/*
- * Allocate a new allocation btree cursor.
- */
-struct xfs_btree_cur *
-xfs_rmapbt_init_cursor(
-	struct xfs_mount	*mp,
-	struct xfs_trans	*tp,
-	struct xfs_buf		*agbp,
-	xfs_agnumber_t		agno)
-{
-	struct xfs_agf		*agf = XFS_BUF_TO_AGF(agbp);
-	struct xfs_btree_cur	*cur;
-
-	cur = kmem_zone_zalloc(xfs_btree_cur_zone, KM_NOFS);
-	cur->bc_tp = tp;
-	cur->bc_mp = mp;
-	/* Overlapping btree; 2 keys per pointer. */
-	cur->bc_btnum = XFS_BTNUM_RMAP;
-	cur->bc_flags = XFS_BTREE_CRC_BLOCKS | XFS_BTREE_OVERLAPPING;
-	cur->bc_blocklog = mp->m_sb.sb_blocklog;
-	cur->bc_ops = &xfs_rmapbt_ops;
-	cur->bc_nlevels = be32_to_cpu(agf->agf_levels[XFS_BTNUM_RMAP]);
-
-	cur->bc_private.a.agbp = agbp;
-	cur->bc_private.a.agno = agno;
-
-	return cur;
-}
-
 /*
  * Calculate number of records in an rmap btree block.
  */
@@ -553,40 +399,4 @@ xfs_rmapbt_max_size(
 		return 0;
 
 	return xfs_rmapbt_calc_size(mp, mp->m_sb.sb_agblocks);
-}
-
-/*
- * Figure out how many blocks to reserve and how many are used by this btree.
- */
-int
-xfs_rmapbt_calc_reserves(
-	struct xfs_mount	*mp,
-	xfs_agnumber_t		agno,
-	xfs_extlen_t		*ask,
-	xfs_extlen_t		*used)
-{
-	struct xfs_buf		*agbp;
-	struct xfs_agf		*agf;
-	xfs_extlen_t		pool_len;
-	xfs_extlen_t		tree_len;
-	int			error;
-
-	if (!xfs_sb_version_hasrmapbt(&mp->m_sb))
-		return 0;
-
-	/* Reserve 1% of the AG or enough for 1 block per record. */
-	pool_len = max(mp->m_sb.sb_agblocks / 100, xfs_rmapbt_max_size(mp));
-	*ask += pool_len;
-
-	error = xfs_alloc_read_agf(mp, NULL, agno, 0, &agbp);
-	if (error)
-		return error;
-
-	agf = XFS_BUF_TO_AGF(agbp);
-	tree_len = be32_to_cpu(agf->agf_rmap_blocks);
-	xfs_buf_relse(agbp);
-
-	*used += tree_len;
-
-	return error;
 }

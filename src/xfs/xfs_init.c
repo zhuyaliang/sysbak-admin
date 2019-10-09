@@ -321,9 +321,7 @@ static void
 manage_zones(int release)
 {
 	extern kmem_zone_t	*xfs_buf_zone;
-	extern kmem_zone_t	*xfs_ili_zone;
 	extern kmem_zone_t	*xfs_ifork_zone;
-	extern kmem_zone_t	*xfs_buf_item_zone;
 	extern kmem_zone_t	*xfs_da_state_zone;
 	extern kmem_zone_t	*xfs_btree_cur_zone;
 	extern kmem_zone_t	*xfs_bmap_free_item_zone;
@@ -333,7 +331,6 @@ manage_zones(int release)
 	if (release) {	/* free zone allocation */
 		kmem_free(xfs_buf_zone);
 		kmem_free(xfs_inode_zone);
-		kmem_free(xfs_buf_item_zone);
 		kmem_free(xfs_da_state_zone);
 		kmem_free(xfs_btree_cur_zone);
 		kmem_free(xfs_bmap_free_item_zone);
@@ -343,10 +340,6 @@ manage_zones(int release)
 	/* otherwise initialise zone allocation */
 	xfs_buf_zone = kmem_zone_init(sizeof(xfs_buf_t), "xfs_buffer");
 	xfs_inode_zone = kmem_zone_init(sizeof(struct xfs_inode), "xfs_inode");
-	xfs_ili_zone = kmem_zone_init(
-			sizeof(xfs_inode_log_item_t), "xfs_inode_log_item");
-	xfs_buf_item_zone = kmem_zone_init(
-			sizeof(xfs_buf_log_item_t), "xfs_buf_log_item");
 	xfs_da_state_zone = kmem_zone_init(
 			sizeof(xfs_da_state_t), "xfs_da_state");
 	xfs_btree_cur_zone = kmem_zone_init(

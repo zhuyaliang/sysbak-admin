@@ -85,57 +85,13 @@ void	xfs_trans_init(struct xfs_mount *);
 int	xfs_trans_roll(struct xfs_trans **, struct xfs_inode *);
 
 void	libxfs_trans_cancel(struct xfs_trans *);
-struct xfs_buf *libxfs_trans_getsb(struct xfs_trans *, struct xfs_mount *, int);
-
-void	libxfs_trans_ijoin(struct xfs_trans *, struct xfs_inode *, uint);
-void	libxfs_trans_ijoin_ref(struct xfs_trans *, struct xfs_inode *, int);
 void	libxfs_trans_log_inode (struct xfs_trans *, struct xfs_inode *,
 				uint);
 
 void	libxfs_trans_brelse(struct xfs_trans *, struct xfs_buf *);
 void	libxfs_trans_binval(struct xfs_trans *, struct xfs_buf *);
-void	libxfs_trans_bjoin(struct xfs_trans *, struct xfs_buf *);
-void	libxfs_trans_bhold(struct xfs_trans *, struct xfs_buf *);
 void	libxfs_trans_log_buf(struct xfs_trans *, struct xfs_buf *,
 				uint, uint);
-
-struct xfs_buf	*libxfs_trans_get_buf_map(struct xfs_trans *tp,
-					struct xfs_buftarg *btp,
-					struct xfs_buf_map *map, int nmaps,
-					uint flags);
-
-int	libxfs_trans_read_buf_map(struct xfs_mount *mp, struct xfs_trans *tp,
-				  struct xfs_buftarg *btp,
-				  struct xfs_buf_map *map, int nmaps,
-				  uint flags, struct xfs_buf **bpp,
-				  const struct xfs_buf_ops *ops);
-static inline struct xfs_buf *
-libxfs_trans_get_buf(
-	struct xfs_trans	*tp,
-	struct xfs_buftarg	*btp,
-	xfs_daddr_t		blkno,
-	int			numblks,
-	uint			flags)
-{
-	DEFINE_SINGLE_BUF_MAP(map, blkno, numblks);
-	return libxfs_trans_get_buf_map(tp, btp, &map, 1, flags);
-}
-
-static inline int
-libxfs_trans_read_buf(
-	struct xfs_mount	*mp,
-	struct xfs_trans	*tp,
-	struct xfs_buftarg	*btp,
-	xfs_daddr_t		blkno,
-	int			numblks,
-	uint			flags,
-	struct xfs_buf		**bpp,
-	const struct xfs_buf_ops *ops)
-{
-	DEFINE_SINGLE_BUF_MAP(map, blkno, numblks);
-	return libxfs_trans_read_buf_map(mp, tp, btp, &map, 1, flags, bpp, ops);
-}
-
 void xfs_extent_free_init_defer_op(void);
 void xfs_rmap_update_init_defer_op(void);
 void xfs_refcount_update_init_defer_op(void);

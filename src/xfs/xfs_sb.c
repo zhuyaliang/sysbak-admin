@@ -765,25 +765,3 @@ xfs_sb_mount_common(
 	mp->m_alloc_set_aside = xfs_alloc_set_aside(mp);
 	mp->m_ag_max_usable = xfs_alloc_ag_max_usable(mp);
 }
-
-/*
- * xfs_log_sb() can be used to copy arbitrary changes to the in-core superblock
- * into the superblock buffer to be logged.  It does not provide the higher
- * level of locking that is needed to protect the in-core superblock from
- * concurrent access.
- */
-void
-xfs_log_sb(
-	struct xfs_trans	*tp)
-{
-	struct xfs_mount	*mp = tp->t_mountp;
-	struct xfs_buf		*bp = xfs_trans_getsb(tp, mp, 0);
-
-	mp->m_sb.sb_icount = percpu_counter_sum(&mp->m_icount);
-	mp->m_sb.sb_ifree = percpu_counter_sum(&mp->m_ifree);
-	mp->m_sb.sb_fdblocks = percpu_counter_sum(&mp->m_fdblocks);
-
-	xfs_sb_to_disk(XFS_BUF_TO_SBP(bp), &mp->m_sb);
-	xfs_trans_buf_set_type(tp, bp, XFS_BLFT_SB_BUF);
-	xfs_trans_log_buf(tp, bp, 0, sizeof(struct xfs_dsb));
-}

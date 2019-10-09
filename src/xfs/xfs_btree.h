@@ -318,38 +318,6 @@ xfs_btree_del_cursor(
 	int			error);	/* del because of error */
 
 /*
- * Duplicate the btree cursor.
- * Allocate a new one, copy the record, re-get the buffers.
- */
-int					/* error */
-xfs_btree_dup_cursor(
-	xfs_btree_cur_t		*cur,	/* input cursor */
-	xfs_btree_cur_t		**ncur);/* output cursor */
-
-/*
- * Get a buffer for the block, return it with no data read.
- * Long-form addressing.
- */
-struct xfs_buf *				/* buffer for fsbno */
-xfs_btree_get_bufl(
-	struct xfs_mount	*mp,	/* file system mount point */
-	struct xfs_trans	*tp,	/* transaction pointer */
-	xfs_fsblock_t		fsbno,	/* file system block number */
-	uint			lock);	/* lock flags for get_buf */
-
-/*
- * Get a buffer for the block, return it with no data read.
- * Short-form addressing.
- */
-struct xfs_buf *				/* buffer for agno/agbno */
-xfs_btree_get_bufs(
-	struct xfs_mount	*mp,	/* file system mount point */
-	struct xfs_trans	*tp,	/* transaction pointer */
-	xfs_agnumber_t		agno,	/* allocation group number */
-	xfs_agblock_t		agbno,	/* allocation group block number */
-	uint			lock);	/* lock flags for get_buf */
-
-/*
  * Check for the cursor referring to the last block at the given level.
  */
 int					/* 1=is last block, 0=not last block */
@@ -368,20 +336,6 @@ xfs_btree_offsets(
 	int			nbits,	/* number of bits to inspect */
 	int			*first,	/* output: first byte offset */
 	int			*last);	/* output: last byte offset */
-
-/*
- * Get a buffer for the block, return it read in.
- * Long-form addressing.
- */
-int					/* error */
-xfs_btree_read_bufl(
-	struct xfs_mount	*mp,	/* file system mount point */
-	struct xfs_trans	*tp,	/* transaction pointer */
-	xfs_fsblock_t		fsbno,	/* file system block number */
-	uint			lock,	/* lock flags for read_buf */
-	struct xfs_buf		**bpp,	/* buffer for fsbno */
-	int			refval,	/* ref count value for buffer */
-	const struct xfs_buf_ops *ops);
 
 /*
  * Read-ahead the block, don't wait for it, don't return a buffer.
@@ -433,14 +387,8 @@ xfs_btree_init_block_int(
 /*
  * Common btree core entry points.
  */
-int xfs_btree_increment(struct xfs_btree_cur *, int, int *);
-int xfs_btree_decrement(struct xfs_btree_cur *, int, int *);
-int xfs_btree_lookup(struct xfs_btree_cur *, xfs_lookup_t, int *);
 int xfs_btree_update(struct xfs_btree_cur *, union xfs_btree_rec *);
 int xfs_btree_get_rec(struct xfs_btree_cur *, union xfs_btree_rec **, int *);
-int xfs_btree_change_owner(struct xfs_btree_cur *cur, __uint64_t new_owner,
-			   struct list_head *buffer_list);
-
 /*
  * btree block CRC helpers
  */
@@ -523,7 +471,4 @@ typedef int (*xfs_btree_query_range_fn)(struct xfs_btree_cur *cur,
 
 typedef int (*xfs_btree_visit_blocks_fn)(struct xfs_btree_cur *cur, int level,
 		void *data);
-int xfs_btree_visit_blocks(struct xfs_btree_cur *cur,
-		xfs_btree_visit_blocks_fn fn, void *data);
-
 #endif	/* __XFS_BTREE_H__ */

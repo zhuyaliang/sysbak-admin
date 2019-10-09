@@ -137,9 +137,6 @@ typedef struct cred {
 	gid_t	cr_gid;
 } cred_t;
 
-extern void	libxfs_trans_inode_alloc_buf (struct xfs_trans *,
-				struct xfs_buf *);
-
 extern void	libxfs_trans_ichgtime(struct xfs_trans *,
 				struct xfs_inode *, int);
 

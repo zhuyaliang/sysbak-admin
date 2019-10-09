@@ -137,12 +137,6 @@ xfs_owner_info_pack(
 		oinfo->oi_flags |= XFS_OWNER_INFO_BMBT_BLOCK;
 }
 
-int xfs_rmap_lookup_le(struct xfs_btree_cur *cur, xfs_agblock_t bno,
-		xfs_extlen_t len, uint64_t owner, uint64_t offset,
-		unsigned int flags, int *stat);
-int xfs_rmap_lookup_eq(struct xfs_btree_cur *cur, xfs_agblock_t bno,
-		xfs_extlen_t len, uint64_t owner, uint64_t offset,
-		unsigned int flags, int *stat);
 
 typedef int (*xfs_rmap_query_range_fn)(
 	struct xfs_btree_cur	*cur,

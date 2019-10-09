@@ -29,16 +29,6 @@
 #include "xfs_cksum.h"
 #include "xfs_trans.h"
 
-
-STATIC struct xfs_btree_cur *
-xfs_allocbt_dup_cursor(
-	struct xfs_btree_cur	*cur)
-{
-	return xfs_allocbt_init_cursor(cur->bc_mp, cur->bc_tp,
-			cur->bc_private.a.agbp, cur->bc_private.a.agno,
-			cur->bc_btnum);
-}
-
 STATIC void
 xfs_allocbt_set_root(
 	struct xfs_btree_cur	*cur,
@@ -61,66 +51,6 @@ xfs_allocbt_set_root(
 	xfs_alloc_log_agf(cur->bc_tp, agbp, XFS_AGF_ROOTS | XFS_AGF_LEVELS);
 }
 
-STATIC int
-xfs_allocbt_alloc_block(
-	struct xfs_btree_cur	*cur,
-	union xfs_btree_ptr	*start,
-	union xfs_btree_ptr	*new,
-	int			*stat)
-{
-	int			error;
-	xfs_agblock_t		bno;
-
-	XFS_BTREE_TRACE_CURSOR(cur, XBT_ENTRY);
-
-	/* Allocate the new block from the freelist. If we can't, give up.  */
-	error = xfs_alloc_get_freelist(cur->bc_tp, cur->bc_private.a.agbp,
-				       &bno, 1);
-	if (error) {
-		XFS_BTREE_TRACE_CURSOR(cur, XBT_ERROR);
-		return error;
-	}
-
-	if (bno == NULLAGBLOCK) {
-		XFS_BTREE_TRACE_CURSOR(cur, XBT_EXIT);
-		*stat = 0;
-		return 0;
-	}
-
-	xfs_extent_busy_reuse(cur->bc_mp, cur->bc_private.a.agno, bno, 1, false);
-
-	xfs_trans_agbtree_delta(cur->bc_tp, 1);
-	new->s = cpu_to_be32(bno);
-
-	XFS_BTREE_TRACE_CURSOR(cur, XBT_EXIT);
-	*stat = 1;
-	return 0;
-}
-
-STATIC int
-xfs_allocbt_free_block(
-	struct xfs_btree_cur	*cur,
-	struct xfs_buf		*bp)
-{
-	struct xfs_buf		*agbp = cur->bc_private.a.agbp;
-	struct xfs_agf		*agf = XFS_BUF_TO_AGF(agbp);
-	xfs_agblock_t		bno;
-	int			error;
-
-	bno = xfs_daddr_to_agbno(cur->bc_mp, XFS_BUF_ADDR(bp));
-	error = xfs_alloc_put_freelist(cur->bc_tp, agbp, NULL, bno, 1);
-	if (error)
-		return error;
-
-	xfs_extent_busy_insert(cur->bc_tp, be32_to_cpu(agf->agf_seqno), bno, 1,
-			      XFS_EXTENT_BUSY_SKIP_DISCARD);
-	xfs_trans_agbtree_delta(cur->bc_tp, -1);
-	return 0;
-}
-
-/*
- * Update the longest extent in the AGF
- */
 STATIC void
 xfs_allocbt_update_lastrec(
 	struct xfs_btree_cur	*cur,
@@ -383,68 +313,6 @@ xfs_allocbt_recs_inorder(
 	}
 }
 #endif	/* DEBUG */
-
-static const struct xfs_btree_ops xfs_allocbt_ops = {
-	.rec_len		= sizeof(xfs_alloc_rec_t),
-	.key_len		= sizeof(xfs_alloc_key_t),
-
-	.dup_cursor		= xfs_allocbt_dup_cursor,
-	.set_root		= xfs_allocbt_set_root,
-	.alloc_block		= xfs_allocbt_alloc_block,
-	.free_block		= xfs_allocbt_free_block,
-	.update_lastrec		= xfs_allocbt_update_lastrec,
-	.get_minrecs		= xfs_allocbt_get_minrecs,
-	.get_maxrecs		= xfs_allocbt_get_maxrecs,
-	.init_key_from_rec	= xfs_allocbt_init_key_from_rec,
-	.init_rec_from_cur	= xfs_allocbt_init_rec_from_cur,
-	.init_ptr_from_cur	= xfs_allocbt_init_ptr_from_cur,
-	.key_diff		= xfs_allocbt_key_diff,
-	.buf_ops		= &xfs_allocbt_buf_ops,
-#if defined(DEBUG) || defined(XFS_WARN)
-	.keys_inorder		= xfs_allocbt_keys_inorder,
-	.recs_inorder		= xfs_allocbt_recs_inorder,
-#endif
-};
-
-/*
- * Allocate a new allocation btree cursor.
- */
-struct xfs_btree_cur *			/* new alloc btree cursor */
-xfs_allocbt_init_cursor(
-	struct xfs_mount	*mp,		/* file system mount point */
-	struct xfs_trans	*tp,		/* transaction pointer */
-	struct xfs_buf		*agbp,		/* buffer for agf structure */
-	xfs_agnumber_t		agno,		/* allocation group number */
-	xfs_btnum_t		btnum)		/* btree identifier */
-{
-	struct xfs_agf		*agf = XFS_BUF_TO_AGF(agbp);
-	struct xfs_btree_cur	*cur;
-
-	ASSERT(btnum == XFS_BTNUM_BNO || btnum == XFS_BTNUM_CNT);
-
-	cur = kmem_zone_zalloc(xfs_btree_cur_zone, KM_SLEEP);
-
-	cur->bc_tp = tp;
-	cur->bc_mp = mp;
-	cur->bc_btnum = btnum;
-	cur->bc_blocklog = mp->m_sb.sb_blocklog;
-	cur->bc_ops = &xfs_allocbt_ops;
-
-	if (btnum == XFS_BTNUM_CNT) {
-		cur->bc_nlevels = be32_to_cpu(agf->agf_levels[XFS_BTNUM_CNT]);
-		cur->bc_flags = XFS_BTREE_LASTREC_UPDATE;
-	} else {
-		cur->bc_nlevels = be32_to_cpu(agf->agf_levels[XFS_BTNUM_BNO]);
-	}
-
-	cur->bc_private.a.agbp = agbp;
-	cur->bc_private.a.agno = agno;
-
-	if (xfs_sb_version_hascrc(&mp->m_sb))
-		cur->bc_flags |= XFS_BTREE_CRC_BLOCKS;
-
-	return cur;
-}
 
 /*
  * Calculate number of records in an alloc btree block.

@@ -75,13 +75,4 @@ static inline int xfs_lowbit64(__uint64_t v)
 	return n - 1;
 }
 
-/* Return whether bitmap is empty (1 == empty) */
-extern int xfs_bitmap_empty(uint *map, uint size);
-
-/* Count continuous one bits in map starting with start_bit */
-extern int xfs_contig_bits(uint *map, uint size, uint start_bit);
-
-/* Find next set bit in map */
-extern int xfs_next_bit(uint *map, uint size, uint start_bit);
-
 #endif	/* __XFS_BIT_H__ */

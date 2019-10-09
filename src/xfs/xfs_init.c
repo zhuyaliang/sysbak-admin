@@ -543,14 +543,11 @@ xfs_btree_compute_maxlevels(
     uint            level;
     unsigned long       maxblocks;
 
-    g_print ("sssssssssssssssssssssssssss\r\n");
     maxblocks = (len + limits[0] - 1) / limits[0];
-    g_print ("sssssssssssssssssssssssssss\r\n");
     for (level = 1; maxblocks > 1; level++)
     {     
         maxblocks = (maxblocks + limits[1] - 1) / limits[1];
     }
-    g_print ("sssssssssssssssssssssssssss\r\n");
     return level;
 }
 

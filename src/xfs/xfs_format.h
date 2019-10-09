@@ -1554,29 +1554,6 @@ typedef struct xfs_bmbt_rec_host {
 	__uint64_t		l0, l1;
 } xfs_bmbt_rec_host_t;
 
-/*
- * Values and macros for delayed-allocation startblock fields.
- */
-#define STARTBLOCKVALBITS	17
-#define STARTBLOCKMASKBITS	(15 + 20)
-#define STARTBLOCKMASK		\
-	(((((xfs_fsblock_t)1) << STARTBLOCKMASKBITS) - 1) << STARTBLOCKVALBITS)
-
-static inline int isnullstartblock(xfs_fsblock_t x)
-{
-	return ((x) & STARTBLOCKMASK) == STARTBLOCKMASK;
-}
-
-static inline xfs_fsblock_t nullstartblock(int k)
-{
-	ASSERT(k < (1 << STARTBLOCKVALBITS));
-	return STARTBLOCKMASK | (k);
-}
-
-static inline xfs_filblks_t startblockval(xfs_fsblock_t x)
-{
-	return (xfs_filblks_t)((x) & ~STARTBLOCKMASK);
-}
 
 /*
  * Possible extent formats.
@@ -1608,20 +1585,6 @@ typedef struct xfs_bmbt_key {
 typedef __be64 xfs_bmbt_ptr_t, xfs_bmdr_ptr_t;
 
 
-/*
- * Generic Btree block format definitions
- *
- * This is a combination of the actual format used on disk for short and long
- * format btrees.  The first three fields are shared by both format, but the
- * pointers are different and should be used with care.
- *
- * To get the size of the actual short or long form headers please use the size
- * macros below.  Never use sizeof(xfs_btree_block).
- *
- * The blkno, crc, lsn, owner and uuid fields are only available in filesystems
- * with the crc feature bit, and all accesses to them must be conditional on
- * that flag.
- */
 /* short form block header */
 struct xfs_btree_block_shdr {
 	__be32		bb_leftsib;
@@ -1657,66 +1620,18 @@ struct xfs_btree_block {
 	} bb_u;				/* rest */
 };
 
-/* size of a short form block */
 #define XFS_BTREE_SBLOCK_LEN \
 	(offsetof(struct xfs_btree_block, bb_u) + \
 	 offsetof(struct xfs_btree_block_shdr, bb_blkno))
-/* size of a long form block */
 #define XFS_BTREE_LBLOCK_LEN \
 	(offsetof(struct xfs_btree_block, bb_u) + \
 	 offsetof(struct xfs_btree_block_lhdr, bb_blkno))
 
-/* sizes of CRC enabled btree blocks */
 #define XFS_BTREE_SBLOCK_CRC_LEN \
 	(offsetof(struct xfs_btree_block, bb_u) + \
 	 sizeof(struct xfs_btree_block_shdr))
 #define XFS_BTREE_LBLOCK_CRC_LEN \
 	(offsetof(struct xfs_btree_block, bb_u) + \
 	 sizeof(struct xfs_btree_block_lhdr))
-
-#define XFS_BTREE_SBLOCK_CRC_OFF \
-	offsetof(struct xfs_btree_block, bb_u.s.bb_crc)
-#define XFS_BTREE_LBLOCK_CRC_OFF \
-	offsetof(struct xfs_btree_block, bb_u.l.bb_crc)
-
-/*
- * On-disk XFS access control list structure.
- */
-struct xfs_acl_entry {
-	__be32	ae_tag;
-	__be32	ae_id;
-	__be16	ae_perm;
-	__be16	ae_pad;		/* fill the implicit hole in the structure */
-};
-
-struct xfs_acl {
-	__be32			acl_cnt;
-	struct xfs_acl_entry	acl_entry[0];
-};
-
-/*
- * The number of ACL entries allowed is defined by the on-disk format.
- * For v4 superblocks, that is limited to 25 entries. For v5 superblocks, it is
- * limited only by the maximum size of the xattr that stores the information.
- */
-#define XFS_ACL_MAX_ENTRIES(mp)	\
-	(xfs_sb_version_hascrc(&mp->m_sb) \
-		?  (XFS_XATTR_SIZE_MAX - sizeof(struct xfs_acl)) / \
-						sizeof(struct xfs_acl_entry) \
-		: 25)
-
-#define XFS_ACL_SIZE(cnt) \
-	(sizeof(struct xfs_acl) + \
-		sizeof(struct xfs_acl_entry) * cnt)
-
-#define XFS_ACL_MAX_SIZE(mp) \
-	XFS_ACL_SIZE(XFS_ACL_MAX_ENTRIES((mp)))
-
-
-/* On-disk XFS extended attribute names */
-#define SGI_ACL_FILE		"SGI_ACL_FILE"
-#define SGI_ACL_DEFAULT		"SGI_ACL_DEFAULT"
-#define SGI_ACL_FILE_SIZE	(sizeof(SGI_ACL_FILE)-1)
-#define SGI_ACL_DEFAULT_SIZE	(sizeof(SGI_ACL_DEFAULT)-1)
 
 #endif /* __XFS_FORMAT_H__ */

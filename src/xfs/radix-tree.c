@@ -162,15 +162,40 @@ static int radix_tree_extend(struct radix_tree_root *root, unsigned long index)
 out:
 	return 0;
 }
+static inline void **__lookup_slot(struct radix_tree_root *root,
+                   unsigned long index)
+{
+    unsigned int height, shift;
+    struct radix_tree_node **slot;
 
-/**
- *	radix_tree_insert    -    insert into a radix tree
- *	@root:		radix tree root
- *	@index:		index key
- *	@item:		item to insert
- *
- *	Insert an item into the radix tree at position @index.
- */
+    height = root->height;
+    if (index > radix_tree_maxindex(height))
+        return NULL;
+
+    shift = (height-1) * RADIX_TREE_MAP_SHIFT;
+    slot = &root->rnode;
+
+    while (height > 0) {
+        if (*slot == NULL)
+            return NULL;
+
+        slot = (struct radix_tree_node **)
+            ((*slot)->slots +
+                ((index >> shift) & RADIX_TREE_MAP_MASK));
+        shift -= RADIX_TREE_MAP_SHIFT;
+        height--;
+    }
+
+    return (void **)slot;
+}
+void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index)
+{
+    void **slot;
+
+    slot = __lookup_slot(root, index);
+    return slot != NULL ? *slot : NULL;
+}
+
 int radix_tree_insert(struct radix_tree_root *root,
 			unsigned long index, void *item)
 {
@@ -225,332 +250,6 @@ int radix_tree_insert(struct radix_tree_root *root,
 	return 0;
 }
 
-static inline void **__lookup_slot(struct radix_tree_root *root,
-				   unsigned long index)
-{
-	unsigned int height, shift;
-	struct radix_tree_node **slot;
-
-	height = root->height;
-	if (index > radix_tree_maxindex(height))
-		return NULL;
-
-	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
-	slot = &root->rnode;
-
-	while (height > 0) {
-		if (*slot == NULL)
-			return NULL;
-
-		slot = (struct radix_tree_node **)
-			((*slot)->slots +
-				((index >> shift) & RADIX_TREE_MAP_MASK));
-		shift -= RADIX_TREE_MAP_SHIFT;
-		height--;
-	}
-
-	return (void **)slot;
-}
-
-/**
- *	radix_tree_lookup_slot    -    lookup a slot in a radix tree
- *	@root:		radix tree root
- *	@index:		index key
- *
- *	Lookup the slot corresponding to the position @index in the radix tree
- *	@root. This is useful for update-if-exists operations.
- */
-void **radix_tree_lookup_slot(struct radix_tree_root *root, unsigned long index)
-{
-	return __lookup_slot(root, index);
-}
-
-/**
- *	radix_tree_lookup    -    perform lookup operation on a radix tree
- *	@root:		radix tree root
- *	@index:		index key
- *
- *	Lookup the item at the position @index in the radix tree @root.
- */
-void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index)
-{
-	void **slot;
-
-	slot = __lookup_slot(root, index);
-	return slot != NULL ? *slot : NULL;
-}
-
-/**
- *	raid_tree_first_key - find the first index key in the radix tree
- *	@root:		radix tree root
- *	@index:		where the first index will be placed
- *
- *	Returns the first entry and index key in the radix tree @root.
- */
-void *radix_tree_lookup_first(struct radix_tree_root *root, unsigned long *index)
-{
-	unsigned int height, shift;
-	struct radix_tree_node *slot;
-	unsigned long i;
-
-	height = root->height;
-	*index = 0;
-	if (height == 0)
-		return NULL;
-
-	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
-	slot = root->rnode;
-
-	for (; height > 1; height--) {
-		for (i = 0; i < RADIX_TREE_MAP_SIZE; i++) {
-			if (slot->slots[i] != NULL)
-				break;
-		}
-		ASSERT(i < RADIX_TREE_MAP_SIZE);
-
-		*index |= (i << shift);
-		shift -= RADIX_TREE_MAP_SHIFT;
-		slot = slot->slots[i];
-	}
-	for (i = 0; i < RADIX_TREE_MAP_SIZE; i++) {
-		if (slot->slots[i] != NULL) {
-			*index |= i;
-			return slot->slots[i];
-		}
-	}
-	return NULL;
-}
-
-#ifdef RADIX_TREE_TAGS
-
-/**
- *	radix_tree_tag_set - set a tag on a radix tree node
- *	@root:		radix tree root
- *	@index:		index key
- *	@tag: 		tag index
- *
- *	Set the search tag (which must be < RADIX_TREE_MAX_TAGS)
- *	corresponding to @index in the radix tree.  From
- *	the root all the way down to the leaf node.
- *
- *	Returns the address of the tagged item.   Setting a tag on a not-present
- *	item is a bug.
- */
-void *radix_tree_tag_set(struct radix_tree_root *root,
-			unsigned long index, unsigned int tag)
-{
-	unsigned int height, shift;
-	struct radix_tree_node *slot;
-
-	height = root->height;
-	if (index > radix_tree_maxindex(height))
-		return NULL;
-
-	shift = (height - 1) * RADIX_TREE_MAP_SHIFT;
-	slot = root->rnode;
-
-	while (height > 0) {
-		int offset;
-
-		offset = (index >> shift) & RADIX_TREE_MAP_MASK;
-		if (!tag_get(slot, tag, offset))
-			tag_set(slot, tag, offset);
-		slot = slot->slots[offset];
-		ASSERT(slot != NULL);
-		shift -= RADIX_TREE_MAP_SHIFT;
-		height--;
-	}
-
-	return slot;
-}
-
-/**
- *	radix_tree_tag_clear - clear a tag on a radix tree node
- *	@root:		radix tree root
- *	@index:		index key
- *	@tag: 		tag index
- *
- *	Clear the search tag (which must be < RADIX_TREE_MAX_TAGS)
- *	corresponding to @index in the radix tree.  If
- *	this causes the leaf node to have no tags set then clear the tag in the
- *	next-to-leaf node, etc.
- *
- *	Returns the address of the tagged item on success, else NULL.  ie:
- *	has the same return value and semantics as radix_tree_lookup().
- */
-void *radix_tree_tag_clear(struct radix_tree_root *root,
-			unsigned long index, unsigned int tag)
-{
-	struct radix_tree_path path[RADIX_TREE_MAX_PATH + 1], *pathp = path;
-	struct radix_tree_node *slot;
-	unsigned int height, shift;
-	void *ret = NULL;
-
-	height = root->height;
-	if (index > radix_tree_maxindex(height))
-		goto out;
-
-	shift = (height - 1) * RADIX_TREE_MAP_SHIFT;
-	pathp->node = NULL;
-	slot = root->rnode;
-
-	while (height > 0) {
-		int offset;
-
-		if (slot == NULL)
-			goto out;
-
-		offset = (index >> shift) & RADIX_TREE_MAP_MASK;
-		pathp[1].offset = offset;
-		pathp[1].node = slot;
-		slot = slot->slots[offset];
-		pathp++;
-		shift -= RADIX_TREE_MAP_SHIFT;
-		height--;
-	}
-
-	ret = slot;
-	if (ret == NULL)
-		goto out;
-
-	do {
-		if (!tag_get(pathp->node, tag, pathp->offset))
-			goto out;
-		tag_clear(pathp->node, tag, pathp->offset);
-		if (any_tag_set(pathp->node, tag))
-			goto out;
-		pathp--;
-	} while (pathp->node);
-out:
-	return ret;
-}
-
-#endif
-
-static unsigned int
-__lookup(struct radix_tree_root *root, void **results, unsigned long index,
-	unsigned int max_items, unsigned long *next_index)
-{
-	unsigned int nr_found = 0;
-	unsigned int shift, height;
-	struct radix_tree_node *slot;
-	unsigned long i;
-
-	height = root->height;
-	if (height == 0)
-		goto out;
-
-	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
-	slot = root->rnode;
-
-	for ( ; height > 1; height--) {
-
-		for (i = (index >> shift) & RADIX_TREE_MAP_MASK ;
-				i < RADIX_TREE_MAP_SIZE; i++) {
-			if (slot->slots[i] != NULL)
-				break;
-			index &= ~((1UL << shift) - 1);
-			index += 1UL << shift;
-			if (index == 0)
-				goto out;	/* 32-bit wraparound */
-		}
-		if (i == RADIX_TREE_MAP_SIZE)
-			goto out;
-
-		shift -= RADIX_TREE_MAP_SHIFT;
-		slot = slot->slots[i];
-	}
-
-	/* Bottom level: grab some items */
-	for (i = index & RADIX_TREE_MAP_MASK; i < RADIX_TREE_MAP_SIZE; i++) {
-		index++;
-		if (slot->slots[i]) {
-			results[nr_found++] = slot->slots[i];
-			if (nr_found == max_items)
-				goto out;
-		}
-	}
-out:
-	*next_index = index;
-	return nr_found;
-}
-
-/**
- *	radix_tree_gang_lookup - perform multiple lookup on a radix tree
- *	@root:		radix tree root
- *	@results:	where the results of the lookup are placed
- *	@first_index:	start the lookup from this key
- *	@max_items:	place up to this many items at *results
- *
- *	Performs an index-ascending scan of the tree for present items.  Places
- *	them at *@results and returns the number of items which were placed at
- *	*@results.
- *
- *	The implementation is naive.
- */
-unsigned int
-radix_tree_gang_lookup(struct radix_tree_root *root, void **results,
-			unsigned long first_index, unsigned int max_items)
-{
-	const unsigned long max_index = radix_tree_maxindex(root->height);
-	unsigned long cur_index = first_index;
-	unsigned int ret = 0;
-
-	while (ret < max_items) {
-		unsigned int nr_found;
-		unsigned long next_index;	/* Index of next search */
-
-		if (cur_index > max_index)
-			break;
-		nr_found = __lookup(root, results + ret, cur_index,
-					max_items - ret, &next_index);
-		ret += nr_found;
-		if (next_index == 0)
-			break;
-		cur_index = next_index;
-	}
-	return ret;
-}
-
-/**
- *	radix_tree_gang_lookup_ex - perform multiple lookup on a radix tree
- *	@root:		radix tree root
- *	@results:	where the results of the lookup are placed
- *	@first_index:	start the lookup from this key
- *	@last_index:	don't lookup past this key
- *	@max_items:	place up to this many items at *results
- *
- *	Performs an index-ascending scan of the tree for present items starting
- *	@first_index until @last_index up to as many as @max_items.  Places
- *	them at *@results and returns the number of items which were placed
- *	at *@results.
- *
- *	The implementation is naive.
- */
-unsigned int
-radix_tree_gang_lookup_ex(struct radix_tree_root *root, void **results,
-			unsigned long first_index, unsigned long last_index,
-			unsigned int max_items)
-{
-	const unsigned long max_index = radix_tree_maxindex(root->height);
-	unsigned long cur_index = first_index;
-	unsigned int ret = 0;
-
-	while (ret < max_items && cur_index < last_index) {
-		unsigned int nr_found;
-		unsigned long next_index;	/* Index of next search */
-
-		if (cur_index > max_index)
-			break;
-		nr_found = __lookup(root, results + ret, cur_index,
-					max_items - ret, &next_index);
-		ret += nr_found;
-		if (next_index == 0)
-			break;
-		cur_index = next_index;
-	}
-	return ret;
-}
 
 #ifdef RADIX_TREE_TAGS
 

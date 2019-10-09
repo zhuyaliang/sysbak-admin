@@ -70,9 +70,6 @@
 #define xfs_rmap_irec_offset_unpack	libxfs_rmap_irec_offset_unpack
 #define xfs_btree_del_cursor		libxfs_btree_del_cursor
 #define xfs_sb_from_disk		libxfs_sb_from_disk
-#define xfs_sb_quota_from_disk		libxfs_sb_quota_from_disk
-#define xfs_sb_to_disk			libxfs_sb_to_disk
-
 #define xfs_symlink_blocks		libxfs_symlink_blocks
 #define xfs_symlink_hdr_ok		libxfs_symlink_hdr_ok
 

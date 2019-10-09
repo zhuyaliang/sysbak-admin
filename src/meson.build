@@ -76,13 +76,11 @@ sources = files(
   'xfs/xfs_alloc_btree.c',
   'xfs/radix-tree.c',
   'xfs/xfs_inode_buf.c',
-  'xfs/xfs_ag_resv.c',
+  #  'xfs/xfs_ag_resv.c',
   'xfs/xfs_dir2_block.c',
   'xfs/xfs_da_btree.c',
   'xfs/xfs_dir2.c',
   'xfs/xfs_da_format.c',
-  #'xfs/xfs_symlink_remote.c',
-  #'xfs/list_sort.c',
 )
 
 deps = [

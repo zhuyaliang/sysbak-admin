@@ -326,7 +326,7 @@ manage_zones(int release)
 	extern kmem_zone_t	*xfs_btree_cur_zone;
 	extern kmem_zone_t	*xfs_bmap_free_item_zone;
 	extern kmem_zone_t	*xfs_log_item_desc_zone;
-	extern void		xfs_dir_startup();
+	//extern void		xfs_dir_startup();
 
 	if (release) {	/* free zone allocation */
 		kmem_free(xfs_buf_zone);
@@ -349,7 +349,7 @@ manage_zones(int release)
 			"xfs_bmap_free_item");
 	xfs_log_item_desc_zone = kmem_zone_init(
 			sizeof(struct xfs_log_item_desc), "xfs_log_item_desc");
-	xfs_dir_startup();
+	//xfs_dir_startup();
 }
 
 /*

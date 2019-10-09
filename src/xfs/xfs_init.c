@@ -292,6 +292,7 @@ done:
 
 kmem_zone_t *xfs_da_state_zone;	/* anchor for state struct zone */
 kmem_zone_t	*xfs_btree_cur_zone;
+kmem_zone_t		*xfs_bmap_free_item_zone;
 static void
 manage_zones(int release)
 {
@@ -587,6 +588,48 @@ xfs_rmapbt_compute_maxlevels(
 	else
 		mp->m_rmap_maxlevels = xfs_btree_compute_maxlevels(mp,
 				mp->m_rmap_mnr, mp->m_sb.sb_agblocks);
+}
+static int
+xfs_bmdr_maxrecs(
+	int			blocklen,
+	int			leaf)
+{
+	blocklen -= sizeof(xfs_bmdr_block_t);
+
+	if (leaf)
+		return blocklen / sizeof(xfs_bmdr_rec_t);
+	return blocklen / (sizeof(xfs_bmdr_key_t) + sizeof(xfs_bmdr_ptr_t));
+}
+static void
+xfs_bmap_compute_maxlevels(
+	xfs_mount_t	*mp,		/* file system mount structure */
+	int		whichfork)	/* data or attr fork */
+{
+	int		level;		/* btree level */
+	uint		maxblocks;	/* max blocks at this level */
+	uint		maxleafents;	/* max leaf entries possible */
+	int		maxrootrecs;	/* max records in root block */
+	int		minleafrecs;	/* min records in leaf block */
+	int		minnoderecs;	/* min records in node block */
+	int		sz;		/* root block size */
+	if (whichfork == XFS_DATA_FORK) {
+		maxleafents = MAXEXTNUM;
+		sz = XFS_BMDR_SPACE_CALC(MINDBTPTRS);
+	} else {
+		maxleafents = MAXAEXTNUM;
+		sz = XFS_BMDR_SPACE_CALC(MINABTPTRS);
+	}
+	maxrootrecs = xfs_bmdr_maxrecs(sz, 0);
+	minleafrecs = mp->m_bmap_dmnr[0];
+	minnoderecs = mp->m_bmap_dmnr[1];
+	maxblocks = (maxleafents + minleafrecs - 1) / minleafrecs;
+	for (level = 1; maxblocks > 1; level++) {
+		if (maxblocks <= maxrootrecs)
+			maxblocks = 1;
+		else
+			maxblocks = (maxblocks + minnoderecs - 1) / minnoderecs;
+	}
+	mp->m_bm_maxlevels[whichfork] = level;
 }
 xfs_mount_t *
 libxfs_mount(

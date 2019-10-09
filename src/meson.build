@@ -67,8 +67,6 @@ sources = files(
   'xfs/rdwr.c',
   'xfs/kmem.c',
   'xfs/util.c',
-  'xfs/xfs_bmap.c',
-  #'xfs/xfs_btree.c',
   'xfs/xfs_sb.c',
   'xfs/radix-tree.c',
   'xfs/xfs_dir2.c',

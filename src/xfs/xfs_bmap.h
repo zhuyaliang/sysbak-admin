@@ -194,7 +194,6 @@ void	xfs_bmap_trace_exlist(struct xfs_inode *ip, xfs_extnum_t cnt,
 void	xfs_bmap_add_free(struct xfs_mount *mp, struct xfs_defer_ops *dfops,
 			  xfs_fsblock_t bno, xfs_filblks_t len,
 			  struct xfs_owner_info *oinfo);
-void	xfs_bmap_compute_maxlevels(struct xfs_mount *mp, int whichfork);
 uint	xfs_default_attroffset(struct xfs_inode *ip);
 
 enum xfs_bmap_intent_type {

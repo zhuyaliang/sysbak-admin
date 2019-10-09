@@ -81,7 +81,7 @@ sources = files(
   'xfs/xfs_da_btree.c',
   'xfs/xfs_dir2.c',
   'xfs/xfs_da_format.c',
-  'xfs/xfs_symlink_remote.c',
+  #'xfs/xfs_symlink_remote.c',
   'xfs/list_sort.c',
 )
 

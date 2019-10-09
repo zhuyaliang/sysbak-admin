@@ -293,6 +293,7 @@ done:
 kmem_zone_t *xfs_da_state_zone;	/* anchor for state struct zone */
 kmem_zone_t	*xfs_btree_cur_zone;
 kmem_zone_t		*xfs_bmap_free_item_zone;
+kmem_zone_t	*xfs_log_item_desc_zone;
 static void
 manage_zones(int release)
 {
@@ -630,6 +631,12 @@ xfs_bmap_compute_maxlevels(
 			maxblocks = (maxblocks + minnoderecs - 1) / minnoderecs;
 	}
 	mp->m_bm_maxlevels[whichfork] = level;
+}
+static void
+xfs_trans_init(
+	struct xfs_mount	*mp)
+{
+	xfs_trans_resv_calc(mp, &mp->m_resv);
 }
 xfs_mount_t *
 libxfs_mount(

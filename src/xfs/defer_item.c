@@ -33,6 +33,7 @@
 #include "xfs_bmap.h"
 #include "xfs_inode.h"
 
+static const struct xfs_defer_op_type *defer_op_types[XFS_DEFER_OPS_TYPE_MAX];
 /* Dummy defer item ops, since we don't do logging. */
 
 /* Extent Freeing */
@@ -110,6 +111,12 @@ static const struct xfs_defer_op_type xfs_extent_free_defer_type = {
 	.cancel_item	= xfs_extent_free_cancel_item,
 };
 
+static void
+xfs_defer_init_op_type(
+	const struct xfs_defer_op_type	*type)
+{
+	defer_op_types[type->type] = type;
+}
 /* Register the deferred op type. */
 void
 xfs_extent_free_init_defer_op(void)

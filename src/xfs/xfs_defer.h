@@ -89,6 +89,6 @@ struct xfs_defer_op_type {
 	void (*log_item)(struct xfs_trans *, void *, struct list_head *);
 };
 
-void xfs_defer_init_op_type(const struct xfs_defer_op_type *type);
+//void xfs_defer_init_op_type(const struct xfs_defer_op_type *type);
 
 #endif /* __XFS_DEFER_H__ */

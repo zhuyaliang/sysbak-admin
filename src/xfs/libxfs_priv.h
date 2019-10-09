@@ -474,7 +474,6 @@ void xfs_mount_common(struct xfs_mount *, struct xfs_sb *);
 /*
  * logitem.c and trans.c prototypes
  */
-void xfs_trans_init(struct xfs_mount *);
 int xfs_trans_roll(struct xfs_trans **, struct xfs_inode *);
 
 /* xfs_trans_item.c */
@@ -496,7 +495,6 @@ struct xfs_buf *xfs_trans_buf_item_match(struct xfs_trans *,
 #define xfs_reinit_percpu_counters(mp)
 
 void xfs_trans_mod_sb(struct xfs_trans *, uint, long);
-void xfs_trans_init(struct xfs_mount *);
 int  xfs_trans_roll(struct xfs_trans **, struct xfs_inode *);
 void xfs_verifier_error(struct xfs_buf *bp);
 

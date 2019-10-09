@@ -81,7 +81,6 @@ typedef struct xfs_trans {
 	struct list_head	t_items;	/* first log item desc chunk */
 } xfs_trans_t;
 
-void	xfs_trans_init(struct xfs_mount *);
 int	xfs_trans_roll(struct xfs_trans **, struct xfs_inode *);
 
 void	libxfs_trans_cancel(struct xfs_trans *);

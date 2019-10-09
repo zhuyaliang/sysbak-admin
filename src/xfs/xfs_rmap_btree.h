@@ -52,9 +52,7 @@ struct xfs_mount;
 		 (maxrecs) * 2 * sizeof(struct xfs_rmap_key) + \
 		 ((index) - 1) * sizeof(xfs_rmap_ptr_t)))
 
-int xfs_rmapbt_maxrecs(struct xfs_mount *mp, int blocklen, int leaf);
-extern void xfs_rmapbt_compute_maxlevels(struct xfs_mount *mp);
-
+//int xfs_rmapbt_maxrecs(struct xfs_mount *mp, int blocklen, int leaf);
 extern xfs_extlen_t xfs_rmapbt_calc_size(struct xfs_mount *mp,
 		unsigned long long len);
 extern xfs_extlen_t xfs_rmapbt_max_size(struct xfs_mount *mp);

@@ -576,6 +576,17 @@ xfs_alloc_compute_maxlevels(
     mp->m_ag_maxlevels = xfs_btree_compute_maxlevels(mp, mp->m_alloc_mnr,
             (mp->m_sb.sb_agblocks + 1) / 2);
 }
+
+static void
+xfs_rmapbt_compute_maxlevels(
+	struct xfs_mount		*mp)
+{
+	if (xfs_sb_version_hasreflink(&mp->m_sb))
+		mp->m_rmap_maxlevels = XFS_BTREE_MAXLEVELS;
+	else
+		mp->m_rmap_maxlevels = xfs_btree_compute_maxlevels(mp,
+				mp->m_rmap_mnr, mp->m_sb.sb_agblocks);
+}
 xfs_mount_t *
 libxfs_mount(
 	xfs_mount_t	*mp,

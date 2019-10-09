@@ -118,8 +118,6 @@ extern char    *progname;
 extern void cmn_err(int, char *, ...);
 enum ce { CE_DEBUG, CE_CONT, CE_NOTE, CE_WARN, CE_ALERT, CE_PANIC };
 
-#define xfs_notice(mp,fmt,args...)		cmn_err(CE_NOTE,fmt, ## args)
-#define xfs_warn(mp,fmt,args...)		cmn_err(CE_WARN,fmt, ## args)
 #define xfs_hex_dump(d,n)		((void) 0)
 
 #define xfs_force_shutdown(d,n)		((void) 0)
@@ -381,11 +379,6 @@ roundup_64(__uint64_t x, __uint32_t y)
 })
 #define xfs_buf_readahead_map(a,b,c,ops)	((void) 0)	/* no readahead */
 #define xfs_buftrace(x,y)			((void) 0)	/* debug only */
-
-#define xfs_cmn_err(tag,level,mp,fmt,args...)	cmn_err(level,fmt, ## args)
-#define xfs_warn(mp,fmt,args...)		cmn_err(CE_WARN,fmt, ## args)
-#define xfs_alert(mp,fmt,args...)		cmn_err(CE_ALERT,fmt, ## args)
-#define xfs_alert_tag(mp,tag,fmt,args...)	cmn_err(CE_ALERT,fmt, ## args)
 
 #define xfs_dir2_trace_args(where, args)		((void) 0)
 #define xfs_dir2_trace_args_b(where, args, bp)		((void) 0)

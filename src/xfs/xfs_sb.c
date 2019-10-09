@@ -111,13 +111,11 @@ xfs_mount_validate_sb(
 	bool		check_version)
 {
 	if (sbp->sb_magicnum != XFS_SB_MAGIC) {
-		xfs_warn(mp, "bad magic number");
 		return -EWRONGFS;
 	}
 
 
 	if (!xfs_sb_good_version(sbp)) {
-		xfs_warn(mp, "bad version");
 		return -EWRONGFS;
 	}
 
@@ -129,101 +127,49 @@ xfs_mount_validate_sb(
 	if (check_version && XFS_SB_VERSION_NUM(sbp) == XFS_SB_VERSION_5) {
 		if (xfs_sb_has_compat_feature(sbp,
 					XFS_SB_FEAT_COMPAT_UNKNOWN)) {
-			xfs_warn(mp,
-"Superblock has unknown compatible features (0x%x) enabled.",
-				(sbp->sb_features_compat &
-						XFS_SB_FEAT_COMPAT_UNKNOWN));
-			xfs_warn(mp,
-"Using a more recent kernel is recommended.");
 		}
 
 		if (xfs_sb_has_ro_compat_feature(sbp,
 					XFS_SB_FEAT_RO_COMPAT_UNKNOWN)) {
-			xfs_alert(mp,
-"Superblock has unknown read-only compatible features (0x%x) enabled.",
-				(sbp->sb_features_ro_compat &
-						XFS_SB_FEAT_RO_COMPAT_UNKNOWN));
 			if (!(mp->m_flags & XFS_MOUNT_RDONLY)) {
-				xfs_warn(mp,
-"Attempted to mount read-only compatible filesystem read-write.");
-				xfs_warn(mp,
-"Filesystem can only be safely mounted read only.");
-
 				return -EINVAL;
 			}
 		}
 		if (xfs_sb_has_incompat_feature(sbp,
 					XFS_SB_FEAT_INCOMPAT_UNKNOWN)) {
-			xfs_warn(mp,
-"Superblock has unknown incompatible features (0x%x) enabled.",
-				(sbp->sb_features_incompat &
-						XFS_SB_FEAT_INCOMPAT_UNKNOWN));
-			xfs_warn(mp,
-"Filesystem can not be safely mounted by this kernel.");
 			return -EINVAL;
 		}
-	} else if (xfs_sb_version_hascrc(sbp)) {
-		/*
-		 * We can't read verify the sb LSN because the read verifier is
-		 * called before the log is allocated and processed. We know the
-		 * log is set up before write verifier (!check_version) calls,
-		 * so just check it here.
-		 */
-		if (!xfs_log_check_lsn(mp, sbp->sb_lsn))
-			return -EFSCORRUPTED;
-	}
+	} 
 
 	if (xfs_sb_version_has_pquotino(sbp)) {
 		if (sbp->sb_qflags & (XFS_OQUOTA_ENFD | XFS_OQUOTA_CHKD)) {
-			xfs_notice(mp,
-			   "Version 5 of Super block has XFS_OQUOTA bits.");
 			return -EFSCORRUPTED;
 		}
 	} else if (sbp->sb_qflags & (XFS_PQUOTA_ENFD | XFS_GQUOTA_ENFD |
 				XFS_PQUOTA_CHKD | XFS_GQUOTA_CHKD)) {
-			xfs_notice(mp,
-"Superblock earlier than Version 5 has XFS_[PQ]UOTA_{ENFD|CHKD} bits.");
 			return -EFSCORRUPTED;
 	}
 
-	/*
-	 * Full inode chunks must be aligned to inode chunk size when
-	 * sparse inodes are enabled to support the sparse chunk
-	 * allocation algorithm and prevent overlapping inode records.
-	 */
 	if (xfs_sb_version_hassparseinodes(sbp)) {
 		uint32_t	align;
 
 		align = XFS_INODES_PER_CHUNK * sbp->sb_inodesize
 				>> sbp->sb_blocklog;
 		if (sbp->sb_inoalignmt != align) {
-			xfs_warn(mp,
-"Inode block alignment (%u) must match chunk size (%u) for sparse inodes.",
-				 sbp->sb_inoalignmt, align);
 			return -EINVAL;
 		}
 	}
 
 	if (unlikely(
 	    sbp->sb_logstart == 0 && mp->m_logdev_targp == mp->m_ddev_targp)) {
-		xfs_warn(mp,
-		"filesystem is marked as having an external log; "
-		"specify logdev on the mount command line.");
 		return -EINVAL;
 	}
 
 	if (unlikely(
 	    sbp->sb_logstart != 0 && mp->m_logdev_targp != mp->m_ddev_targp)) {
-		xfs_warn(mp,
-		"filesystem is marked as having an internal log; "
-		"do not specify logdev on the mount command line.");
 		return -EINVAL;
 	}
 
-	/*
-	 * More sanity checking.  Most of these were stolen directly from
-	 * xfs_repair.
-	 */
 	if (unlikely(
 	    sbp->sb_agcount <= 0					||
 	    sbp->sb_sectsize < XFS_MIN_SECTORSIZE			||
@@ -252,7 +198,6 @@ xfs_mount_validate_sb(
 	    sbp->sb_dblocks > XFS_MAX_DBLOCKS(sbp)			||
 	    sbp->sb_dblocks < XFS_MIN_DBLOCKS(sbp)			||
 	    sbp->sb_shared_vn != 0)) {
-		xfs_notice(mp, "SB sanity check failed");
 		return -EFSCORRUPTED;
 	}
 
@@ -266,15 +211,11 @@ xfs_mount_validate_sb(
 	case 2048:
 		break;
 	default:
-		xfs_warn(mp, "inode size of %d bytes not supported",
-				sbp->sb_inodesize);
 		return -ENOSYS;
 	}
 
 	if (xfs_sb_validate_fsb_count(sbp, sbp->sb_dblocks) ||
 	    xfs_sb_validate_fsb_count(sbp, sbp->sb_rblocks)) {
-		xfs_warn(mp,
-		"file system too large to be mounted on this system.");
 		return -EFBIG;
 	}
 
@@ -284,28 +225,12 @@ xfs_mount_validate_sb(
 void
 xfs_sb_quota_from_disk(struct xfs_sb *sbp)
 {
-	/*
-	 * older mkfs doesn't initialize quota inodes to NULLFSINO. This
-	 * leads to in-core values having two different values for a quota
-	 * inode to be invalid: 0 and NULLFSINO. Change it to a single value
-	 * NULLFSINO.
-	 *
-	 * Note that this change affect only the in-core values. These
-	 * values are not written back to disk unless any quota information
-	 * is written to the disk. Even in that case, sb_pquotino field is
-	 * not written to disk unless the superblock supports pquotino.
-	 */
 	if (sbp->sb_uquotino == 0)
 		sbp->sb_uquotino = NULLFSINO;
 	if (sbp->sb_gquotino == 0)
 		sbp->sb_gquotino = NULLFSINO;
 	if (sbp->sb_pquotino == 0)
 		sbp->sb_pquotino = NULLFSINO;
-
-	/*
-	 * We need to do these manipilations only if we are working
-	 * with an older version of on-disk superblock.
-	 */
 	if (xfs_sb_version_has_pquotino(sbp))
 		return;
 
@@ -319,15 +244,6 @@ xfs_sb_quota_from_disk(struct xfs_sb *sbp)
 
 	if (sbp->sb_qflags & XFS_PQUOTA_ACCT &&
 	    sbp->sb_gquotino != NULLFSINO)  {
-		/*
-		 * In older version of superblock, on-disk superblock only
-		 * has sb_gquotino, and in-core superblock has both sb_gquotino
-		 * and sb_pquotino. But, only one of them is supported at any
-		 * point of time. So, if PQUOTA is set in disk superblock,
-		 * copy over sb_gquotino to sb_pquotino.  The NULLFSINO test
-		 * above is to make sure we don't do this twice and wipe them
-		 * both out!
-		 */
 		sbp->sb_pquotino = sbp->sb_gquotino;
 		sbp->sb_gquotino = NULLFSINO;
 	}
@@ -615,8 +531,6 @@ xfs_sb_read_verify(
 out_error:
 	if (error) {
 		xfs_buf_ioerror(bp, error);
-		if (error == -EFSCORRUPTED || error == -EFSBADCRC)
-			xfs_verifier_error(bp);
 	}
 }
 
@@ -652,7 +566,6 @@ xfs_sb_write_verify(
 	error = xfs_sb_verify(bp, false);
 	if (error) {
 		xfs_buf_ioerror(bp, error);
-		xfs_verifier_error(bp);
 		return;
 	}
 

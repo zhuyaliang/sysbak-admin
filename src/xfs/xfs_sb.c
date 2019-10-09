@@ -727,6 +727,18 @@ xfs_rmapbt_maxrecs(
 	return blocklen /
 		(2 * sizeof(struct xfs_rmap_key) + sizeof(xfs_rmap_ptr_t));
 }
+static int
+xfs_bmbt_maxrecs(
+	struct xfs_mount	*mp,
+	int			blocklen,
+	int			leaf)
+{
+	blocklen -= XFS_BMBT_BLOCK_LEN(mp);
+
+	if (leaf)
+		return blocklen / sizeof(xfs_bmbt_rec_t);
+	return blocklen / (sizeof(xfs_bmbt_key_t) + sizeof(xfs_bmbt_ptr_t));
+}
 /*
  * xfs_mount_common
  *

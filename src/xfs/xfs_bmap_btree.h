@@ -82,9 +82,6 @@ struct xfs_trans;
  * These are to be used when we know the size of the block and
  * we don't have a cursor.
  */
-#define XFS_BMAP_BROOT_PTR_ADDR(mp, bb, i, sz) \
-	XFS_BMBT_PTR_ADDR(mp, bb, i, xfs_bmbt_maxrecs(mp, sz, 0))
-
 #define XFS_BMAP_BROOT_SPACE_CALC(mp, nrecs) \
 	(int)(XFS_BMBT_BLOCK_LEN(mp) + \
 	       ((nrecs) * (sizeof(xfs_bmbt_key_t) + sizeof(xfs_bmbt_ptr_t))))
@@ -121,7 +118,5 @@ extern void xfs_bmbt_to_bmdr(struct xfs_mount *, struct xfs_btree_block *, int,
 			xfs_bmdr_block_t *, int);
 
 extern int xfs_bmbt_get_maxrecs(struct xfs_btree_cur *, int level);
-extern int xfs_bmdr_maxrecs(int blocklen, int leaf);
-extern int xfs_bmbt_maxrecs(struct xfs_mount *, int blocklen, int leaf);
 
 #endif	/* __XFS_BMAP_BTREE_H__ */

@@ -41,7 +41,17 @@
 
 #define	NULLEXTNUM	((xfs_extnum_t)-1)
 kmem_zone_t		*xfs_bmap_free_item_zone;
+static int
+xfs_bmdr_maxrecs(
+	int			blocklen,
+	int			leaf)
+{
+	blocklen -= sizeof(xfs_bmdr_block_t);
 
+	if (leaf)
+		return blocklen / sizeof(xfs_bmdr_rec_t);
+	return blocklen / (sizeof(xfs_bmdr_key_t) + sizeof(xfs_bmdr_ptr_t));
+}
 void
 xfs_bmap_compute_maxlevels(
 	xfs_mount_t	*mp,		/* file system mount structure */

@@ -291,6 +291,7 @@ done:
 }
 
 kmem_zone_t *xfs_da_state_zone;	/* anchor for state struct zone */
+kmem_zone_t	*xfs_btree_cur_zone;
 static void
 manage_zones(int release)
 {

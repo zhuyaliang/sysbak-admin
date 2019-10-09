@@ -57,6 +57,4 @@ struct xfs_mount;
 		 (maxrecs) * sizeof(xfs_alloc_key_t) + \
 		 ((index) - 1) * sizeof(xfs_alloc_ptr_t)))
 
-extern int xfs_allocbt_maxrecs(struct xfs_mount *, int, int);
-
 #endif	/* __XFS_ALLOC_BTREE_H__ */

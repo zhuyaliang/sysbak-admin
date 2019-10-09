@@ -73,9 +73,8 @@ sources = files(
   'xfs/xfs_alloc.c',
   'xfs/xfs_sb.c',
   'xfs/xfs_rmap_btree.c',
-  'xfs/xfs_alloc_btree.c',
+  #'xfs/xfs_alloc_btree.c',
   'xfs/radix-tree.c',
-  #'xfs/xfs_inode_buf.c',
   'xfs/xfs_dir2.c',
   'xfs/xfs_da_format.c',
 )

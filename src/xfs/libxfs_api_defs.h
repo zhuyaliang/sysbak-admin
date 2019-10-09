@@ -79,7 +79,6 @@
 #define xfs_verify_cksum		libxfs_verify_cksum
 
 #define xfs_alloc_ag_max_usable		libxfs_alloc_ag_max_usable
-#define xfs_allocbt_maxrecs		libxfs_allocbt_maxrecs
 #define xfs_bmbt_maxrecs		libxfs_bmbt_maxrecs
 #define xfs_bmdr_maxrecs		libxfs_bmdr_maxrecs
 #define xfs_btree_init_block		libxfs_btree_init_block

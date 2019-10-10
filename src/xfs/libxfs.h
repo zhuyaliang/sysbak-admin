@@ -68,7 +68,7 @@
 //#include "xfs_alloc.h"
 #include "xfs_btree.h"
 #include "xfs_bmap.h"
-#include "xfs_rmap_btree.h"
+//#include "xfs_rmap_btree.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))

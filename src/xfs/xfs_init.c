@@ -31,8 +31,7 @@
 #include "xfs_inode_buf.h"
 #include "xfs_inode_fork.h"
 #include "xfs_inode.h"
-//#include "xfs_trans.h"
-#include "xfs_rmap_btree.h"
+//#include "xfs_rmap_btree.h"
 #include "libxfs_priv.h"
 #include "libxfs.h"		/* for now */
 

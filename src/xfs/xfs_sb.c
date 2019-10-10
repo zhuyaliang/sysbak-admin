@@ -26,7 +26,7 @@
 #include "xfs_inode.h"
 //#include "xfs_alloc.h"
 #include "radix-tree.h"
-#include "xfs_rmap_btree.h"
+//#include "xfs_rmap_btree.h"
 
 #define XFS_INOBT_BLOCK_LEN(mp) \
 	(xfs_sb_version_hascrc(&((mp)->m_sb)) ? \
@@ -39,6 +39,7 @@
 
 #define trace_xfs_perag_get(a,b,c,d)	((c) = (c))
 #define trace_xfs_perag_put(a,b,c,d)	((c) = (c))
+#define XFS_RMAP_BLOCK_LEN	XFS_BTREE_SBLOCK_CRC_LEN
 struct xfs_perag *
 xfs_perag_get(
 	struct xfs_mount	*mp,

@@ -41,16 +41,13 @@
 #include "list.h"
 #include "radix-tree.h"
 #include "cache.h"
-//#include "bitops.h"
-//#include "kmem.h"
 #include <xfs/xfs_types.h>
 #include <xfs/xfs_fs.h>
 #include <xfs/xfs_arch.h>
 
-//#include "xfs_shared.h"
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
-#include "xfs_quota_defs.h"
+//#include "xfs_quota_defs.h"
 #include "xfs_trans_resv.h"
 
 /*

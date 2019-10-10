@@ -25,9 +25,7 @@
 #include <xfs/xfs_da_format.h>
 #include "xfs_da_btree.h"
 #include "xfs_inode.h"
-//#include "xfs_trans.h"
-//#include "xfs_trace.h"
-#include "xfs_quota_defs.h"
+//#include "xfs_quota_defs.h"
 
 #define	XFS_TRANS_PERM_LOG_RES	0x04
 #define XFS_BM_MAXLEVELS(mp,w)		((mp)->m_bm_maxlevels[(w)])
@@ -60,13 +58,8 @@
 #define	XFS_DAENTER_BMAPS(mp,w)		\
 	(XFS_DAENTER_DBS(mp,w) * XFS_DAENTER_BMAP1B(mp,w))
 
-/*
- * A buffer has a format structure overhead in the log in addition
- * to the data, so we need to take this into account when reserving
- * space in a transaction for a buffer.  Round the space required up
- * to a multiple of 128 bytes so that we don't change the historical
- * reservation that has been used for this overhead.
- */
+#define XFS_DQUOT_LOGRES(mp)	\
+	((sizeof(struct xfs_dq_logformat) + sizeof(struct xfs_disk_dquot)) * 6)
 STATIC uint
 xfs_buf_log_overhead(void)
 {

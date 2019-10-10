@@ -303,9 +303,9 @@ static gboolean read_bitmap_info (const char      *device,
     xfs_agnumber_t  agno = 0;
     xfs_agnumber_t  num_ags;
 
-    int start = 0;
-    int bit_size = 1;
-    int bres;
+    //int start = 0;
+    //int bit_size = 1;
+    //int bres;
     pthread_t prog_bitmap_thread;
 
     uint64_t bused = 0;

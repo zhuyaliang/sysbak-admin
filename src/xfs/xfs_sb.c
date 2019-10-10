@@ -63,10 +63,7 @@ xfs_perag_get(
 	trace_xfs_perag_get(mp, agno, ref, _RET_IP_);
 	return pag;
 }
-
 /*
- * search from @first to find the next perag with the given tag set.
- */
 struct xfs_perag *
 xfs_perag_get_tag(
 	struct xfs_mount	*mp,
@@ -89,7 +86,7 @@ xfs_perag_get_tag(
 	trace_xfs_perag_get_tag(mp, pag->pag_agno, ref, _RET_IP_);
 	return pag;
 }
-
+*/
 void
 xfs_perag_put(
 	struct xfs_perag	*pag)

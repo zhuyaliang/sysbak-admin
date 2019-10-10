@@ -20,9 +20,24 @@
 #define __LIBXFS_H__
 
 //#include "libxfs_api_defs.h"
-#include "platform_defs.h"
+//#include "platform_defs.h"
 #include <xfs/xfs.h>
-
+#include <stdio.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <stdarg.h>
+#include <assert.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <limits.h>
+#include <stdbool.h>
+#include <libgen.h>
 #include "list.h"
 #include "radix-tree.h"
 #include "cache.h"

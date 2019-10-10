@@ -51,10 +51,12 @@ void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index);
 #ifdef RADIX_TREE_TAGS
 int radix_tree_tag_get(struct radix_tree_root *root,
 			unsigned long index, unsigned int tag);
+/*
 unsigned int
 radix_tree_gang_lookup_tag(struct radix_tree_root *root, void **results,
 			unsigned long first_index, unsigned int max_items,
 			unsigned int tag);
+ */           
 int radix_tree_tagged(struct radix_tree_root *root, unsigned int tag);
 #endif
 

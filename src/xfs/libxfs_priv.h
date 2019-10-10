@@ -57,13 +57,10 @@
 	__xfs_dir2_data_freescan((ip)->i_mount->m_dir_geo, \
 				 (ip)->d_ops, hdr, loghead)
 
-//#include "libxfs_api_defs.h"
-#include "platform_defs.h"
 #include <xfs/xfs.h>
 
 #include "list.h"
 #include "cache.h"
-//#include "bitops.h"
 #include "kmem.h"
 #include "libxfs.h"
 
@@ -78,6 +75,9 @@ extern uint32_t crc32c_le(uint32_t crc, unsigned char const *p, size_t len);
 #define crc32(c,p,l)	crc32_le((c),(unsigned char const *)(p),(l))
 #define crc32c(c,p,l)	crc32c_le((c),(unsigned char const *)(p),(l))
 
+#define SIZEOF_LONG 8
+#define SIZEOF_CHAR_P 8
+#define BITS_PER_LONG (SIZEOF_LONG * CHAR_BIT)
 #include "xfs_cksum.h"
 
 /*

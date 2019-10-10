@@ -18,7 +18,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include "platform_defs.h"
+//#include "platform_defs.h"
 #include <xfs/xfs.h>
 #include "radix-tree.h"
 
@@ -35,6 +35,9 @@
 	((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
 #endif
 
+#define SIZEOF_LONG 8
+#define SIZEOF_CHAR_P 8
+#define BITS_PER_LONG (SIZEOF_LONG * CHAR_BIT)
 struct radix_tree_node {
 	unsigned int	count;
 	void		*slots[RADIX_TREE_MAP_SIZE];
@@ -240,13 +243,8 @@ int radix_tree_insert(struct radix_tree_root *root,
 	if (slot != NULL)
 		return -EEXIST;
 
-	ASSERT(node);
 	node->count++;
 	node->slots[offset] = item;
-#ifdef RADIX_TREE_TAGS
-	ASSERT(!tag_get(node, 0, offset));
-	ASSERT(!tag_get(node, 1, offset));
-#endif
 	return 0;
 }
 
@@ -301,20 +299,7 @@ out:
 	*next_index = index;
 	return nr_found;
 }
-
-/**
- *	radix_tree_gang_lookup_tag - perform multiple lookup on a radix tree
- *	                             based on a tag
- *	@root:		radix tree root
- *	@results:	where the results of the lookup are placed
- *	@first_index:	start the lookup from this key
- *	@max_items:	place up to this many items at *results
- *	@tag:		the tag index (< RADIX_TREE_MAX_TAGS)
- *
- *	Performs an index-ascending scan of the tree for present items which
- *	have the tag indexed by @tag set.  Places the items at *@results and
- *	returns the number of items which were placed at *@results.
- */
+/*
 unsigned int
 radix_tree_gang_lookup_tag(struct radix_tree_root *root, void **results,
 		unsigned long first_index, unsigned int max_items,
@@ -326,7 +311,7 @@ radix_tree_gang_lookup_tag(struct radix_tree_root *root, void **results,
 
 	while (ret < max_items) {
 		unsigned int nr_found;
-		unsigned long next_index;	/* Index of next search */
+		unsigned long next_index;	
 
 		if (cur_index > max_index)
 			break;
@@ -339,7 +324,7 @@ radix_tree_gang_lookup_tag(struct radix_tree_root *root, void **results,
 	}
 	return ret;
 }
-
+*/
 #endif
 
 /**

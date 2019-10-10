@@ -22,34 +22,6 @@
 
 struct xfs_defer_op_type;
 
-/*
- * Save a log intent item and a list of extents, so that we can replay
- * whatever action had to happen to the extent list and file the log done
- * item.
- */
-struct xfs_defer_pending {
-	const struct xfs_defer_op_type	*dfp_type;	/* function pointers */
-	struct list_head		dfp_list;	/* pending items */
-	void				*dfp_intent;	/* log intent item */
-	void				*dfp_done;	/* log done item */
-	struct list_head		dfp_work;	/* work items */
-	unsigned int			dfp_count;	/* # extent items */
-};
-
-/*
- * Header for deferred operation list.
- *
- * dop_low is used by the allocator to activate the lowspace algorithm -
- * when free space is running low the extent allocator may choose to
- * allocate an extent from an AG without leaving sufficient space for
- * a btree split when inserting the new extent.  In this case the allocator
- * will enable the lowspace algorithm which is supposed to allow further
- * allocations (such as btree splits and newroots) to allocate from
- * sequential AGs.  In order to avoid locking AGs out of order the lowspace
- * algorithm will start searching for free space from AG 0.  If the correct
- * transaction reservations have been made then this algorithm will eventually
- * find all the space it needs.
- */
 enum xfs_defer_ops_type {
 	XFS_DEFER_OPS_TYPE_BMAP,
 	XFS_DEFER_OPS_TYPE_REFCOUNT,
@@ -65,18 +37,8 @@ struct xfs_defer_ops {
 	bool			dop_low;	/* alloc in low mode */
 	struct list_head	dop_intake;	/* unlogged pending work */
 	struct list_head	dop_pending;	/* logged pending work */
-
-	/* relog these inodes with each roll */
 	struct xfs_inode	*dop_inodes[XFS_DEFER_OPS_NR_INODES];
 };
-/*
-void xfs_defer_add(struct xfs_defer_ops *dop, enum xfs_defer_ops_type type,
-		struct list_head *h);
-void xfs_defer_cancel(struct xfs_defer_ops *dop);
-void xfs_defer_init(struct xfs_defer_ops *dop, xfs_fsblock_t *fbp);
-bool xfs_defer_has_unfinished_work(struct xfs_defer_ops *dop);
-int xfs_defer_join(struct xfs_defer_ops *dop, struct xfs_inode *ip);
-*/
 
 void xfs_extent_free_init_defer_op(void);
 void xfs_rmap_update_init_defer_op(void);
@@ -92,7 +54,5 @@ struct xfs_defer_op_type {
 	void *(*create_intent)(struct xfs_trans *, uint);
 	void (*log_item)(struct xfs_trans *, void *, struct list_head *);
 };
-
-//void xfs_defer_init_op_type(const struct xfs_defer_op_type *type);
 
 #endif /* __XFS_DEFER_H__ */

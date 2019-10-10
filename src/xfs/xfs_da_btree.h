@@ -88,29 +88,6 @@ typedef struct xfs_da_args {
 	enum xfs_dacmp	cmpresult;	/* name compare result for lookups */
 } xfs_da_args_t;
 
-/*
- * Operation flags:
- */
-#define XFS_DA_OP_JUSTCHECK	0x0001	/* check for ok with no space */
-#define XFS_DA_OP_RENAME	0x0002	/* this is an atomic rename op */
-#define XFS_DA_OP_ADDNAME	0x0004	/* this is an add operation */
-#define XFS_DA_OP_OKNOENT	0x0008	/* lookup/add op, ENOENT ok, else die */
-#define XFS_DA_OP_CILOOKUP	0x0010	/* lookup to return CI name if found */
-
-#define XFS_DA_OP_FLAGS \
-	{ XFS_DA_OP_JUSTCHECK,	"JUSTCHECK" }, \
-	{ XFS_DA_OP_RENAME,	"RENAME" }, \
-	{ XFS_DA_OP_ADDNAME,	"ADDNAME" }, \
-	{ XFS_DA_OP_OKNOENT,	"OKNOENT" }, \
-	{ XFS_DA_OP_CILOOKUP,	"CILOOKUP" }
-
-/*
- * Storage for holding state during Btree searches and split/join ops.
- *
- * Only need space for 5 intermediate nodes.  With a minimum of 62-way
- * fanout to the Btree, we can support over 900 million directory blocks,
- * which is slightly more than enough.
- */
 typedef struct xfs_da_state_blk {
 	struct xfs_buf	*bp;		/* buffer containing block */
 	xfs_dablk_t	blkno;		/* filesystem blkno of buffer */
@@ -136,36 +113,4 @@ typedef struct xfs_da_state {
 	xfs_da_state_blk_t	extrablk;	/* for double-splits on leaves */
 						/* for dirv2 extrablk is data */
 } xfs_da_state_t;
-
-/*
- * Utility macros to aid in logging changed structure fields.
- */
-#define XFS_DA_LOGOFF(BASE, ADDR)	((char *)(ADDR) - (char *)(BASE))
-#define XFS_DA_LOGRANGE(BASE, ADDR, SIZE)	\
-		(uint)(XFS_DA_LOGOFF(BASE, ADDR)), \
-		(uint)(XFS_DA_LOGOFF(BASE, ADDR)+(SIZE)-1)
-
-/*
- * Name ops for directory and/or attr name operations
- */
-struct xfs_nameops {
-	xfs_dahash_t	(*hashname)(struct xfs_name *);
-	enum xfs_dacmp	(*compname)(struct xfs_da_args *,
-					const unsigned char *, int);
-};
-
-/*
- * Utility routines.
- */
-uint xfs_da_hashname(const __uint8_t *name_string, int name_length);
-enum xfs_dacmp xfs_da_compname(struct xfs_da_args *args,
-				const unsigned char *name, int len);
-
-
-xfs_da_state_t *xfs_da_state_alloc(void);
-void xfs_da_state_free(xfs_da_state_t *state);
-
-extern struct kmem_zone *xfs_da_state_zone;
-extern const struct xfs_nameops xfs_default_nameops;
-
 #endif	/* __XFS_DA_BTREE_H__ */

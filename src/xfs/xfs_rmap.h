@@ -20,7 +20,7 @@
 #ifndef __XFS_RMAP_H__
 #define __XFS_RMAP_H__
 
-#include "xfs_format.h"
+#include <xfs/xfs_format.h>
 
 static inline void
 xfs_rmap_ag_owner(

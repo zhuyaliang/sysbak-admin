@@ -44,11 +44,16 @@ struct inode {
 	struct timespec	i_ctime;
 };
 
+typedef struct xfs_bmbt_rec_host1 {
+    __uint64_t      l0, l1;
+} xfs_bmbt_rec_host_t1;
+
 typedef struct xfs_ext_irec {
-	xfs_bmbt_rec_host_t *er_extbuf;	/* block of extent records */
+	xfs_bmbt_rec_host_t1 *er_extbuf;	/* block of extent records */
 	xfs_extnum_t	er_extoff;	/* extent offset in file */
 	xfs_extnum_t	er_extcount;	/* number of extents in page/block */
 } xfs_ext_irec_t;
+
 typedef struct xfs_ifork {
 	int			if_bytes;	/* bytes in if_u1 */
 	int			if_real_bytes;	/* bytes allocated in if_u1 */
@@ -56,12 +61,12 @@ typedef struct xfs_ifork {
 	short			if_broot_bytes;	/* bytes allocated for root */
 	unsigned char		if_flags;	/* per-fork flags */
 	union {
-		xfs_bmbt_rec_host_t *if_extents;/* linear map file exts */
+		xfs_bmbt_rec_host_t1 *if_extents;/* linear map file exts */
 		xfs_ext_irec_t	*if_ext_irec;	/* irec map file exts */
 		char		*if_data;	/* inline file data */
 	} if_u1;
 	union {
-		xfs_bmbt_rec_host_t if_inline_ext[XFS_INLINE_EXTS];
+		xfs_bmbt_rec_host_t1 if_inline_ext[XFS_INLINE_EXTS];
 						/* very small file extents */
 		char		if_inline_data[XFS_INLINE_DATA];
 						/* very small file data */

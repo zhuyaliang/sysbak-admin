@@ -18,6 +18,7 @@
 #ifndef __XFS_BTREE_H__
 #define	__XFS_BTREE_H__
 
+#include "xfs_bmap.h"
 struct xfs_buf;
 struct xfs_defer_ops;
 struct xfs_inode;

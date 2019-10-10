@@ -16,7 +16,7 @@
  * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "libxfs.h"
-#include "xfs_format.h"
+#include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
 #include "xfs_mount.h"
 #include "xfs_defer.h"
@@ -156,9 +156,9 @@ __xfs_sb_from_disk(
 	 * feature flag is set; if not set we keep it only in memory.
 	 */
 	if (xfs_sb_version_hasmetauuid(to))
-		uuid_copy(&to->sb_meta_uuid, from->sb_meta_uuid);
+		uuid_copy(to->sb_meta_uuid, from->sb_meta_uuid);
 	else
-		uuid_copy(&to->sb_meta_uuid, from->sb_uuid);
+		uuid_copy(to->sb_meta_uuid, from->sb_uuid);
 	/* Convert on-disk flags to in-memory flags? */
 	if (convert_xquota)
 		xfs_sb_quota_from_disk(to);

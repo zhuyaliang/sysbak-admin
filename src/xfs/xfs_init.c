@@ -27,7 +27,7 @@
 #include "xfs_mount.h"
 #include "radix-tree.h"
 #include "xfs_defer.h"
-#include "xfs_inode_buf.h"
+//#include "xfs_inode_buf.h"
 //#include "xfs_inode_fork.h"
 #include "xfs_inode.h"
 #include "libxfs_priv.h"

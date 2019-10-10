@@ -20,7 +20,7 @@
 #define __XFS_INODE_H__
 
 /* These match kernel side includes */
-#include "xfs_inode_buf.h"
+//#include "xfs_inode_buf.h"
 
 #define	XFS_INLINE_EXTS		2
 #define	XFS_INLINE_DATA		32
@@ -69,6 +69,35 @@ typedef struct xfs_ifork {
 		uuid_t		if_uuid;	/* mount point value */
 	} if_u2;
 } xfs_ifork_t;
+
+struct xfs_imap {
+	xfs_daddr_t	im_blkno;	/* starting BB of inode chunk */
+	unsigned short	im_len;		/* length in BBs of inode chunk */
+	unsigned short	im_boffset;	/* inode offset in block in bytes */
+};
+
+struct xfs_icdinode {
+	__int8_t	di_version;	/* inode version */
+	__int8_t	di_format;	/* format of di_c data */
+	__uint16_t	di_flushiter;	/* incremented on flush */
+	__uint32_t	di_uid;		/* owner's user id */
+	__uint32_t	di_gid;		/* owner's group id */
+	__uint16_t	di_projid_lo;	/* lower part of owner's project id */
+	__uint16_t	di_projid_hi;	/* higher part of owner's project id */
+	xfs_fsize_t	di_size;	/* number of bytes in file */
+	xfs_rfsblock_t	di_nblocks;	/* # of direct & btree blocks used */
+	xfs_extlen_t	di_extsize;	/* basic/minimum extent size for file */
+	xfs_extnum_t	di_nextents;	/* number of extents in data fork */
+	xfs_aextnum_t	di_anextents;	/* number of extents in attribute fork*/
+	__uint8_t	di_forkoff;	/* attr fork offs, <<3 for 64b align */
+	__int8_t	di_aformat;	/* format of attr fork's data */
+	__uint32_t	di_dmevmask;	/* DMIG event mask */
+	__uint16_t	di_dmstate;	/* DMIG state info */
+	__uint16_t	di_flags;	/* random flags, XFS_DIFLAG_... */
+	__uint64_t	di_flags2;	/* more random flags */
+	__uint32_t	di_cowextsize;	/* basic cow extent size for file */
+	xfs_ictimestamp_t di_crtime;	/* time created */
+};
 typedef struct xfs_inode {
 	struct cache_node	i_node;
 	struct xfs_mount	*i_mount;	/* fs mount struct ptr */

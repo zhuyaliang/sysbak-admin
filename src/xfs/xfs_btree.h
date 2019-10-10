@@ -24,7 +24,8 @@ struct xfs_inode;
 struct xfs_mount;
 struct xfs_trans;
 
-extern kmem_zone_t	*xfs_btree_cur_zone;
+//extern kmem_zone_t	*xfs_btree_cur_zone;
+
 
 /*
  * Generic key, ptr and record wrapper structures.

@@ -42,7 +42,7 @@
 #include "radix-tree.h"
 #include "cache.h"
 //#include "bitops.h"
-#include "kmem.h"
+//#include "kmem.h"
 #include <xfs/xfs_types.h>
 #include <xfs/xfs_fs.h>
 #include <xfs/xfs_arch.h>
@@ -110,6 +110,12 @@ extern uint32_t crc32c_le(uint32_t crc, unsigned char const *p, size_t len);
 		((char *)(block) + \
 		 XFS_ALLOC_BLOCK_LEN(mp) + \
 		 (((index) - 1) * sizeof(xfs_alloc_rec_t))))
+
+typedef struct kmem_zone {
+	int	zone_unitsize;	/* Size in bytes of zone unit           */
+	char	*zone_name;	/* tag name                             */
+	int	allocated;	/* debug: How many currently allocated  */
+} kmem_zone_t;
 /*
  * Argument structure for libxfs_init().
  */

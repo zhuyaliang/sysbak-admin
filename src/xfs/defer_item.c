@@ -95,10 +95,10 @@ STATIC void
 xfs_extent_free_cancel_item(
 	struct list_head		*item)
 {
-	struct xfs_extent_free_item	*free;
+	struct xfs_extent_free_item	*xfsfree;
 
-	free = container_of(item, struct xfs_extent_free_item, xefi_list);
-	kmem_free(free);
+	xfsfree = container_of(item, struct xfs_extent_free_item, xefi_list);
+	free(xfsfree);
 }
 
 static const struct xfs_defer_op_type xfs_extent_free_defer_type = {
@@ -186,7 +186,7 @@ xfs_rmap_update_cancel_item(
 	struct xfs_rmap_intent		*rmap;
 
 	rmap = container_of(item, struct xfs_rmap_intent, ri_list);
-	kmem_free(rmap);
+	free(rmap);
 }
 
 static const struct xfs_defer_op_type xfs_rmap_update_defer_type = {
@@ -268,7 +268,7 @@ xfs_refcount_update_cancel_item(
 	struct xfs_refcount_intent	*refc;
 
 	refc = container_of(item, struct xfs_refcount_intent, ri_list);
-	kmem_free(refc);
+	free(refc);
 }
 
 static const struct xfs_defer_op_type xfs_refcount_update_defer_type = {
@@ -348,7 +348,7 @@ xfs_bmap_update_cancel_item(
 	struct xfs_bmap_intent		*bmap;
 
 	bmap = container_of(item, struct xfs_bmap_intent, bi_list);
-	kmem_free(bmap);
+	free(bmap);
 }
 
 static const struct xfs_defer_op_type xfs_bmap_update_defer_type = {

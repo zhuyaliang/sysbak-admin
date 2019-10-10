@@ -61,7 +61,7 @@
 
 #include "list.h"
 #include "cache.h"
-#include "kmem.h"
+//#include "kmem.h"
 #include "libxfs.h"
 
 #include <xfs/xfs_types.h>

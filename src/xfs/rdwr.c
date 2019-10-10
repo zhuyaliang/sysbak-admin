@@ -275,6 +275,16 @@ libxfs_initbuf_map(xfs_buf_t *bp, struct xfs_buftarg *btp,
 	bp->b_flags |= LIBXFS_B_DISCONTIG;
 }
 
+static void *
+kmem_zone_zalloc(kmem_zone_t *zone, int flags)
+{
+	void	*ptr = malloc(zone->zone_unitsize);
+
+	zone->allocated++;
+	memset(ptr, 0, zone->zone_unitsize);
+	return ptr;
+}
+
 xfs_buf_t *
 __libxfs_getbufr(int blen)
 {

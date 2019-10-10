@@ -40,6 +40,11 @@
 	(int)(sizeof(xfs_bmdr_block_t) + \
 	       ((nrecs) * (sizeof(xfs_bmbt_key_t) + sizeof(xfs_bmbt_ptr_t))))
 
+#define KM_SLEEP	0x0001u
+#define KM_NOSLEEP	0x0002u
+#define KM_NOFS		0x0004u
+#define KM_MAYFAIL	0x0008u
+#define KM_LARGE	0x0010u
 struct cache *libxfs_bcache;	/* global buffer cache */
 int libxfs_bhash_size;		/* #buckets in bcache */
 
@@ -301,6 +306,19 @@ done:
 	return rval;
 }
 
+static kmem_zone_t *
+kmem_zone_init(int size, char *name)
+{
+	kmem_zone_t	*ptr = malloc(sizeof(kmem_zone_t));
+
+	if (ptr == NULL) {
+		exit(1);
+	}
+	ptr->zone_unitsize = size;
+	ptr->zone_name = name;
+	ptr->allocated = 0;
+	return ptr;
+}
 kmem_zone_t *xfs_da_state_zone;	/* anchor for state struct zone */
 kmem_zone_t	*xfs_btree_cur_zone;
 kmem_zone_t		*xfs_bmap_free_item_zone;
@@ -317,12 +335,12 @@ manage_zones(int release)
 	//extern void		xfs_dir_startup();
 
 	if (release) {	/* free zone allocation */
-		kmem_free(xfs_buf_zone);
-		kmem_free(xfs_inode_zone);
-		kmem_free(xfs_da_state_zone);
-		kmem_free(xfs_btree_cur_zone);
-		kmem_free(xfs_bmap_free_item_zone);
-		kmem_free(xfs_log_item_desc_zone);
+		free(xfs_buf_zone);
+		free(xfs_inode_zone);
+		free(xfs_da_state_zone);
+		free(xfs_btree_cur_zone);
+		free(xfs_bmap_free_item_zone);
+		free(xfs_log_item_desc_zone);
 		return;
 	}
 	/* otherwise initialise zone allocation */
@@ -387,6 +405,13 @@ rtmount_init(
 	return 0;
 }
 
+static void *
+kmem_zalloc(size_t size, int flags)
+{
+	void	*ptr = malloc(size);
+	memset(ptr, 0, size);
+	return ptr;
+}
 static int
 libxfs_initialize_perag(
 	xfs_mount_t	*mp,
@@ -486,10 +511,10 @@ libxfs_initialize_perag(
 	return 0;
 
 out_unwind:
-	kmem_free(pag);
+	free(pag);
 	for (; index > first_initialised; index--) {
 		pag = radix_tree_delete(&mp->m_perag_tree, index);
-		kmem_free(pag);
+		free(pag);
 	}
 	return error;
 }
@@ -646,6 +671,13 @@ xfs_trans_init(
 {
 	xfs_trans_resv_calc(mp, &mp->m_resv);
 }
+static void *
+kmem_alloc(size_t size, int flags)
+{
+	void	*ptr = malloc(size);
+	memset(ptr, 0, size);
+	return ptr;
+}
 static int
 xfs_da_mount(
 	struct xfs_mount	*mp)
@@ -662,8 +694,8 @@ xfs_da_mount(
 	mp->m_attr_geo = kmem_zalloc(sizeof(struct xfs_da_geometry),
 				     KM_SLEEP | KM_MAYFAIL);
 	if (!mp->m_dir_geo || !mp->m_attr_geo) {
-		kmem_free(mp->m_dir_geo);
-		kmem_free(mp->m_attr_geo);
+		free(mp->m_dir_geo);
+		free(mp->m_attr_geo);
 		return -ENOMEM;
 	}
 	/* set up directory geometry */

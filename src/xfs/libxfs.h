@@ -19,8 +19,6 @@
 #ifndef __LIBXFS_H__
 #define __LIBXFS_H__
 
-//#include "libxfs_api_defs.h"
-//#include "platform_defs.h"
 #include <xfs/xfs.h>
 #include <stdio.h>
 #include <errno.h>
@@ -44,17 +42,10 @@
 #include <xfs/xfs_types.h>
 #include <xfs/xfs_fs.h>
 #include <xfs/xfs_arch.h>
-
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
-//#include "xfs_trans_resv.h"
 
-/*
- * This mirrors the kernel include for xfs_buf.h - it's implicitly included in
- * every files via a similar include in the kernel xfs_linux.h.
- */
 #include "libxfs_io.h"
-
 #include "xfs_bit.h"
 #include "xfs_mount.h"
 #include "xfs_defer.h"
@@ -73,7 +64,6 @@
 #define XFS_SUPER_MAGIC 0x58465342
 #endif
 
-#define xfs_isset(a,i)	((a)[(i)/(sizeof(*(a))*NBBY)] & (1ULL<<((i)%(sizeof(*(a))*NBBY))))
 #define XFS_ALLOC_BLOCK_LEN(mp) \
 	(xfs_sb_version_hascrc(&((mp)->m_sb)) ? \
 		XFS_BTREE_SBLOCK_CRC_LEN : XFS_BTREE_SBLOCK_LEN)
@@ -160,52 +150,6 @@ extern void	libxfs_device_close (dev_t);
 extern int	libxfs_device_alignment (void);
 extern void	libxfs_report(FILE *);
 extern void	platform_findsizes(char *path, int fd, long long *sz, int *bsz);
-extern int	platform_nproc(void);
-
-/* check or write log footer: specify device, log size in blocks & uuid */
-typedef char	*(libxfs_get_block_t)(char *, int, void *);
-
-/*
- * Helpers to clear the log to a particular log cycle.
- */
-#define XLOG_INIT_CYCLE	1
-
-/* Shared utility routines */
-extern unsigned int	libxfs_log2_roundup(unsigned int i);
-
-extern void	libxfs_fs_cmn_err(int, struct xfs_mount *, char *, ...);
-
-/* XXX: this is messy and needs fixing */
-#ifndef __LIBXFS_INTERNAL_XFS_H__
-extern void cmn_err(int, char *, ...);
-enum ce { CE_DEBUG, CE_CONT, CE_NOTE, CE_WARN, CE_ALERT, CE_PANIC };
-#endif
-
-
-extern int		libxfs_nproc(void);
-extern unsigned long	libxfs_physmem(void);	/* in kilobytes */
-
-//#include "xfs_ialloc.h"
-//#include "xfs_trans_space.h"
-
-#define XFS_INOBT_IS_FREE_DISK(rp,i)		\
-			((be64_to_cpu((rp)->ir_free) & XFS_INOBT_MASK(i)) != 0)
-
-static inline bool
-xfs_inobt_is_sparse_disk(
-	struct xfs_inobt_rec	*rp,
-	int			offset)
-{
-	int			spshift;
-	uint16_t		holemask;
-
-	holemask = be16_to_cpu(rp->ir_u.sp.ir_holemask);
-	spshift = offset / XFS_INODES_PER_HOLEMASK_BIT;
-	if ((1 << spshift) & holemask)
-		return true;
-
-	return false;
-}
 
 void
 xfs_sb_mount_common(
@@ -215,10 +159,12 @@ void
 xfs_sb_from_disk(
 	struct xfs_sb	*to,
 	xfs_dsb_t	*from);
-/* XXX: need parts of xfs_attr.h in userspace */
-#define LIBXFS_ATTR_ROOT	0x0002	/* use attrs in root namespace */
-#define LIBXFS_ATTR_SECURE	0x0008	/* use attrs in security namespace */
-#define LIBXFS_ATTR_CREATE	0x0010	/* create, but fail if attr exists */
-#define LIBXFS_ATTR_REPLACE	0x0020	/* set, but fail if attr not exists */
 
+struct xfs_perag *
+xfs_perag_get(
+	struct xfs_mount	*mp,
+	xfs_agnumber_t		agno);
+void
+xfs_perag_put(
+	struct xfs_perag	*pag);
 #endif	/* __LIBXFS_H__ */

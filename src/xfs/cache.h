@@ -1,37 +1,10 @@
-/*
- * Copyright (c) 2006 Silicon Graphics, Inc.
- * All Rights Reserved.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it would be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write the Free Software Foundation,
- * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
 #ifndef __CACHE_H__
 #define __CACHE_H__
 
 #include "list.h"
-/*
- * initialisation flags
- */
-/*
- * xfs_db always writes changes immediately, and so we need to purge buffers
- * when we get a buffer lookup mismatch due to reading the same block with a
- * different buffer configuration.
- */
+
 #define CACHE_MISCOMPARE_PURGE	(1 << 0)
 
-/*
- * cache object campare return values
- */
 enum {
 	CACHE_HIT,
 	CACHE_MISS,
@@ -39,30 +12,9 @@ enum {
 };
 
 #define	HASH_CACHE_RATIO	8
-
-/*
- * Cache priorities range from BASE to MAX.
- *
- * For prefetch support, the top half of the range starts at
- * CACHE_PREFETCH_PRIORITY and everytime the buffer is fetched and is at or
- * above this priority level, it is reduced to below this level (refer to
- * libxfs_getbuf).
- *
- * If we have dirty nodes, we can't recycle them until they've been cleaned. To
- * keep these out of the reclaimable lists (as there can be lots of them) give
- * them their own priority that the shaker doesn't attempt to walk.
- */
-
-#define CACHE_BASE_PRIORITY	0
 #define CACHE_PREFETCH_PRIORITY	8
 #define CACHE_MAX_PRIORITY	15
 #define CACHE_DIRTY_PRIORITY	(CACHE_MAX_PRIORITY + 1)
-#define CACHE_NR_PRIORITIES	CACHE_DIRTY_PRIORITY
-
-/*
- * Simple, generic implementation of a cache (arbitrary data).
- * Provides a hash table with a capped number of cache entries.
- */
 
 struct cache;
 struct cache_node;
@@ -139,7 +91,5 @@ int cache_node_get(struct cache *, cache_key_t, struct cache_node **);
 void cache_node_put(struct cache *, struct cache_node *);
 void cache_node_set_priority(struct cache *, struct cache_node *, int);
 int cache_node_get_priority(struct cache_node *);
-int cache_node_purge(struct cache *, cache_key_t, struct cache_node *);
-int cache_overflowed(struct cache *);
 
 #endif	/* __CACHE_H__ */

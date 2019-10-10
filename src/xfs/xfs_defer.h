@@ -69,15 +69,19 @@ struct xfs_defer_ops {
 	/* relog these inodes with each roll */
 	struct xfs_inode	*dop_inodes[XFS_DEFER_OPS_NR_INODES];
 };
-
+/*
 void xfs_defer_add(struct xfs_defer_ops *dop, enum xfs_defer_ops_type type,
 		struct list_head *h);
 void xfs_defer_cancel(struct xfs_defer_ops *dop);
 void xfs_defer_init(struct xfs_defer_ops *dop, xfs_fsblock_t *fbp);
 bool xfs_defer_has_unfinished_work(struct xfs_defer_ops *dop);
 int xfs_defer_join(struct xfs_defer_ops *dop, struct xfs_inode *ip);
+*/
 
-/* Description of a deferred type. */
+void xfs_extent_free_init_defer_op(void);
+void xfs_rmap_update_init_defer_op(void);
+void xfs_bmap_update_init_defer_op(void);
+void xfs_refcount_update_init_defer_op(void);
 struct xfs_defer_op_type {
 	enum xfs_defer_ops_type	type;
 	unsigned int		max_items;

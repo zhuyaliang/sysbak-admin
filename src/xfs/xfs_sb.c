@@ -63,7 +63,7 @@ xfs_perag_put(
 }
 
 
-void
+static void
 xfs_sb_quota_from_disk(struct xfs_sb *sbp)
 {
 	if (sbp->sb_uquotino == 0)
@@ -157,9 +157,9 @@ __xfs_sb_from_disk(
 	 * feature flag is set; if not set we keep it only in memory.
 	 */
 	if (xfs_sb_version_hasmetauuid(to))
-		uuid_copy(&to->sb_meta_uuid, &from->sb_meta_uuid);
+		uuid_copy(&to->sb_meta_uuid, from->sb_meta_uuid);
 	else
-		uuid_copy(&to->sb_meta_uuid, &from->sb_uuid);
+		uuid_copy(&to->sb_meta_uuid, from->sb_uuid);
 	/* Convert on-disk flags to in-memory flags? */
 	if (convert_xquota)
 		xfs_sb_quota_from_disk(to);

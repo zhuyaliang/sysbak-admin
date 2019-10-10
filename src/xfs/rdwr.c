@@ -117,7 +117,7 @@ kmem_zone_zalloc(kmem_zone_t *zone, int flags)
 	memset(ptr, 0, zone->zone_unitsize);
 	return ptr;
 }
-xfs_buf_t *
+static xfs_buf_t *
 __libxfs_getbufr(int blen)
 {
 	xfs_buf_t	*bp;
@@ -125,7 +125,7 @@ __libxfs_getbufr(int blen)
 	pthread_mutex_lock(&xfs_buf_freelist.cm_mutex);
 	if (!list_empty(&xfs_buf_freelist.cm_list)) {
 		list_for_each_entry(bp, &xfs_buf_freelist.cm_list, b_node.cn_mru) {
-			if (bp->b_bcount == blen) {
+			if (bp->b_bcount == (unsigned)blen) {
 				list_del_init(&bp->b_node.cn_mru);
 				break;
 			}
@@ -159,7 +159,7 @@ libxfs_getbufr(struct xfs_buftarg *btp, xfs_daddr_t blkno, int bblen)
 
 	return bp;
 }
-xfs_buf_t *
+static xfs_buf_t *
 libxfs_getbufr_map(struct xfs_buftarg *btp, xfs_daddr_t blkno, int bblen,
 		struct xfs_buf_map *map, int nmaps)
 {
@@ -297,21 +297,17 @@ int
 libxfs_readbufr(struct xfs_buftarg *btp, xfs_daddr_t blkno, xfs_buf_t *bp,
 		int len, int flags)
 {
-    g_print ("libxfs_readbufr = \r\n");
 	int	fd = libxfs_device_to_fd(btp->dev);
 	int	bytes = BBTOB(len);
 	int	error;
 
+    printf("libxfs_readbufr = \r\n");
 	error = __read_buf(fd, bp->b_addr, bytes, LIBXFS_BBTOOFF64(blkno), flags);
 	if (!error &&
 	    bp->b_target->dev == btp->dev &&
 	    bp->b_bn == blkno &&
-	    bp->b_bcount == bytes)
+	    bp->b_bcount == (unsigned)bytes)
 		bp->b_flags |= LIBXFS_B_UPTODATE;
-#ifdef IO_DEBUG
-		pthread_self(), __FUNCTION__, bytes, error,
-		(long long)LIBXFS_BBTOOFF64(blkno), (long long)blkno, bp);
-#endif
 	return error;
 }
 

@@ -156,9 +156,3 @@ platform_align_blockdev(void)
 		return getpagesize();
 	return max_block_alignment;
 }
-
-int
-platform_nproc(void)
-{
-	return sysconf(_SC_NPROCESSORS_ONLN);
-}

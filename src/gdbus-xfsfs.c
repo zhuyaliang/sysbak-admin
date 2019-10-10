@@ -103,19 +103,19 @@ static gboolean get_sb(xfs_sb_t *sbp, xfs_off_t off, int size, xfs_agnumber_t ag
     return TRUE;
 }
 
-static void fs_close()
+static void fs_close(void)
 {
     libxfs_device_close(xargs.ddev);
 }
 static gboolean fs_open(char* device)
 {
-    struct stat     statbuf;
-    int         source_is_file = 0;
+    //struct stat     statbuf;
+    //int         source_is_file = 0;
     xfs_sb_t        *sb;
-    int             tmp_residue;
+    //int             tmp_residue;
     unsigned int    source_blocksize;       /* source filesystem blocksize */
     unsigned int    source_sectorsize;      /* source disk sectorsize */
-    int             first_residue;
+    //int             first_residue;
     if ((source_fd = open(device, O_RDONLY)) < 0) 
     {
         return FALSE;
@@ -157,20 +157,10 @@ static gboolean fs_open(char* device)
     source_blocksize = mp->m_sb.sb_blocksize;
     source_sectorsize = mp->m_sb.sb_sectsize;
 
-    if (source_blocksize > source_sectorsize)  
-    {
-        tmp_residue = ((XFS_AGFL_DADDR(mp) + 1) * source_sectorsize) % source_blocksize;
-        first_residue = (tmp_residue == 0) ? 0 :  source_blocksize - tmp_residue;
-    }
-    else if (source_blocksize == source_sectorsize)  
-    {
-        first_residue = 0;
-    } 
-    else  
+    if (source_blocksize <= source_sectorsize)  
     {
         return FALSE;
     }
-    
     return TRUE;
 }
 static void
@@ -259,8 +249,7 @@ scan_freelist(
 	agfl = bp->b_addr;
 	i = be32_to_cpu(agf->agf_flfirst);
 
-	agfl_bno = xfs_sb_version_hascrc(&mp->m_sb) ? &agfl->agfl_bno[0]
-						   : (__be32 *)agfl;
+	agfl_bno = xfs_sb_version_hascrc(&mp->m_sb) ? &agfl->agfl_bno[0] : (__be32 *)agfl;
 
 	if (be32_to_cpu(agf->agf_flfirst) >= XFS_AGFL_SIZE(mp) ||
 	    be32_to_cpu(agf->agf_fllast) >= XFS_AGFL_SIZE(mp)) {
@@ -306,7 +295,7 @@ static gboolean read_bitmap_info (const char      *device,
     //int start = 0;
     //int bit_size = 1;
     //int bres;
-    pthread_t prog_bitmap_thread;
+    //pthread_t prog_bitmap_thread;
 
     uint64_t bused = 0;
     uint64_t bfree = 0;

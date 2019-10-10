@@ -82,8 +82,7 @@ xfs_defer_init_op_type(
 	defer_op_types[type->type] = type;
 }
 
-void
-xfs_extent_free_init_defer_op(void)
+void xfs_extent_free_init_defer_op(void)
 {
 	xfs_defer_init_op_type(&xfs_extent_free_defer_type);
 }
@@ -136,8 +135,7 @@ static const struct xfs_defer_op_type xfs_rmap_update_defer_type = {
 	.cancel_item	= xfs_rmap_update_cancel_item,
 };
 
-void
-xfs_rmap_update_init_defer_op(void)
+void xfs_rmap_update_init_defer_op(void)
 {
 	xfs_defer_init_op_type(&xfs_rmap_update_defer_type);
 }
@@ -190,8 +188,7 @@ static const struct xfs_defer_op_type xfs_refcount_update_defer_type = {
 	.create_done	= xfs_refcount_update_create_done,
 	.cancel_item	= xfs_refcount_update_cancel_item,
 };
-void
-xfs_refcount_update_init_defer_op(void)
+void xfs_refcount_update_init_defer_op(void)
 {
 	xfs_defer_init_op_type(&xfs_refcount_update_defer_type);
 }
@@ -242,8 +239,7 @@ static const struct xfs_defer_op_type xfs_bmap_update_defer_type = {
 	.create_done	= xfs_bmap_update_create_done,
 	.cancel_item	= xfs_bmap_update_cancel_item,
 };
-void
-xfs_bmap_update_init_defer_op(void)
+void xfs_bmap_update_init_defer_op(void)
 {
 	xfs_defer_init_op_type(&xfs_bmap_update_defer_type);
 }

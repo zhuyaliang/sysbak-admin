@@ -183,7 +183,8 @@ typedef struct xfs_sb {
 
 	xfs_ino_t	sb_pquotino;	/* project quota inode */
 	xfs_lsn_t	sb_lsn;		/* last write sequence */
-	uuid_t		sb_meta_uuid;	/* metadata file system unique id */
+//	uuid_t		sb_meta_uuid;	/* metadata file system unique id */
+	unsigned char	sb_meta_uuid;	/* metadata file system unique id */
 
 	/* must be padded to 64 bit alignment */
 } xfs_sb_t;
@@ -223,12 +224,6 @@ typedef struct xfs_dsb {
 	__u8		sb_rextslog;	/* log2 of sb_rextents */
 	__u8		sb_inprogress;	/* mkfs is in progress, don't mount */
 	__u8		sb_imax_pct;	/* max % of fs for inode space */
-					/* statistics */
-	/*
-	 * These fields must remain contiguous.  If you really
-	 * want to change their layout, make sure you fix the
-	 * code in xfs_trans_apply_sb_deltas().
-	 */
 	__be64		sb_icount;	/* allocated inodes */
 	__be64		sb_ifree;	/* free inodes */
 	__be64		sb_fdblocks;	/* free data blocks */
@@ -249,12 +244,6 @@ typedef struct xfs_dsb {
 	__be16		sb_logsectsize;	/* sector size for the log, bytes */
 	__be32		sb_logsunit;	/* stripe unit size for the log */
 	__be32		sb_features2;	/* additional feature bits */
-	/*
-	 * bad features2 field as a result of failing to pad the sb
-	 * structure to 64 bits. Some machines will be using this field
-	 * for features2 bits. Easiest just to mark it bad and not use
-	 * it for anything else.
-	 */
 	__be32		sb_bad_features2;
 
 	/* version 5 superblock fields start here */
@@ -335,10 +324,6 @@ static inline void xfs_sb_version_addattr(struct xfs_sb *sbp)
 	sbp->sb_versionnum |= XFS_SB_VERSION_ATTRBIT;
 }
 
-static inline bool xfs_sb_version_hasquota(struct xfs_sb *sbp)
-{
-	return (sbp->sb_versionnum & XFS_SB_VERSION_QUOTABIT);
-}
 
 static inline void xfs_sb_version_addquota(struct xfs_sb *sbp)
 {
@@ -1001,20 +986,6 @@ typedef enum xfs_dinode_fmt {
 		be16_to_cpu((dip)->di_anextents))
 
 /*
- * For block and character special files the 32bit dev_t is stored at the
- * beginning of the data fork.
- */
-static inline xfs_dev_t xfs_dinode_get_rdev(struct xfs_dinode *dip)
-{
-	return be32_to_cpu(*(__be32 *)XFS_DFORK_DPTR(dip));
-}
-
-static inline void xfs_dinode_put_rdev(struct xfs_dinode *dip, xfs_dev_t rdev)
-{
-	*(__be32 *)XFS_DFORK_DPTR(dip) = cpu_to_be32(rdev);
-}
-
-/*
  * Values for di_flags
  */
 #define XFS_DIFLAG_REALTIME_BIT  0	/* file's blocks come from rt area */
@@ -1137,7 +1108,6 @@ static inline void xfs_dinode_put_rdev(struct xfs_dinode *dip, xfs_dev_t rdev)
 #define	XFS_RTMIN(a,b)	((a) < (b) ? (a) : (b))
 #define	XFS_RTMAX(a,b)	((a) > (b) ? (a) : (b))
 
-#define	XFS_RTLOBIT(w)	xfs_lowbit32(w)
 #define	XFS_RTHIBIT(w)	xfs_highbit32(w)
 
 #define	XFS_RTBLOCKLOG(b)	xfs_highbit64(b)

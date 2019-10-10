@@ -19,16 +19,13 @@
 #include <sys/stat.h>
 #include "xfs_init.h"
 
-//#include "libxfs_priv.h"
 #include "xfs_fs.h"
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
-//#include "xfs_trans_resv.h"
 #include "xfs_mount.h"
 #include "radix-tree.h"
 #include "xfs_defer.h"
 #include "xfs_inode.h"
-//#include "libxfs_priv.h"
 #include "libxfs.h"		/* for now */
 
 #define XFS_BMDR_SPACE_CALC(nrecs) \
@@ -40,6 +37,17 @@
 #define KM_NOFS		0x0004u
 #define KM_MAYFAIL	0x0008u
 #define KM_LARGE	0x0010u
+
+static inline int __do_div(unsigned long long *n, unsigned base)
+{   
+    int __res;
+    __res = (int)(((unsigned long) *n) % (unsigned) base);
+    *n = ((unsigned long) *n) / (unsigned) base;
+    return __res;
+}
+
+#define do_div(n,base)  (__do_div((unsigned long long *)&(n), (base)))
+
 struct cache *libxfs_bcache;	/* global buffer cache */
 int libxfs_bhash_size;		/* #buckets in bcache */
 
@@ -116,7 +124,7 @@ retry:
 		}
 	}
 
-	dev = (statb.st_rdev) ? (statb.st_rdev) : (nextfakedev--);
+	dev = (statb.st_rdev) ? (statb.st_rdev) : (long unsigned int)(nextfakedev--);
 
 	for (d = 0; d < MAX_DEVS; d++)
 		if (dev_map[d].dev == dev) 
@@ -161,9 +169,9 @@ libxfs_device_close(dev_t dev)
 static int
 check_open(char *path, int flags, char **rawfile, char **blockfile)
 {
-	int readonly = (flags & LIBXFS_ISREADONLY);
-	int inactive = (flags & LIBXFS_ISINACTIVE);
-	int dangerously = (flags & LIBXFS_DANGEROUSLY);
+	//int readonly = (flags & LIBXFS_ISREADONLY);
+	//int inactive = (flags & LIBXFS_ISINACTIVE);
+	//int dangerously = (flags & LIBXFS_DANGEROUSLY);
 	struct stat	stbuf;
 
 	if (stat(path, &stbuf) < 0) {
@@ -192,7 +200,6 @@ libxfs_init(libxfs_init_t *a)
 	int		fd;
 	int		needcd;
 	char		*rawfile;
-	char		*rtname;
 	int		rval = 0;
 	int		flags;
 
@@ -283,19 +290,21 @@ kmem_zone_init(int size, char *name)
 	ptr->allocated = 0;
 	return ptr;
 }
+kmem_zone_t	*xfs_buf_zone;
 kmem_zone_t *xfs_da_state_zone;	/* anchor for state struct zone */
 kmem_zone_t	*xfs_btree_cur_zone;
-kmem_zone_t		*xfs_bmap_free_item_zone;
+kmem_zone_t	*xfs_bmap_free_item_zone;
 kmem_zone_t	*xfs_log_item_desc_zone;
 static void
 manage_zones(int release)
 {
-	extern kmem_zone_t	*xfs_buf_zone;
-	extern kmem_zone_t	*xfs_ifork_zone;
-	extern kmem_zone_t	*xfs_da_state_zone;
-	extern kmem_zone_t	*xfs_btree_cur_zone;
-	extern kmem_zone_t	*xfs_bmap_free_item_zone;
-	extern kmem_zone_t	*xfs_log_item_desc_zone;
+    
+//	extern kmem_zone_t	*xfs_buf_zone;
+	//extern kmem_zone_t	*xfs_ifork_zone;
+//	extern kmem_zone_t	*xfs_da_state_zone;
+//	extern kmem_zone_t	*xfs_btree_cur_zone;
+//	extern kmem_zone_t	*xfs_bmap_free_item_zone;
+//	extern kmem_zone_t	*xfs_log_item_desc_zone;
 	//extern void		xfs_dir_startup();
 
 	if (release) {	/* free zone allocation */
@@ -357,7 +366,7 @@ rtmount_init(
 	 * Check that the realtime section is an ok size.
 	 */
 	d = (xfs_daddr_t)XFS_FSB_TO_BB(mp, mp->m_sb.sb_rblocks);
-	if (XFS_BB_TO_FSB(mp, d) != mp->m_sb.sb_rblocks) {
+	if (XFS_BB_TO_FSB(mp, d) != (long int)mp->m_sb.sb_rblocks) {
 		return -1;
 	}
 	bp = libxfs_readbuf(mp->m_rtdev,
@@ -565,7 +574,6 @@ xfs_ialloc_compute_maxlevels(
     uint        inodes;
 
     inodes = (1LL << XFS_INO_AGINO_BITS(mp)) >> XFS_INODES_PER_CHUNK_LOG;
-    g_print ("xfs_ialloc_compute_maxlevels \r\n");
     mp->m_in_maxlevels = xfs_btree_compute_maxlevels(mp, mp->m_inobt_mnr,
                              inodes);
 }
@@ -622,7 +630,7 @@ xfs_bmap_compute_maxlevels(
 	minnoderecs = mp->m_bmap_dmnr[1];
 	maxblocks = (maxleafents + minleafrecs - 1) / minleafrecs;
 	for (level = 1; maxblocks > 1; level++) {
-		if (maxblocks <= maxrootrecs)
+		if (maxblocks <=(uint) maxrootrecs)
 			maxblocks = 1;
 		else
 			maxblocks = (maxblocks + minnoderecs - 1) / minnoderecs;
@@ -745,15 +753,10 @@ libxfs_mount(
 	 * Check that the data (and log if separate) are an ok size.
 	 */
 	d = (xfs_daddr_t) XFS_FSB_TO_BB(mp, mp->m_sb.sb_dblocks);
-	if (XFS_BB_TO_FSB(mp, d) != mp->m_sb.sb_dblocks) {
+	if (XFS_BB_TO_FSB(mp, d) != (long int)mp->m_sb.sb_dblocks) {
 		if (!(flags & LIBXFS_MOUNT_DEBUGGER))
 			return NULL;
 	}
-
-	/*
-	 * We automatically convert v1 inodes to v2 inodes now, so if
-	 * the NLINK bit is not set we can't operate on the filesystem.
-	 */
 	if (!(sbp->sb_versionnum & XFS_SB_VERSION_NLINKBIT)) {
 
 		exit(1);

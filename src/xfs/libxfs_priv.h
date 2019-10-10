@@ -62,12 +62,10 @@
 #include <xfs/xfs.h>
 
 #include "list.h"
-//#include "hlist.h"
 #include "cache.h"
 #include "bitops.h"
 #include "kmem.h"
 #include "libxfs.h"
-#include "atomic.h"
 
 #include <xfs/xfs_types.h>
 #include <xfs/xfs_arch.h>

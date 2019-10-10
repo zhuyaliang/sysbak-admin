@@ -43,6 +43,9 @@
 #define XFS_BMBT_BLOCK_LEN(mp) \
 	(xfs_sb_version_hascrc(&((mp)->m_sb)) ? \
 		XFS_BTREE_LBLOCK_CRC_LEN : XFS_BTREE_LBLOCK_LEN)
+#define atomic_inc_return(x)	(++(*(x)))
+#define atomic_dec_return(x)	(--(*(x)))
+
 struct xfs_perag *
 xfs_perag_get(
 	struct xfs_mount	*mp,

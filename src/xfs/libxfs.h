@@ -28,8 +28,6 @@
 #include "cache.h"
 #include "bitops.h"
 #include "kmem.h"
-#include "atomic.h"
-
 #include <xfs/xfs_types.h>
 #include <xfs/xfs_fs.h>
 #include <xfs/xfs_arch.h>

@@ -23,7 +23,7 @@ struct xfs_inode;
 struct xfs_buftarg;
 struct xfs_dir_ops;
 struct xfs_da_geometry;
-
+typedef	int32_t	atomic_t;
 #define RADIX_TREE_MAP_SHIFT    6
 #define RADIX_TREE_MAP_SIZE (1UL << RADIX_TREE_MAP_SHIFT)
 #define RADIX_TREE_TAG_LONGS    \

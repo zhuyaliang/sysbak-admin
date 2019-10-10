@@ -46,7 +46,6 @@
 #include <xfs/xfs_log_format.h>
 
 #include "libxfs_io.h"
-#include "xfs_bit.h"
 #include "xfs_mount.h"
 #include "xfs_defer.h"
 #include <xfs/xfs_da_format.h>
@@ -167,4 +166,6 @@ xfs_perag_get(
 void
 xfs_perag_put(
 	struct xfs_perag	*pag);
+
+int fls(int x);
 #endif	/* __LIBXFS_H__ */

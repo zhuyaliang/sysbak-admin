@@ -22,10 +22,8 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "xfs_fs.h"
-#include "xfs_format.h"
-#include "xfs_mount.h"
-#include "xfs_bit.h"
+#include <xfs/xfs_fs.h>
+#include "libxfs.h"
 
 #define CACHE_DEBUG 1
 #undef CACHE_DEBUG
@@ -61,7 +59,7 @@ cache_init(
 	cache->c_misses = 0;
 	cache->c_maxcount = maxcount;
 	cache->c_hashsize = hashsize;
-	cache->c_hashshift = xfs_highbit32(hashsize);
+	cache->c_hashshift = fls(hashsize);
 	cache->hash = cache_operations->hash;
 	cache->alloc = cache_operations->alloc;
 	cache->flush = cache_operations->flush;

@@ -198,7 +198,7 @@ enum ce { CE_DEBUG, CE_CONT, CE_NOTE, CE_WARN, CE_ALERT, CE_PANIC };
 extern int		libxfs_nproc(void);
 extern unsigned long	libxfs_physmem(void);	/* in kilobytes */
 
-#include "xfs_ialloc.h"
+//#include "xfs_ialloc.h"
 //#include "xfs_trans_space.h"
 
 #define XFS_INOBT_IS_FREE_DISK(rp,i)		\

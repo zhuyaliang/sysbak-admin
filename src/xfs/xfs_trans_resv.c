@@ -18,7 +18,6 @@
  */
 #include "libxfs_priv.h"
 #include <xfs/xfs_fs.h>
-//#include "xfs_shared.h"
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
 #include "xfs_trans_resv.h"
@@ -26,10 +25,7 @@
 #include <xfs/xfs_da_format.h>
 #include "xfs_da_btree.h"
 #include "xfs_inode.h"
-//#include "xfs_bmap_btree.h"
-#include "xfs_ialloc.h"
 #include "xfs_trans.h"
-//#include "xfs_trans_space.h"
 #include "xfs_trace.h"
 #include "xfs_quota_defs.h"
 

@@ -17,7 +17,6 @@
  */
 #include "libxfs_priv.h"
 #include "xfs_fs.h"
-//#include "xfs_shared.h"
 #include "xfs_format.h"
 #include <xfs/xfs_log_format.h>
 #include "xfs_trans_resv.h"
@@ -25,15 +24,11 @@
 #include "xfs_mount.h"
 #include "xfs_defer.h"
 #include "xfs_inode.h"
-#include "xfs_ialloc.h"
 #include "xfs_alloc.h"
 #include "xfs_trace.h"
 #include "xfs_cksum.h"
 #include "radix-tree.h"
 #include "xfs_trans.h"
-//#include "xfs_bmap_btree.h"
-//#include "xfs_alloc_btree.h"
-//#include "xfs_ialloc_btree.h"
 #include "xfs_rmap_btree.h"
 #include "xfs_bmap.h"
 
@@ -331,6 +326,4 @@ xfs_sb_mount_common(
 		mp->m_ialloc_min_blks = sbp->sb_spino_align;
 	else
 		mp->m_ialloc_min_blks = mp->m_ialloc_blks;
-//	mp->m_alloc_set_aside = xfs_alloc_set_aside(mp);
-//	mp->m_ag_max_usable = xfs_alloc_ag_max_usable(mp);
 }

@@ -39,7 +39,7 @@
 #define XFS_BMDR_SPACE_CALC(nrecs) \
 	(int)(sizeof(xfs_bmdr_block_t) + \
 	       ((nrecs) * (sizeof(xfs_bmbt_key_t) + sizeof(xfs_bmbt_ptr_t))))
-
+#define	XFS_INODE_BIG_CLUSTER_SIZE	8192
 #define KM_SLEEP	0x0001u
 #define KM_NOSLEEP	0x0002u
 #define KM_NOFS		0x0004u

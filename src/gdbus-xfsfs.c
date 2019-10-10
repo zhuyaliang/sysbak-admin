@@ -94,7 +94,8 @@ static gboolean get_sb(xfs_sb_t *sbp, xfs_off_t off, int size, xfs_agnumber_t ag
     }
     if (buf) 
     {
-        libxfs_sb_from_disk(sbp, buf);
+        //libxfs_sb_from_disk(sbp, buf);
+        xfs_sb_from_disk(sbp, buf);
         free(buf); 
         buf = NULL;
     }

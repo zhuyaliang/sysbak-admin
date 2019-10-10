@@ -65,7 +65,8 @@ cache_init(
 	cache->c_misses = 0;
 	cache->c_maxcount = maxcount;
 	cache->c_hashsize = hashsize;
-	cache->c_hashshift = libxfs_highbit32(hashsize);
+	//cache->c_hashshift = libxfs_highbit32(hashsize);
+	cache->c_hashshift = xfs_highbit32(hashsize);
 	cache->hash = cache_operations->hash;
 	cache->alloc = cache_operations->alloc;
 	cache->flush = cache_operations->flush;

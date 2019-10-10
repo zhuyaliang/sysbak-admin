@@ -57,7 +57,7 @@
 	__xfs_dir2_data_freescan((ip)->i_mount->m_dir_geo, \
 				 (ip)->d_ops, hdr, loghead)
 
-#include "libxfs_api_defs.h"
+//#include "libxfs_api_defs.h"
 #include "platform_defs.h"
 #include <xfs/xfs.h>
 

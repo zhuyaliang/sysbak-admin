@@ -19,7 +19,7 @@
 #ifndef __LIBXFS_H__
 #define __LIBXFS_H__
 
-#include "libxfs_api_defs.h"
+//#include "libxfs_api_defs.h"
 #include "platform_defs.h"
 #include <xfs/xfs.h>
 

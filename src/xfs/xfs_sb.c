@@ -17,7 +17,7 @@
  */
 #include "libxfs_priv.h"
 #include "xfs_fs.h"
-#include "xfs_shared.h"
+//#include "xfs_shared.h"
 #include "xfs_format.h"
 #include <xfs/xfs_log_format.h>
 #include "xfs_trans_resv.h"
@@ -33,10 +33,13 @@
 #include "xfs_trans.h"
 #include "xfs_bmap_btree.h"
 #include "xfs_alloc_btree.h"
-#include "xfs_ialloc_btree.h"
+//#include "xfs_ialloc_btree.h"
 #include "xfs_rmap_btree.h"
 #include "xfs_bmap.h"
 
+#define XFS_INOBT_BLOCK_LEN(mp) \
+	(xfs_sb_version_hascrc(&((mp)->m_sb)) ? \
+		XFS_BTREE_SBLOCK_CRC_LEN : XFS_BTREE_SBLOCK_LEN)
 struct xfs_perag *
 xfs_perag_get(
 	struct xfs_mount	*mp,

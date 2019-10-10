@@ -18,7 +18,7 @@
  */
 #include "libxfs_priv.h"
 #include <xfs/xfs_fs.h>
-#include "xfs_shared.h"
+//#include "xfs_shared.h"
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
 #include "xfs_trans_resv.h"
@@ -33,6 +33,7 @@
 #include "xfs_trace.h"
 #include "xfs_quota_defs.h"
 
+#define	XFS_TRANS_PERM_LOG_RES	0x04
 /*
  * A buffer has a format structure overhead in the log in addition
  * to the data, so we need to take this into account when reserving

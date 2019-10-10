@@ -21,7 +21,7 @@
 
 #include "libxfs_priv.h"
 #include "xfs_fs.h"
-#include "xfs_shared.h"
+//#include "xfs_shared.h"
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
 #include "xfs_trans_resv.h"
@@ -45,6 +45,11 @@ static void manage_zones(int);	/* setup global zones */
 
 kmem_zone_t	*xfs_inode_zone;
 
+struct xfs_log_item_desc {
+	struct xfs_log_item	*lid_item;
+	struct list_head	lid_trans;
+	unsigned char		lid_flags;
+};
 /*
  * dev_map - map open devices to fd.
  */

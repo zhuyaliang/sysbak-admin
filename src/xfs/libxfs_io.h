@@ -197,7 +197,6 @@ extern void	libxfs_putbuf (xfs_buf_t *);
 
 extern void	libxfs_readbuf_verify(struct xfs_buf *bp,
 			const struct xfs_buf_ops *ops);
-extern void	libxfs_bcache_purge(void);
 extern void	libxfs_bcache_flush(void);
 extern void	libxfs_purgebuf(xfs_buf_t *);
 extern int	libxfs_bcache_overflowed(void);

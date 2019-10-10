@@ -22,10 +22,8 @@
 #include <unistd.h>
 #include <pthread.h>
 
-//#include "libxfs_priv.h"
 #include "xfs_fs.h"
 #include "xfs_format.h"
-//#include "xfs_trans_resv.h"
 #include "xfs_mount.h"
 #include "xfs_bit.h"
 
@@ -33,7 +31,6 @@
 #undef CACHE_DEBUG
 #define CACHE_DEBUG 1
 #undef CACHE_ABORT
-/* #define CACHE_ABORT 1 */
 
 #define CACHE_SHAKE_COUNT	64
 
@@ -136,7 +133,6 @@ cache_zero_check(
 #else
 #define cache_destroy_check(c)	do { } while (0)
 #endif
-
 void
 cache_destroy(
 	struct cache *		cache)
@@ -176,11 +172,6 @@ cache_generic_bulkrelse(
 	return count;
 }
 
-/*
- * Park unflushable nodes on their own special MRU so that cache_shake() doesn't
- * end up repeatedly scanning them in the futile attempt to clean them before
- * reclaim.
- */
 static void
 cache_add_to_dirty_mru(
 	struct cache		*cache,
@@ -196,20 +187,6 @@ cache_add_to_dirty_mru(
 	pthread_mutex_unlock(&mru->cm_mutex);
 }
 
-/*
- * We've hit the limit on cache size, so we need to start reclaiming nodes we've
- * used. The MRU specified by the priority is shaken.  Returns new priority at
- * end of the call (in case we call again). We are not allowed to reclaim dirty
- * objects, so we have to flush them first. If flushing fails, we move them to
- * the "dirty, unreclaimable" list.
- *
- * Hence we skip priorities > CACHE_MAX_PRIORITY unless "purge" is set as we
- * park unflushable (and hence unreclaimable) buffers at these priorities.
- * Trying to shake unreclaimable buffer lists when there is memory pressure is a
- * waste of time and CPU and greatly slows down cache node recycling operations.
- * Hence we only try to free them if we are being asked to purge the cache of
- * all entries.
- */
 static unsigned int
 cache_shake(
 	struct cache *		cache,
@@ -242,7 +219,6 @@ cache_shake(
 		if (pthread_mutex_trylock(&node->cn_mutex) != 0)
 			continue;
 
-		/* memory pressure is not allowed to release dirty objects */
 		if (cache->flush(node) && !purge) {
 			list_del(&node->cn_mru);
 			mru->cm_count--;
@@ -285,10 +261,6 @@ cache_shake(
 	return (count == CACHE_SHAKE_COUNT) ? priority : ++priority;
 }
 
-/*
- * Allocate a new hash node (updating atomic counter in the process),
- * unless doing so will push us over the maximum cache size.
- */
 static struct cache_node *
 cache_node_allocate(
 	struct cache *		cache,
@@ -309,7 +281,7 @@ cache_node_allocate(
 	if (!nodesfree)
 		return NULL;
 	node = cache->alloc(key);
-	if (node == NULL) {	/* uh-oh */
+	if (node == NULL) {
 		pthread_mutex_lock(&cache->c_mutex);
 		cache->c_count--;
 		pthread_mutex_unlock(&cache->c_mutex);
@@ -322,15 +294,6 @@ cache_node_allocate(
 	node->cn_old_priority = -1;
 	return node;
 }
-
-int
-cache_overflowed(
-	struct cache *		cache)
-{
-	return cache->c_maxcount == cache->c_max;
-}
-
-
 static int
 __cache_node_purge(
 	struct cache *		cache,
@@ -346,7 +309,6 @@ __cache_node_purge(
 		return count;
 	}
 
-	/* can't purge dirty objects */
 	if (cache->flush(node)) {
 		pthread_mutex_unlock(&node->cn_mutex);
 		return 1;
@@ -364,15 +326,6 @@ __cache_node_purge(
 	cache->relse(node);
 	return 0;
 }
-
-/*
- * Lookup in the cache hash table.  With any luck we'll get a cache
- * hit, in which case this will all be over quickly and painlessly.
- * Otherwise, we allocate a new node, taking care not to expand the
- * cache beyond the requested maximum size (shrink it if it would).
- * Returns one if hit in cache, otherwise zero.  A node is _always_
- * returned, however.
- */
 int
 cache_node_get(
 	struct cache *		cache,
@@ -410,15 +363,10 @@ cache_node_get(
 					purged++;
 					hash->ch_count--;
 				}
-				/* FALL THROUGH */
 			case CACHE_MISS:
 				goto next_object;
 			}
 
-			/*
-			 * node found, bump node's reference count, remove it
-			 * from its MRU list, and update stats.
-			 */
 			pthread_mutex_lock(&node->cn_mutex);
 
 			if (node->cn_count == 0) {
@@ -448,21 +396,13 @@ cache_node_get(
 			*nodep = node;
 			return 0;
 next_object:
-			continue;	/* what the hell, gcc? */
+			continue;
 		}
 		pthread_mutex_unlock(&hash->ch_mutex);
-		/*
-		 * not found, allocate a new entry
-		 */
 		node = cache_node_allocate(cache, key);
 		if (node)
 			break;
 		priority = cache_shake(cache, priority, false);
-		/*
-		 * We start at 0; if we free CACHE_SHAKE_COUNT we get
-		 * back the same priority, if not we get back priority+1.
-		 * If we exceed CACHE_MAX_PRIORITY all slots are full; grow it.
-		 */
 		if (priority > CACHE_MAX_PRIORITY) {
 			priority = 0;
 			cache_expand(cache);
@@ -471,7 +411,6 @@ next_object:
 
 	node->cn_hashidx = hashidx;
 
-	/* add new node to appropriate hash */
 	pthread_mutex_lock(&hash->ch_mutex);
 	hash->ch_count++;
 	list_add(&node->cn_hash, &hash->ch_list);
@@ -486,7 +425,6 @@ next_object:
 	*nodep = node;
 	return 1;
 }
-
 void
 cache_node_put(
 	struct cache *		cache,
@@ -495,22 +433,9 @@ cache_node_put(
 	struct cache_mru *	mru;
 
 	pthread_mutex_lock(&node->cn_mutex);
-#ifdef CACHE_DEBUG
-	if (node->cn_count < 1) {
-		fprintf(stderr, "%s: node put on refcount %u (node=%p)\n",
-				__FUNCTION__, node->cn_count, node);
-		cache_abort();
-	}
-	if (!list_empty(&node->cn_mru)) {
-		fprintf(stderr, "%s: node put on node (%p) in MRU list\n",
-				__FUNCTION__, node);
-		cache_abort();
-	}
-#endif
 	node->cn_count--;
 
 	if (node->cn_count == 0) {
-		/* add unreferenced node to appropriate MRU for shaker */
 		mru = &cache->c_mrus[node->cn_priority];
 		pthread_mutex_lock(&mru->cm_mutex);
 		mru->cm_count++;
@@ -550,110 +475,4 @@ cache_node_get_priority(
 	pthread_mutex_unlock(&node->cn_mutex);
 
 	return priority;
-}
-
-
-/*
- * Purge a specific node from the cache.  Reference count must be zero.
- */
-int
-cache_node_purge(
-	struct cache *		cache,
-	cache_key_t		key,
-	struct cache_node *	node)
-{
-	struct list_head *	head;
-	struct list_head *	pos;
-	struct list_head *	n;
-	struct cache_hash *	hash;
-	int			count = -1;
-
-	hash = cache->c_hash + cache->hash(key, cache->c_hashsize,
-					   cache->c_hashshift);
-	head = &hash->ch_list;
-	pthread_mutex_lock(&hash->ch_mutex);
-	for (pos = head->next, n = pos->next; pos != head;
-						pos = n, n = pos->next) {
-		if ((struct cache_node *)pos != node)
-			continue;
-
-		count = __cache_node_purge(cache, node);
-		if (!count)
-			hash->ch_count--;
-		break;
-	}
-	pthread_mutex_unlock(&hash->ch_mutex);
-
-	if (count == 0) {
-		pthread_mutex_lock(&cache->c_mutex);
-		cache->c_count--;
-		pthread_mutex_unlock(&cache->c_mutex);
-	}
-#ifdef CACHE_DEBUG
-	if (count >= 1) {
-		fprintf(stderr, "%s: refcount was %u, not zero (node=%p)\n",
-				__FUNCTION__, count, node);
-		cache_abort();
-	}
-	if (count == -1) {
-		fprintf(stderr, "%s: purge node not found! (node=%p)\n",
-			__FUNCTION__, node);
-		cache_abort();
-	}
-#endif
-	return count == 0;
-}
-
-/*
- * Purge all nodes from the cache.  All reference counts must be zero.
- */
-void
-cache_purge(
-	struct cache *		cache)
-{
-	int			i;
-
-	for (i = 0; i <= CACHE_DIRTY_PRIORITY; i++)
-		cache_shake(cache, i, true);
-
-#ifdef CACHE_DEBUG
-	if (cache->c_count != 0) {
-		/* flush referenced nodes to disk */
-		cache_flush(cache);
-		fprintf(stderr, "%s: shake on cache %p left %u nodes!?\n",
-				__FUNCTION__, cache, cache->c_count);
-		cache_abort();
-	}
-#endif
-}
-
-/*
- * Flush all nodes in the cache to disk.
- */
-void
-cache_flush(
-	struct cache *		cache)
-{
-	struct cache_hash *	hash;
-	struct list_head *	head;
-	struct list_head *	pos;
-	struct cache_node *	node;
-	int			i;
-
-	if (!cache->flush)
-		return;
-
-	for (i = 0; i < cache->c_hashsize; i++) {
-		hash = &cache->c_hash[i];
-
-		pthread_mutex_lock(&hash->ch_mutex);
-		head = &hash->ch_list;
-		for (pos = head->next; pos != head; pos = pos->next) {
-			node = (struct cache_node *)pos;
-			pthread_mutex_lock(&node->cn_mutex);
-			cache->flush(node);
-			pthread_mutex_unlock(&node->cn_mutex);
-		}
-		pthread_mutex_unlock(&hash->ch_mutex);
-	}
 }

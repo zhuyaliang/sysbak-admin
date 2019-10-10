@@ -22,7 +22,6 @@
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>
 
-//#include "libxfs_priv.h"
 #include "libxfs.h"
 #include "xfs_fs.h"
 #include "xfs_init.h"
@@ -44,74 +43,12 @@ static int max_block_alignment;
 #define RAMDISK_MAJOR	1	/* ramdisk major number */
 #endif
 
-#define PROC_MOUNTED	"/proc/mounts"
-
 /*
  * Check if the filesystem is mounted.  Be verbose if asked, and
  * optionally restrict check to /writable/ mounts (i.e. RO is OK)
  */
 #define	CHECK_MOUNT_VERBOSE	0x1
 #define	CHECK_MOUNT_WRITABLE	0x2
-
-static int
-platform_check_mount(char *name, char *block, struct stat *s, int flags)
-{
-	FILE		*f;
-	struct stat	st, mst;
-	struct mntent	*mnt;
-	char		mounts[MAXPATHLEN];
-
-	if (!s) {
-		/* If either fails we are not mounted */
-		if (stat(block, &st) < 0)
-			return 0;
-		if ((st.st_mode & S_IFMT) != S_IFBLK)
-			return 0;
-		s = &st;
-	}
-
-	strcpy(mounts, (!access(PROC_MOUNTED, R_OK)) ? PROC_MOUNTED : MOUNTED);
-	if ((f = setmntent(mounts, "r")) == NULL) {
-		/* Unexpected failure, warn unconditionally */
-		return 1;
-	}
-	while ((mnt = getmntent(f)) != NULL) {
-		if (stat(mnt->mnt_dir, &mst) < 0)
-			continue;
-		if (mst.st_dev != s->st_rdev)
-			continue;
-		/* Found our device, is RO OK? */
-		if ((flags & CHECK_MOUNT_WRITABLE) && hasmntopt(mnt, MNTOPT_RO))
-			continue;
-		else
-			break;
-	}
-	endmntent(f);
-
-	/* No mounts contained the condition we were looking for */
-	if (mnt == NULL)
-		return 0;
-	return 1;
-}
-
-int
-platform_check_ismounted(char *name, char *block, struct stat *s, int verbose)
-{
-	int flags;
-
-	flags = verbose ? CHECK_MOUNT_VERBOSE : 0;
-	return platform_check_mount(name, block, s, flags);
-}
-
-int
-platform_check_iswritable(char *name, char *block, struct stat *s)
-{
-	int flags;
-
-	/* Writable checks are always verbose */
-	flags = CHECK_MOUNT_WRITABLE | CHECK_MOUNT_VERBOSE;
-	return platform_check_mount(name, block, s, flags);
-}
 
 int
 platform_set_blocksize(int fd, char *path, dev_t device, int blocksize, int fatal)
@@ -225,4 +162,3 @@ platform_nproc(void)
 {
 	return sysconf(_SC_NPROCESSORS_ONLN);
 }
-

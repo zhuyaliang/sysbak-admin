@@ -63,31 +63,6 @@ static struct dev_to_fd {
 	dev_t	dev;
 	int	fd;
 } dev_map[MAX_DEVS]={{0}};
-
-/*
- * Checks whether a given device has a mounted, writable
- * filesystem, returns 1 if it does & fatal (just warns
- * if not fatal, but allows us to proceed).
- *
- * Useful to tools which will produce uncertain results
- * if the filesystem is active - repair, check, logprint.
- */
-static int
-check_isactive(char *name, char *block, int fatal)
-{
-	struct stat	st;
-
-	if (stat(block, &st) < 0)
-		return 0;
-	if ((st.st_mode & S_IFMT) != S_IFBLK)
-		return 0;
-	if (platform_check_ismounted(name, block, &st, 0) == 0)
-		return 0;
-	if (platform_check_iswritable(name, block, &st))
-		return fatal ? 1 : 0;
-	return 0;
-}
-
 int
 libxfs_device_to_fd(dev_t device)
 {
@@ -201,12 +176,6 @@ check_open(char *path, int flags, char **rawfile, char **blockfile)
 	if (!(*blockfile = platform_findblockpath(path))) {
 		return 0;
 	}
-	if (!readonly && !inactive && platform_check_ismounted(path, *blockfile, NULL, 1))
-		return 0;
-
-	if (inactive && check_isactive(path, *blockfile, ((readonly|dangerously)?1:0)))
-		return 0;
-
 	return 1;
 }
 

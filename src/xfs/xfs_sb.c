@@ -26,11 +26,10 @@
 #include "xfs_inode.h"
 #include "xfs_alloc.h"
 #include "xfs_trace.h"
-#include "xfs_cksum.h"
 #include "radix-tree.h"
 #include "xfs_trans.h"
 #include "xfs_rmap_btree.h"
-#include "xfs_bmap.h"
+//#include "xfs_bmap.h"
 
 #define XFS_INOBT_BLOCK_LEN(mp) \
 	(xfs_sb_version_hascrc(&((mp)->m_sb)) ? \

@@ -53,16 +53,6 @@
 #include "xfs_quota_defs.h"
 #include "xfs_trans_resv.h"
 
-
-/* CRC stuff, buffer API dependent on it */
-extern uint32_t crc32_le(uint32_t crc, unsigned char const *p, size_t len);
-extern uint32_t crc32c_le(uint32_t crc, unsigned char const *p, size_t len);
-
-#define crc32(c,p,l)	crc32_le((c),(unsigned char const *)(p),(l))
-#define crc32c(c,p,l)	crc32c_le((c),(unsigned char const *)(p),(l))
-
-#include "xfs_cksum.h"
-
 /*
  * This mirrors the kernel include for xfs_buf.h - it's implicitly included in
  * every files via a similar include in the kernel xfs_linux.h.
@@ -162,7 +152,6 @@ typedef struct {
 #define LIBXFS_EXCLUSIVELY	0x0010	/* disallow other accesses (O_EXCL) */
 #define LIBXFS_DIRECT		0x0020	/* can use direct I/O, not buffered */
 
-extern char	*progname;
 extern xfs_lsn_t libxfs_max_lsn;
 extern int	libxfs_init (libxfs_init_t *);
 void radix_tree_init(void);

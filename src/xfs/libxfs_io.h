@@ -219,18 +219,4 @@ extern int libxfs_bhash_size;
 
 extern void	libxfs_iomove (xfs_buf_t *, uint, int, void *, int);
 
-static inline int
-xfs_buf_verify_cksum(struct xfs_buf *bp, unsigned long cksum_offset)
-{
-	return xfs_verify_cksum(bp->b_addr, BBTOB(bp->b_length),
-				cksum_offset);
-}
-
-static inline void
-xfs_buf_update_cksum(struct xfs_buf *bp, unsigned long cksum_offset)
-{
-	xfs_update_cksum(bp->b_addr, BBTOB(bp->b_length),
-			 cksum_offset);
-}
-
 #endif	/* __LIBXFS_IO_H__ */

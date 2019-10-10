@@ -68,17 +68,9 @@
 #include <xfs/xfs_arch.h>
 #include <xfs/xfs_fs.h>
 
-/* CRC stuff, buffer API dependent on it */
-extern uint32_t crc32_le(uint32_t crc, unsigned char const *p, size_t len);
-extern uint32_t crc32c_le(uint32_t crc, unsigned char const *p, size_t len);
-
-#define crc32(c,p,l)	crc32_le((c),(unsigned char const *)(p),(l))
-#define crc32c(c,p,l)	crc32c_le((c),(unsigned char const *)(p),(l))
-
 #define SIZEOF_LONG 8
 #define SIZEOF_CHAR_P 8
 #define BITS_PER_LONG (SIZEOF_LONG * CHAR_BIT)
-#include "xfs_cksum.h"
 
 /*
  * This mirrors the kernel include for xfs_buf.h - it's implicitly included in
@@ -223,83 +215,10 @@ static inline int __do_div(unsigned long long *n, unsigned base)
 	unsigned long name[BITS_TO_LONGS(bits)]
 #define BITMAP_FIRST_WORD_MASK(start) (~0UL << ((start) & (BITS_PER_LONG - 1)))
 
-/*
- * This is a common helper function for find_next_bit and
- * find_next_zero_bit.  The difference is the "invert" argument, which
- * is XORed with each fetched word before searching it for one bits.
- */
-static inline unsigned long
-_find_next_bit(const unsigned long *addr, unsigned long nbits,
-		unsigned long start, unsigned long invert)
-{
-	unsigned long tmp;
-
-	if (!nbits || start >= nbits)
-		return nbits;
-
-	tmp = addr[start / BITS_PER_LONG] ^ invert;
-
-	/* Handle 1st word. */
-	tmp &= BITMAP_FIRST_WORD_MASK(start);
-	start = round_down(start, BITS_PER_LONG);
-
-	while (!tmp) {
-		start += BITS_PER_LONG;
-		if (start >= nbits)
-			return nbits;
-
-		tmp = addr[start / BITS_PER_LONG] ^ invert;
-	}
-
-	return min(start + ffs(tmp), nbits);
-}
-
-/*
- * Find the next set bit in a memory region.
- */
-static inline unsigned long
-find_next_bit(const unsigned long *addr, unsigned long size,
-		unsigned long offset)
-{
-	return _find_next_bit(addr, size, offset, 0UL);
-}
-static inline unsigned long
-find_next_zero_bit(const unsigned long *addr, unsigned long size,
-		 unsigned long offset)
-{
-	return _find_next_bit(addr, size, offset, ~0UL);
-}
-#define find_first_zero_bit(addr, size) find_next_zero_bit((addr), (size), 0)
-
 static inline __attribute__((const))
 int is_power_of_2(unsigned long n)
 {
 	return (n != 0 && ((n & (n - 1)) == 0));
-}
-
-/*
- * xfs_iroundup: round up argument to next power of two
- */
-static inline uint
-roundup_pow_of_two(uint v)
-{
-	int	i;
-	uint	m;
-
-	if ((v & (v - 1)) == 0)
-		return v;
-	ASSERT((v & 0x80000000) == 0);
-	if ((v & (v + 1)) == 0)
-		return v + 1;
-	for (i = 0, m = 1; i < 31; i++, m <<= 1) {
-		if (v & m)
-			continue;
-		v |= m;
-		if ((v & (v + 1)) == 0)
-			return v + 1;
-	}
-	ASSERT(0);
-	return 0;
 }
 
 static inline __uint64_t
@@ -469,10 +388,6 @@ void xfs_bmap_del_free(struct xfs_bmap_free *, struct xfs_bmap_free_item *);
 
 void xfs_mount_common(struct xfs_mount *, struct xfs_sb *);
 
-/*
- * logitem.c and trans.c prototypes
- */
-int xfs_trans_roll(struct xfs_trans **, struct xfs_inode *);
 
 /* xfs_trans_item.c */
 void xfs_trans_add_item(struct xfs_trans *, struct xfs_log_item *);

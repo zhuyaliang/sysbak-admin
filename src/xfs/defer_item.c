@@ -27,10 +27,10 @@
 #include "xfs_mount.h"
 #include "xfs_defer.h"
 #include "xfs_trans.h"
-#include "xfs_bmap.h"
+//#include "xfs_bmap.h"
 #include "xfs_alloc.h"
 #include "xfs_rmap.h"
-#include "xfs_bmap.h"
+//#include "xfs_bmap.h"
 #include "xfs_inode.h"
 
 static const struct xfs_defer_op_type *defer_op_types[XFS_DEFER_OPS_TYPE_MAX];

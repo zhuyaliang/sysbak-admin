@@ -139,7 +139,6 @@ void cache_node_put(struct cache *, struct cache_node *);
 void cache_node_set_priority(struct cache *, struct cache_node *, int);
 int cache_node_get_priority(struct cache_node *);
 int cache_node_purge(struct cache *, cache_key_t, struct cache_node *);
-void cache_report(FILE *fp, const char *, struct cache *);
 int cache_overflowed(struct cache *);
 
 #endif	/* __CACHE_H__ */

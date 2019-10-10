@@ -597,7 +597,6 @@ struct xfs_extent_data {
 
 #define XFS_IOC_CLONE		 _IOW (0x94, 9, int)
 #define XFS_IOC_CLONE_RANGE	 _IOW (0x94, 13, struct xfs_clone_args)
-#define XFS_IOC_FILE_EXTENT_SAME _IOWR(0x94, 54, struct xfs_extent_data)
 
 #ifndef HAVE_BBMACROS
 /*

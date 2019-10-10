@@ -61,7 +61,7 @@ sources = files(
   'xfs/cache.c',
   'xfs/defer_item.c',
   'xfs/xfs_linux.c',
-  'xfs/xfs_trans_resv.c',
+  #  'xfs/xfs_trans_resv.c',
   'xfs/rdwr.c',
   'xfs/xfs_sb.c',
   'xfs/radix-tree.c',

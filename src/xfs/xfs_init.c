@@ -23,12 +23,10 @@
 #include "xfs_fs.h"
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
-#include "xfs_trans_resv.h"
+//#include "xfs_trans_resv.h"
 #include "xfs_mount.h"
 #include "radix-tree.h"
 #include "xfs_defer.h"
-//#include "xfs_inode_buf.h"
-//#include "xfs_inode_fork.h"
 #include "xfs_inode.h"
 #include "libxfs_priv.h"
 #include "libxfs.h"		/* for now */
@@ -662,12 +660,6 @@ xfs_bmap_compute_maxlevels(
 	}
 	mp->m_bm_maxlevels[whichfork] = level;
 }
-static void
-xfs_trans_init(
-	struct xfs_mount	*mp)
-{
-	xfs_trans_resv_calc(mp, &mp->m_resv);
-}
 static int
 xfs_da_mount(
 	struct xfs_mount	*mp)
@@ -813,9 +805,6 @@ libxfs_mount(
 
 	if (xfs_sb_version_hasattr2(&mp->m_sb))
 		mp->m_flags |= LIBXFS_MOUNT_ATTR2;
-
-	/* Initialize the precomputed transaction reservations values */
-	xfs_trans_init(mp);
 
 	if (dev == 0)	/* maxtrres, we have no device so leave now */
 		return mp;

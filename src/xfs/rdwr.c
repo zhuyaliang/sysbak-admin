@@ -22,10 +22,8 @@
 #include "xfs_fs.h"
 #include "xfs_format.h"
 #include <xfs/xfs_log_format.h>
-#include "xfs_trans_resv.h"
+//#include "xfs_trans_resv.h"
 #include "xfs_mount.h"
-//#include "xfs_inode_buf.h"
-//#include "xfs_inode_fork.h"
 #include "xfs_inode.h"
 
 #include "libxfs.h"		/* for LIBXFS_EXIT_ON_FAILURE */

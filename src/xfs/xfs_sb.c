@@ -19,14 +19,12 @@
 #include "xfs_fs.h"
 #include "xfs_format.h"
 #include <xfs/xfs_log_format.h>
-#include "xfs_trans_resv.h"
+//#include "xfs_trans_resv.h"
 #include "xfs_bit.h"
 #include "xfs_mount.h"
 #include "xfs_defer.h"
 #include "xfs_inode.h"
-//#include "xfs_alloc.h"
 #include "radix-tree.h"
-//#include "xfs_rmap_btree.h"
 
 #define XFS_INOBT_BLOCK_LEN(mp) \
 	(xfs_sb_version_hascrc(&((mp)->m_sb)) ? \

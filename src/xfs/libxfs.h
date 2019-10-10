@@ -47,8 +47,7 @@
 
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
-//#include "xfs_quota_defs.h"
-#include "xfs_trans_resv.h"
+//#include "xfs_trans_resv.h"
 
 /*
  * This mirrors the kernel include for xfs_buf.h - it's implicitly included in
@@ -62,8 +61,6 @@
 #include <xfs/xfs_da_format.h>
 #include "xfs_da_btree.h"
 #include "xfs_dir2.h"
-//#include "xfs_inode_fork.h"
-//#include "xfs_inode_buf.h"
 #include "xfs_inode.h"
 #include "xfs_btree.h"
 #include "xfs_bmap.h"

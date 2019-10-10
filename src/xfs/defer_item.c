@@ -25,6 +25,25 @@
 #include "xfs_rmap.h"
 #include "xfs_inode.h"
 
+enum xfs_refcount_intent_type {
+    XFS_REFCOUNT_INCREASE = 1,
+    XFS_REFCOUNT_DECREASE,
+    XFS_REFCOUNT_ALLOC_COW,
+    XFS_REFCOUNT_FREE_COW,
+};
+
+struct xfs_refcount_intent {
+    struct list_head            ri_list;
+    enum xfs_refcount_intent_type       ri_type;
+    xfs_fsblock_t               ri_startblock;
+    xfs_extlen_t                ri_blockcount;
+};
+
+#define container_of(ptr, type, member) ({          \
+    const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
+    (type *)( (char *)__mptr - offsetof(type,member) );})
+
+
 static const struct xfs_defer_op_type *defer_op_types[XFS_DEFER_OPS_TYPE_MAX];
 static int
 xfs_extent_free_diff_items(

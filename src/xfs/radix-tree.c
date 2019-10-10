@@ -82,7 +82,8 @@ static inline int tag_get(struct radix_tree_node *node, unsigned int tag,
 static inline int any_tag_set(struct radix_tree_node *node, unsigned int tag)
 {
 	int idx;
-	for (idx = 0; idx < RADIX_TREE_TAG_LONGS; idx++) {
+	for (idx = 0; idx < (int)RADIX_TREE_TAG_LONGS; idx++)
+    {
 		if (node->tags[tag][idx])
 			return 1;
 	}

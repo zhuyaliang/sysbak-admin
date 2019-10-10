@@ -1,7 +1,7 @@
 #ifndef __CACHE_H__
 #define __CACHE_H__
 
-#include "list.h"
+#include <btrfs/list.h>
 
 #define CACHE_MISCOMPARE_PURGE	(1 << 0)
 

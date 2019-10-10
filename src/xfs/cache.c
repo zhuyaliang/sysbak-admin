@@ -33,7 +33,14 @@
 #define CACHE_SHAKE_COUNT	64
 
 static unsigned int cache_generic_bulkrelse(struct cache *, struct list_head *);
-
+static void list_head_init(struct list_head *list)
+{
+	list->next = list->prev = list;
+}
+static void list_head_destroy(struct list_head *list)
+{
+	list->next = list->prev = NULL;
+}
 struct cache *
 cache_init(
 	int			flags,
@@ -83,7 +90,7 @@ cache_init(
 	return cache;
 }
 
-void
+static void
 cache_expand(
 	struct cache *		cache)
 {
@@ -160,7 +167,7 @@ cache_generic_bulkrelse(
 	unsigned int		count = 0;
 
 	while (!list_empty(list)) {
-		node = list_entry(list->next, struct cache_node, cn_mru);
+		node = list_entry1(list->next, struct cache_node, cn_mru);
 		pthread_mutex_destroy(&node->cn_mutex);
 		list_del_init(&node->cn_mru);
 		cache->relse(node);
@@ -212,7 +219,7 @@ cache_shake(
 	pthread_mutex_lock(&mru->cm_mutex);
 	for (pos = head->prev, n = pos->prev; pos != head;
 						pos = n, n = pos->prev) {
-		node = list_entry(pos, struct cache_node, cn_mru);
+		node = list_entry1(pos, struct cache_node, cn_mru);
 
 		if (pthread_mutex_trylock(&node->cn_mutex) != 0)
 			continue;
@@ -231,8 +238,6 @@ cache_shake(
 			pthread_mutex_unlock(&node->cn_mutex);
 			continue;
 		}
-		ASSERT(node->cn_count == 0);
-		ASSERT(node->cn_priority == priority);
 		node->cn_priority = -1;
 
 		list_move(&node->cn_mru, &temp);
@@ -350,7 +355,7 @@ cache_node_get(
 						pos = n, n = pos->next) {
 			int result;
 
-			node = list_entry(pos, struct cache_node, cn_hash);
+			node = list_entry1(pos, struct cache_node, cn_hash);
 			result = cache->compare(node, key);
 			switch (result) {
 			case CACHE_HIT:
@@ -363,6 +368,8 @@ cache_node_get(
 				}
 			case CACHE_MISS:
 				goto next_object;
+            default:
+                break;
 			}
 
 			pthread_mutex_lock(&node->cn_mutex);

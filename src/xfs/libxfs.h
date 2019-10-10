@@ -36,7 +36,7 @@
 #include <limits.h>
 #include <stdbool.h>
 #include <libgen.h>
-#include "list.h"
+#include <btrfs/list.h>
 #include "radix-tree.h"
 #include "cache.h"
 #include <xfs/xfs_types.h>
@@ -88,6 +88,16 @@
 #define round_up(x, y) ((((x)-1) | __round_mask(x, y))+1)
 #define XFS_MOUNT_32BITINODES		LIBXFS_MOUNT_32BITINODES
 #define XFS_MOUNT_SMALL_INUMS		0
+
+
+#define list_entry1(ptr, type, member) ({			\
+	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
+	(type *)( (char *)__mptr - offsetof(type,member) );})
+
+#define list_for_each_entry1(pos, head, member)				\
+	for (pos = list_entry1((head)->next, typeof(*pos), member);	\
+	     &pos->member != (head); 	\
+	     pos = list_entry1(pos->member.next, typeof(*pos), member))
 typedef struct kmem_zone {
 	int	zone_unitsize;	/* Size in bytes of zone unit           */
 	char	*zone_name;	/* tag name                             */
@@ -141,7 +151,6 @@ typedef struct {
 
 extern xfs_lsn_t libxfs_max_lsn;
 extern int	libxfs_init (libxfs_init_t *);
-void radix_tree_init(void);
 extern void	libxfs_destroy (void);
 extern int	libxfs_device_to_fd (dev_t);
 extern dev_t	libxfs_device_open (char *, int, int, int);

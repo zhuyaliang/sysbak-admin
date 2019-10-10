@@ -124,14 +124,14 @@ __libxfs_getbufr(int blen)
 
 	pthread_mutex_lock(&xfs_buf_freelist.cm_mutex);
 	if (!list_empty(&xfs_buf_freelist.cm_list)) {
-		list_for_each_entry(bp, &xfs_buf_freelist.cm_list, b_node.cn_mru) {
+		list_for_each_entry1(bp, &xfs_buf_freelist.cm_list, b_node.cn_mru) {
 			if (bp->b_bcount == (unsigned)blen) {
 				list_del_init(&bp->b_node.cn_mru);
 				break;
 			}
 		}
 		if (&bp->b_node.cn_mru == &xfs_buf_freelist.cm_list) {
-			bp = list_entry(xfs_buf_freelist.cm_list.next,
+			bp = list_entry1(xfs_buf_freelist.cm_list.next,
 					xfs_buf_t, b_node.cn_mru);
 			list_del_init(&bp->b_node.cn_mru);
 			free(bp->b_addr);
@@ -433,7 +433,7 @@ libxfs_bulkrelse(
 	if (list_empty(list))
 		return 0 ;
 
-	list_for_each_entry(bp, list, b_node.cn_mru) {
+	list_for_each_entry1(bp, list, b_node.cn_mru) {
 		if (bp->b_flags & LIBXFS_B_DIRTY)
 		count++;
 	}

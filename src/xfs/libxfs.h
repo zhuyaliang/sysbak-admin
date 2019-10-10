@@ -69,7 +69,7 @@ extern uint32_t crc32c_le(uint32_t crc, unsigned char const *p, size_t len);
 #include "xfs_inode.h"
 #include "xfs_alloc.h"
 #include "xfs_btree.h"
-#include "xfs_btree_trace.h"
+//#include "xfs_btree_trace.h"
 #include "xfs_bmap.h"
 #include "xfs_trace.h"
 #include "xfs_trans.h"

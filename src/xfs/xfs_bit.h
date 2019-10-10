@@ -38,6 +38,40 @@ static inline __uint64_t xfs_mask64lo(int n)
 	return ((__uint64_t)1 << (n)) - 1;
 }
 
+static inline int fls(int x)
+{
+	int r = 32;
+
+	if (!x)
+		return 0;
+	if (!(x & 0xffff0000u)) {
+		x <<= 16;
+		r -= 16;
+	}
+	if (!(x & 0xff000000u)) {
+		x <<= 8;
+		r -= 8;
+	}
+	if (!(x & 0xf0000000u)) {
+		x <<= 4;
+		r -= 4;
+	}
+	if (!(x & 0xc0000000u)) {
+		x <<= 2;
+		r -= 2;
+	}
+	if (!(x & 0x80000000u)) {
+		r -= 1;
+	}
+	return r;
+}
+static inline int fls64(__u64 x)
+{
+	__u32 h = x >> 32;
+	if (h)
+		return fls(h) + 32;
+	return fls(x);
+}
 /* Get high bit set out of 32-bit argument, -1 if none set */
 static inline int xfs_highbit32(__uint32_t v)
 {

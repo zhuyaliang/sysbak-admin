@@ -26,7 +26,7 @@
 #include "list.h"
 #include "radix-tree.h"
 #include "cache.h"
-#include "bitops.h"
+//#include "bitops.h"
 #include "kmem.h"
 #include <xfs/xfs_types.h>
 #include <xfs/xfs_fs.h>

@@ -63,7 +63,7 @@
 
 #include "list.h"
 #include "cache.h"
-#include "bitops.h"
+//#include "bitops.h"
 #include "kmem.h"
 #include "libxfs.h"
 

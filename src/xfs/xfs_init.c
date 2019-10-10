@@ -39,6 +39,7 @@
 #define XFS_BMDR_SPACE_CALC(nrecs) \
 	(int)(sizeof(xfs_bmdr_block_t) + \
 	       ((nrecs) * (sizeof(xfs_bmbt_key_t) + sizeof(xfs_bmbt_ptr_t))))
+
 struct cache *libxfs_bcache;	/* global buffer cache */
 int libxfs_bhash_size;		/* #buckets in bcache */
 

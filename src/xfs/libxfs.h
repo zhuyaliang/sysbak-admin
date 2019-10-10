@@ -75,8 +75,7 @@ extern uint32_t crc32c_le(uint32_t crc, unsigned char const *p, size_t len);
 #include <xfs/xfs_da_format.h>
 #include "xfs_da_btree.h"
 #include "xfs_dir2.h"
-//#include "xfs_bmap_btree.h"
-#include "xfs_alloc_btree.h"
+//#include "xfs_alloc_btree.h"
 #include "xfs_inode_fork.h"
 #include "xfs_inode_buf.h"
 #include "xfs_inode.h"
@@ -96,7 +95,21 @@ extern uint32_t crc32c_le(uint32_t crc, unsigned char const *p, size_t len);
 #endif
 
 #define xfs_isset(a,i)	((a)[(i)/(sizeof(*(a))*NBBY)] & (1ULL<<((i)%(sizeof(*(a))*NBBY))))
+#define XFS_ALLOC_BLOCK_LEN(mp) \
+	(xfs_sb_version_hascrc(&((mp)->m_sb)) ? \
+		XFS_BTREE_SBLOCK_CRC_LEN : XFS_BTREE_SBLOCK_LEN)
+#define XFS_ALLOC_PTR_ADDR(mp, block, index, maxrecs) \
+	((xfs_alloc_ptr_t *) \
+		((char *)(block) + \
+		 XFS_ALLOC_BLOCK_LEN(mp) + \
+		 (maxrecs) * sizeof(xfs_alloc_key_t) + \
+		 ((index) - 1) * sizeof(xfs_alloc_ptr_t)))
 
+#define XFS_ALLOC_REC_ADDR(mp, block, index) \
+	((xfs_alloc_rec_t *) \
+		((char *)(block) + \
+		 XFS_ALLOC_BLOCK_LEN(mp) + \
+		 (((index) - 1) * sizeof(xfs_alloc_rec_t))))
 /*
  * Argument structure for libxfs_init().
  */

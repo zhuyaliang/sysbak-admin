@@ -140,40 +140,30 @@ do {    \
 #define	XFS_BTREE_MAXLEVELS	9	/* max of all btrees */
 
 struct xfs_btree_ops {
-	/* size of the key and record structures */
 	size_t	key_len;
 	size_t	rec_len;
 
-	/* cursor operations */
 	struct xfs_btree_cur *(*dup_cursor)(struct xfs_btree_cur *);
 	void	(*update_cursor)(struct xfs_btree_cur *src,
 				 struct xfs_btree_cur *dst);
 
-	/* update btree root pointer */
 	void	(*set_root)(struct xfs_btree_cur *cur,
 			    union xfs_btree_ptr *nptr, int level_change);
 
-	/* block allocation / freeing */
 	int	(*alloc_block)(struct xfs_btree_cur *cur,
 			       union xfs_btree_ptr *start_bno,
 			       union xfs_btree_ptr *new_bno,
 			       int *stat);
 	int	(*free_block)(struct xfs_btree_cur *cur, struct xfs_buf *bp);
 
-	/* update last record information */
 	void	(*update_lastrec)(struct xfs_btree_cur *cur,
 				  struct xfs_btree_block *block,
 				  union xfs_btree_rec *rec,
 				  int ptr, int reason);
 
-	/* records in block/level */
 	int	(*get_minrecs)(struct xfs_btree_cur *cur, int level);
 	int	(*get_maxrecs)(struct xfs_btree_cur *cur, int level);
-
-	/* records on disk.  Matter for the root in inode case. */
 	int	(*get_dmaxrecs)(struct xfs_btree_cur *cur, int level);
-
-	/* init values of btree structures */
 	void	(*init_key_from_rec)(union xfs_btree_key *key,
 				     union xfs_btree_rec *rec);
 	void	(*init_rec_from_cur)(struct xfs_btree_cur *cur,
@@ -183,14 +173,9 @@ struct xfs_btree_ops {
 	void	(*init_high_key_from_rec)(union xfs_btree_key *key,
 					  union xfs_btree_rec *rec);
 
-	/* difference between key value and cursor value */
 	__int64_t (*key_diff)(struct xfs_btree_cur *cur,
 			      union xfs_btree_key *key);
 
-	/*
-	 * Difference between key2 and key1 -- positive if key1 > key2,
-	 * negative if key1 < key2, and zero if equal.
-	 */
 	__int64_t (*diff_two_keys)(struct xfs_btree_cur *cur,
 				   union xfs_btree_key *key1,
 				   union xfs_btree_key *key2);
@@ -198,12 +183,10 @@ struct xfs_btree_ops {
 	const struct xfs_buf_ops	*buf_ops;
 
 #if defined(DEBUG) || defined(XFS_WARN)
-	/* check that k1 is lower than k2 */
 	int	(*keys_inorder)(struct xfs_btree_cur *cur,
 				union xfs_btree_key *k1,
 				union xfs_btree_key *k2);
 
-	/* check that r1 is lower than r2 */
 	int	(*recs_inorder)(struct xfs_btree_cur *cur,
 				union xfs_btree_rec *r1,
 				union xfs_btree_rec *r2);

@@ -18,7 +18,6 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-//#include "platform_defs.h"
 #include <xfs/xfs.h>
 #include "radix-tree.h"
 
@@ -53,13 +52,7 @@ struct radix_tree_path {
 
 #define RADIX_TREE_INDEX_BITS  (8 /* CHAR_BIT */ * sizeof(unsigned long))
 #define RADIX_TREE_MAX_PATH (RADIX_TREE_INDEX_BITS/RADIX_TREE_MAP_SHIFT + 2)
-
 static unsigned long height_to_maxindex[RADIX_TREE_MAX_PATH];
-
-/*
- * Radix tree node cache.
- */
-
 #define radix_tree_node_alloc(r) 	((struct radix_tree_node *) \
 		calloc(1, sizeof(struct radix_tree_node)))
 #define radix_tree_node_free(n) 	free(n)
@@ -86,10 +79,6 @@ static inline int tag_get(struct radix_tree_node *node, unsigned int tag,
 	return 1 & (((const __uint32_t *)node->tags[tag])[offset >> 5] >> (offset & 31));
 }
 
-/*
- * Returns 1 if any slot in the node has this tag set.
- * Otherwise returns 0.
- */
 static inline int any_tag_set(struct radix_tree_node *node, unsigned int tag)
 {
 	int idx;
@@ -102,18 +91,11 @@ static inline int any_tag_set(struct radix_tree_node *node, unsigned int tag)
 
 #endif
 
-/*
- *	Return the maximum key which can be store into a
- *	radix tree with height HEIGHT.
- */
 static inline unsigned long radix_tree_maxindex(unsigned int height)
 {
 	return height_to_maxindex[height];
 }
 
-/*
- *	Extend a radix tree so it can store key @index.
- */
 static int radix_tree_extend(struct radix_tree_root *root, unsigned long index)
 {
 	struct radix_tree_node *node;
@@ -122,8 +104,6 @@ static int radix_tree_extend(struct radix_tree_root *root, unsigned long index)
 	char tags[RADIX_TREE_MAX_TAGS];
 	int tag;
 #endif
-
-	/* Figure out what the height should be.  */
 	height = root->height + 1;
 	while (index > radix_tree_maxindex(height))
 		height++;
@@ -134,10 +114,6 @@ static int radix_tree_extend(struct radix_tree_root *root, unsigned long index)
 	}
 
 #ifdef RADIX_TREE_TAGS
-	/*
-	 * Prepare the tag status of the top-level node for propagation
-	 * into the newly-pushed top-level node(s)
-	 */
 	for (tag = 0; tag < RADIX_TREE_MAX_TAGS; tag++) {
 		tags[tag] = 0;
 		if (any_tag_set(root->rnode, tag))
@@ -148,11 +124,9 @@ static int radix_tree_extend(struct radix_tree_root *root, unsigned long index)
 		if (!(node = radix_tree_node_alloc(root)))
 			return -ENOMEM;
 
-		/* Increase the height.  */
 		node->slots[0] = root->rnode;
 
 #ifdef RADIX_TREE_TAGS
-		/* Propagate the aggregated tag info into the new root */
 		for (tag = 0; tag < RADIX_TREE_MAX_TAGS; tag++) {
 			if (tags[tag])
 				tag_set(node, tag, 0);
@@ -207,7 +181,6 @@ int radix_tree_insert(struct radix_tree_root *root,
 	int offset;
 	int error;
 
-	/* Make sure the tree is high enough.  */
 	if ((!index && !root->rnode) ||
 			index > radix_tree_maxindex(root->height)) {
 		error = radix_tree_extend(root, index);
@@ -219,10 +192,9 @@ int radix_tree_insert(struct radix_tree_root *root,
 	height = root->height;
 	shift = (height-1) * RADIX_TREE_MAP_SHIFT;
 
-	offset = 0;			/* uninitialised var warning */
+	offset = 0;	
 	do {
 		if (slot == NULL) {
-			/* Have to add a child node.  */
 			if (!(slot = radix_tree_node_alloc(root)))
 				return -ENOMEM;
 			if (node) {
@@ -232,7 +204,6 @@ int radix_tree_insert(struct radix_tree_root *root,
 				root->rnode = slot;
 		}
 
-		/* Go a level down */
 		offset = (index >> shift) & RADIX_TREE_MAP_MASK;
 		node = slot;
 		slot = node->slots[offset];
@@ -248,92 +219,8 @@ int radix_tree_insert(struct radix_tree_root *root,
 	return 0;
 }
 
-
-#ifdef RADIX_TREE_TAGS
-
-static unsigned int
-__lookup_tag(struct radix_tree_root *root, void **results, unsigned long index,
-	unsigned int max_items, unsigned long *next_index, unsigned int tag)
-{
-	unsigned int nr_found = 0;
-	unsigned int shift;
-	unsigned int height = root->height;
-	struct radix_tree_node *slot;
-
-	shift = (height - 1) * RADIX_TREE_MAP_SHIFT;
-	slot = root->rnode;
-
-	while (height > 0) {
-		unsigned long i = (index >> shift) & RADIX_TREE_MAP_MASK;
-
-		for ( ; i < RADIX_TREE_MAP_SIZE; i++) {
-			if (tag_get(slot, tag, i)) {
-				ASSERT(slot->slots[i] != NULL);
-				break;
-			}
-			index &= ~((1UL << shift) - 1);
-			index += 1UL << shift;
-			if (index == 0)
-				goto out;	/* 32-bit wraparound */
-		}
-		if (i == RADIX_TREE_MAP_SIZE)
-			goto out;
-		height--;
-		if (height == 0) {	/* Bottom level: grab some items */
-			unsigned long j = index & RADIX_TREE_MAP_MASK;
-
-			for ( ; j < RADIX_TREE_MAP_SIZE; j++) {
-				index++;
-				if (tag_get(slot, tag, j)) {
-					ASSERT(slot->slots[j] != NULL);
-					results[nr_found++] = slot->slots[j];
-					if (nr_found == max_items)
-						goto out;
-				}
-			}
-		}
-		shift -= RADIX_TREE_MAP_SHIFT;
-		slot = slot->slots[i];
-	}
-out:
-	*next_index = index;
-	return nr_found;
-}
-/*
-unsigned int
-radix_tree_gang_lookup_tag(struct radix_tree_root *root, void **results,
-		unsigned long first_index, unsigned int max_items,
-		unsigned int tag)
-{
-	const unsigned long max_index = radix_tree_maxindex(root->height);
-	unsigned long cur_index = first_index;
-	unsigned int ret = 0;
-
-	while (ret < max_items) {
-		unsigned int nr_found;
-		unsigned long next_index;	
-
-		if (cur_index > max_index)
-			break;
-		nr_found = __lookup_tag(root, results + ret, cur_index,
-					max_items - ret, &next_index, tag);
-		ret += nr_found;
-		if (next_index == 0)
-			break;
-		cur_index = next_index;
-	}
-	return ret;
-}
-*/
-#endif
-
-/**
- *	radix_tree_shrink    -    shrink height of a radix tree to minimal
- *	@root		radix tree root
- */
 static inline void radix_tree_shrink(struct radix_tree_root *root)
 {
-	/* try to shrink tree height */
 	while (root->height > 1 &&
 			root->rnode->count == 1 &&
 			root->rnode->slots[0]) {
@@ -341,7 +228,6 @@ static inline void radix_tree_shrink(struct radix_tree_root *root)
 
 		root->rnode = to_free->slots[0];
 		root->height--;
-		/* must only free zeroed nodes into the slab */
 #ifdef RADIX_TREE_TAGS
 		tag_clear(to_free, 0, 0);
 		tag_clear(to_free, 1, 0);
@@ -352,15 +238,6 @@ static inline void radix_tree_shrink(struct radix_tree_root *root)
 	}
 }
 
-/**
- *	radix_tree_delete    -    delete an item from a radix tree
- *	@root:		radix tree root
- *	@index:		index key
- *
- *	Remove the item at @index from the radix tree rooted at @root.
- *
- *	Returns the address of the deleted item, or NULL if it was not present.
- */
 void *radix_tree_delete(struct radix_tree_root *root, unsigned long index)
 {
 	struct radix_tree_path path[RADIX_TREE_MAX_PATH + 1], *pathp = path;
@@ -402,9 +279,6 @@ void *radix_tree_delete(struct radix_tree_root *root, unsigned long index)
 	orig_pathp = pathp;
 
 #ifdef RADIX_TREE_TAGS
-	/*
-	 * Clear all tags associated with the just-deleted item
-	 */
 	nr_cleared_tags = 0;
 	for (tag = 0; tag < RADIX_TREE_MAX_TAGS; tag++) {
 		tags[tag] = 1;
@@ -430,7 +304,6 @@ void *radix_tree_delete(struct radix_tree_root *root, unsigned long index)
 		}
 	}
 #endif
-	/* Now free the nodes we do not need anymore */
 	for (pathp = orig_pathp; pathp->node; pathp--) {
 		pathp->node->slots[pathp->offset] = NULL;
 		pathp->node->count--;
@@ -441,7 +314,6 @@ void *radix_tree_delete(struct radix_tree_root *root, unsigned long index)
 			goto out;
 		}
 
-		/* Node with zero slots in use so free it */
 		radix_tree_node_free(pathp->node);
 	}
 	root->rnode = NULL;
@@ -449,23 +321,6 @@ void *radix_tree_delete(struct radix_tree_root *root, unsigned long index)
 out:
 	return ret;
 }
-
-#ifdef RADIX_TREE_TAGS
-/**
- *	radix_tree_tagged - test whether any items in the tree are tagged
- *	@root:		radix tree root
- *	@tag:		tag to test
- */
-int radix_tree_tagged(struct radix_tree_root *root, unsigned int tag)
-{
-  	struct radix_tree_node *rnode;
-  	rnode = root->rnode;
-  	if (!rnode)
-  		return 0;
-	return any_tag_set(rnode, tag);
-}
-#endif
-
 static unsigned long __maxindex(unsigned int height)
 {
 	unsigned int width = height * RADIX_TREE_MAP_SHIFT;

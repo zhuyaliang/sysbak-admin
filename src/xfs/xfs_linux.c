@@ -22,7 +22,8 @@
 #include <sys/ioctl.h>
 #include <sys/sysinfo.h>
 
-#include "libxfs_priv.h"
+//#include "libxfs_priv.h"
+#include "libxfs.h"
 #include "xfs_fs.h"
 #include "xfs_init.h"
 

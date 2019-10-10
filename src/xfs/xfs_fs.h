@@ -17,6 +17,7 @@
  */
 #ifndef __XFS_FS_H__
 #define __XFS_FS_H__
+#include <xfs/xfs.h>
 
 /*
  * SGI's XFS filesystem's major stuff (constants, structures)

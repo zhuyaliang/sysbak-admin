@@ -16,10 +16,8 @@
  * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "libxfs_priv.h"
-#include "xfs_fs.h"
 #include "xfs_format.h"
 #include <xfs/xfs_log_format.h>
-//#include "xfs_trans_resv.h"
 #include "xfs_bit.h"
 #include "xfs_mount.h"
 #include "xfs_defer.h"

@@ -90,6 +90,15 @@
 		 XFS_ALLOC_BLOCK_LEN(mp) + \
 		 (((index) - 1) * sizeof(xfs_alloc_rec_t))))
 
+#define ASSERT(ex) assert(ex)
+#define STATIC				static
+#define rcu_read_lock()		((void) 0)
+#define rcu_read_unlock()	((void) 0)
+#define spin_lock_init(a)	((void) 0)
+#define __round_mask(x, y) ((__typeof__(x))((y)-1))
+#define round_up(x, y) ((((x)-1) | __round_mask(x, y))+1)
+#define XFS_MOUNT_32BITINODES		LIBXFS_MOUNT_32BITINODES
+#define XFS_MOUNT_SMALL_INUMS		0
 typedef struct kmem_zone {
 	int	zone_unitsize;	/* Size in bytes of zone unit           */
 	char	*zone_name;	/* tag name                             */

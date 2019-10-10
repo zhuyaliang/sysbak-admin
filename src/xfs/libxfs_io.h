@@ -19,6 +19,7 @@
 #ifndef __LIBXFS_IO_H_
 #define __LIBXFS_IO_H_
 
+#include "cache.h"
 /*
  * Kernel equivalent buffer based I/O interface
  */

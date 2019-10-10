@@ -18,6 +18,7 @@
 #ifndef __XFS_INIT_H__
 #define __XFS_INIT_H__
 
+#include <xfs/xfs.h>
 struct stat;
 
 extern int platform_check_ismounted (char *path, char *block,

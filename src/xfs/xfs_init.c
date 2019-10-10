@@ -19,7 +19,7 @@
 #include <sys/stat.h>
 #include "xfs_init.h"
 
-#include "libxfs_priv.h"
+//#include "libxfs_priv.h"
 #include "xfs_fs.h"
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
@@ -28,7 +28,7 @@
 #include "radix-tree.h"
 #include "xfs_defer.h"
 #include "xfs_inode.h"
-#include "libxfs_priv.h"
+//#include "libxfs_priv.h"
 #include "libxfs.h"		/* for now */
 
 #define XFS_BMDR_SPACE_CALC(nrecs) \

@@ -16,11 +16,11 @@
  * along with this program; if not, write the Free Software Foundation,
  * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "libxfs_priv.h"
+#include <xfs/libxfs.h>
 #include <xfs/xfs_fs.h>
 #include <xfs/xfs_format.h>
+#include <assert.h>
 #include <xfs/xfs_log_format.h>
-//#include "xfs_trans_resv.h"
 #include "xfs_mount.h"
 #include <xfs/xfs_da_format.h>
 #include "xfs_da_btree.h"

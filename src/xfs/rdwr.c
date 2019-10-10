@@ -17,7 +17,7 @@
  */
 
 
-#include "libxfs_priv.h"
+//#include "libxfs_priv.h"
 #include "xfs_init.h"
 #include "xfs_fs.h"
 #include "xfs_format.h"

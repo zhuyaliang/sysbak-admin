@@ -17,6 +17,7 @@
  */
 #ifndef __XFS_FORMAT_H__
 #define __XFS_FORMAT_H__
+#include <xfs/xfs.h>
 
 /*
  * XFS On Disk Format Definitions

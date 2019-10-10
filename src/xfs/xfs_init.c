@@ -282,8 +282,10 @@ libxfs_init(libxfs_init_t *a)
 		chdir(curdir);
 	if (!libxfs_bhash_size)
 		libxfs_bhash_size = LIBXFS_BHASHSIZE(sbp);
+    
 	libxfs_bcache = cache_init(a->bcache_flags, libxfs_bhash_size,
 				   &libxfs_bcache_operations);
+                 
 	use_xfs_buf_lock = a->usebuflock;
 	manage_zones(0);
 	rval = 1;
@@ -639,6 +641,50 @@ xfs_trans_init(
 	struct xfs_mount	*mp)
 {
 	xfs_trans_resv_calc(mp, &mp->m_resv);
+}
+static int
+xfs_da_mount(
+	struct xfs_mount	*mp)
+{
+	struct xfs_da_geometry	*dageo;
+	int			nodehdr_size;
+
+	mp->m_dir_inode_ops = xfs_dir_get_ops(mp, NULL);
+	mp->m_nondir_inode_ops = xfs_nondir_get_ops(mp, NULL);
+
+	nodehdr_size = mp->m_dir_inode_ops->node_hdr_size;
+	mp->m_dir_geo = kmem_zalloc(sizeof(struct xfs_da_geometry),
+				    KM_SLEEP | KM_MAYFAIL);
+	mp->m_attr_geo = kmem_zalloc(sizeof(struct xfs_da_geometry),
+				     KM_SLEEP | KM_MAYFAIL);
+	if (!mp->m_dir_geo || !mp->m_attr_geo) {
+		kmem_free(mp->m_dir_geo);
+		kmem_free(mp->m_attr_geo);
+		return -ENOMEM;
+	}
+	/* set up directory geometry */
+	dageo = mp->m_dir_geo;
+	dageo->blklog = mp->m_sb.sb_blocklog + mp->m_sb.sb_dirblklog;
+	dageo->fsblog = mp->m_sb.sb_blocklog;
+	dageo->blksize = 1 << dageo->blklog;
+	dageo->fsbcount = 1 << mp->m_sb.sb_dirblklog;
+
+	dageo->datablk = xfs_dir2_byte_to_da(dageo, XFS_DIR2_DATA_OFFSET);
+	dageo->leafblk = xfs_dir2_byte_to_da(dageo, XFS_DIR2_LEAF_OFFSET);
+	dageo->freeblk = xfs_dir2_byte_to_da(dageo, XFS_DIR2_FREE_OFFSET);
+	dageo->node_ents = (dageo->blksize - nodehdr_size) /
+				(uint)sizeof(xfs_da_node_entry_t);
+	dageo->magicpct = (dageo->blksize * 37) / 100;
+
+	dageo = mp->m_attr_geo;
+	dageo->blklog = mp->m_sb.sb_blocklog;
+	dageo->fsblog = mp->m_sb.sb_blocklog;
+	dageo->blksize = 1 << dageo->blklog;
+	dageo->fsbcount = 1;
+	dageo->node_ents = (dageo->blksize - nodehdr_size) /
+				(uint)sizeof(xfs_da_node_entry_t);
+	dageo->magicpct = (dageo->blksize * 37) / 100;
+	return 0;
 }
 xfs_mount_t *
 libxfs_mount(

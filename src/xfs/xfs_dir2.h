@@ -120,7 +120,7 @@ extern const struct xfs_dir_ops *
  * Generic directory interface routines
  */
 extern void xfs_dir_startup(void);
-extern int xfs_da_mount(struct xfs_mount *mp);
+//extern int xfs_da_mount(struct xfs_mount *mp);
 extern void xfs_da_unmount(struct xfs_mount *mp);
 
 /*

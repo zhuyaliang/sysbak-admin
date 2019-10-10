@@ -64,8 +64,6 @@ extern uint32_t crc32c_le(uint32_t crc, unsigned char const *p, size_t len);
 #include "xfs_dir2.h"
 #include "xfs_bmap_btree.h"
 #include "xfs_alloc_btree.h"
-//#include "xfs_ialloc_btree.h"
-//#include "xfs_attr_sf.h"
 #include "xfs_inode_fork.h"
 #include "xfs_inode_buf.h"
 #include "xfs_inode.h"
@@ -76,7 +74,6 @@ extern uint32_t crc32c_le(uint32_t crc, unsigned char const *p, size_t len);
 #include "xfs_trace.h"
 #include "xfs_trans.h"
 #include "xfs_rmap_btree.h"
-//#include "xfs_rmap.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))

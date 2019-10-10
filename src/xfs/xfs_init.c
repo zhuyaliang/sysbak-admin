@@ -31,7 +31,7 @@
 #include "xfs_inode_buf.h"
 #include "xfs_inode_fork.h"
 #include "xfs_inode.h"
-#include "xfs_trans.h"
+//#include "xfs_trans.h"
 #include "xfs_rmap_btree.h"
 #include "libxfs_priv.h"
 #include "libxfs.h"		/* for now */
@@ -670,13 +670,6 @@ xfs_trans_init(
 	struct xfs_mount	*mp)
 {
 	xfs_trans_resv_calc(mp, &mp->m_resv);
-}
-static void *
-kmem_alloc(size_t size, int flags)
-{
-	void	*ptr = malloc(size);
-	memset(ptr, 0, size);
-	return ptr;
 }
 static int
 xfs_da_mount(

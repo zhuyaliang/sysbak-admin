@@ -224,13 +224,3 @@ platform_nproc(void)
 	return sysconf(_SC_NPROCESSORS_ONLN);
 }
 
-unsigned long
-platform_physmem(void)
-{
-	struct sysinfo  si;
-
-	if (sysinfo(&si) < 0) {
-		exit(1);
-	}
-	return (si.totalram >> 10) * si.mem_unit;	/* kilobytes */
-}

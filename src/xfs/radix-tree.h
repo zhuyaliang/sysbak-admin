@@ -46,7 +46,6 @@ do {									\
 
 int radix_tree_insert(struct radix_tree_root *, unsigned long, void *);
 void *radix_tree_delete(struct radix_tree_root *, unsigned long);
-void radix_tree_init(void);
 void *radix_tree_lookup(struct radix_tree_root *root, unsigned long index);
 #ifdef RADIX_TREE_TAGS
 int radix_tree_tag_get(struct radix_tree_root *root,

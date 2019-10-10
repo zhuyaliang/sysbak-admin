@@ -1283,11 +1283,6 @@ typedef	__uint64_t	xfs_inofree_t;
 #define XFS_INODES_PER_HOLEMASK_BIT	\
 	(XFS_INODES_PER_CHUNK / (NBBY * sizeof(__uint16_t)))
 
-static inline xfs_inofree_t xfs_inobt_maskn(int i, int n)
-{
-	return ((n >= XFS_INODES_PER_CHUNK ? 0 : XFS_INOBT_MASK(n)) - 1) << i;
-}
-
 /*
  * The on-disk inode record structure has two formats. The original "full"
  * format uses a 4-byte freecount. The "sparse" format uses a 1-byte freecount

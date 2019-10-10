@@ -112,8 +112,6 @@ struct xfs_dir_ops {
 };
 
 extern const struct xfs_dir_ops *
-	xfs_dir_get_ops(struct xfs_mount *mp, struct xfs_inode *dp);
-extern const struct xfs_dir_ops *
 	xfs_nondir_get_ops(struct xfs_mount *mp, struct xfs_inode *dp);
 
 /*

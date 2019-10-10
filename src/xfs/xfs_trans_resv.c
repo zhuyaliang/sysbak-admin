@@ -25,7 +25,7 @@
 #include <xfs/xfs_da_format.h>
 #include "xfs_da_btree.h"
 #include "xfs_inode.h"
-#include "xfs_trans.h"
+//#include "xfs_trans.h"
 #include "xfs_trace.h"
 #include "xfs_quota_defs.h"
 
@@ -793,41 +793,6 @@ xfs_calc_qm_dqalloc_reservation(
 			XFS_FSB_TO_B(mp, XFS_DQUOT_CLUSTER_SIZE_FSB) - 1);
 }
 
-/*
- * Turning off quotas.
- *    the xfs_qoff_logitem_t: sizeof(struct xfs_qoff_logitem) * 2
- *    the superblock for the quota flags: sector size
- */
-STATIC uint
-xfs_calc_qm_quotaoff_reservation(
-	struct xfs_mount	*mp)
-{
-	return sizeof(struct xfs_qoff_logitem) * 2 +
-		xfs_calc_buf_res(1, mp->m_sb.sb_sectsize);
-}
-
-/*
- * End of turning off quotas.
- *    the xfs_qoff_logitem_t: sizeof(struct xfs_qoff_logitem) * 2
- */
-STATIC uint
-xfs_calc_qm_quotaoff_end_reservation(
-	struct xfs_mount	*mp)
-{
-	return sizeof(struct xfs_qoff_logitem) * 2;
-}
-
-/*
- * Syncing the incore super block changes to disk.
- *     the super block to reflect the changes: sector size
- */
-STATIC uint
-xfs_calc_sb_reservation(
-	struct xfs_mount	*mp)
-{
-	return xfs_calc_buf_res(1, mp->m_sb.sb_sectsize);
-}
-
 void
 xfs_trans_resv_calc(
 	struct xfs_mount	*mp,
@@ -918,16 +883,6 @@ xfs_trans_resv_calc(
 	 */
 	resp->tr_qm_setqlim.tr_logres = xfs_calc_qm_setqlim_reservation(mp);
 	resp->tr_qm_setqlim.tr_logcount = XFS_DEFAULT_LOG_COUNT;
-
-	resp->tr_qm_quotaoff.tr_logres = xfs_calc_qm_quotaoff_reservation(mp);
-	resp->tr_qm_quotaoff.tr_logcount = XFS_DEFAULT_LOG_COUNT;
-
-	resp->tr_qm_equotaoff.tr_logres =
-		xfs_calc_qm_quotaoff_end_reservation(mp);
-	resp->tr_qm_equotaoff.tr_logcount = XFS_DEFAULT_LOG_COUNT;
-
-	resp->tr_sb.tr_logres = xfs_calc_sb_reservation(mp);
-	resp->tr_sb.tr_logcount = XFS_DEFAULT_LOG_COUNT;
 
 	/* The following transaction are logged in logical format */
 	resp->tr_ichange.tr_logres = xfs_calc_ichange_reservation(mp);

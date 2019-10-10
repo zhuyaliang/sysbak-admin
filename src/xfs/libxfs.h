@@ -73,7 +73,7 @@
 #include "xfs_btree.h"
 #include "xfs_bmap.h"
 #include "xfs_trace.h"
-#include "xfs_trans.h"
+//#include "xfs_trans.h"
 #include "xfs_rmap_btree.h"
 
 #ifndef ARRAY_SIZE
@@ -209,6 +209,10 @@ xfs_inobt_is_sparse_disk(
 	return false;
 }
 
+void
+xfs_sb_mount_common(
+	struct xfs_mount *mp,
+	struct xfs_sb	*sbp);
 /* XXX: need parts of xfs_attr.h in userspace */
 #define LIBXFS_ATTR_ROOT	0x0002	/* use attrs in root namespace */
 #define LIBXFS_ATTR_SECURE	0x0008	/* use attrs in security namespace */

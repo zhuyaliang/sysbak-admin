@@ -29,7 +29,7 @@
 //#include "xfs_bmap_btree.h"
 #include "xfs_ialloc.h"
 #include "xfs_trans.h"
-#include "xfs_trans_space.h"
+//#include "xfs_trans_space.h"
 #include "xfs_trace.h"
 #include "xfs_quota_defs.h"
 
@@ -39,6 +39,30 @@
 	(xfs_sb_version_hascrc(&((mp)->m_sb)) ? \
 		XFS_BTREE_LBLOCK_CRC_LEN : XFS_BTREE_LBLOCK_LEN)
 
+#define XFS_MAX_CONTIG_EXTENTS_PER_BLOCK(mp)    \
+		(((mp)->m_alloc_mxr[0]) - ((mp)->m_alloc_mnr[0]))
+
+#define	XFS_EXTENTADD_SPACE_RES(mp,w)	(XFS_BM_MAXLEVELS(mp,w) - 1)
+
+#define XFS_NEXTENTADD_SPACE_RES(mp,b,w)\
+	(((b + XFS_MAX_CONTIG_EXTENTS_PER_BLOCK(mp) - 1) / \
+	  XFS_MAX_CONTIG_EXTENTS_PER_BLOCK(mp)) * \
+	  XFS_EXTENTADD_SPACE_RES(mp,w))
+
+#define	XFS_DAENTER_1B(mp,w)	\
+	((w) == XFS_DATA_FORK ? (mp)->m_dir_geo->fsbcount : 1)
+
+#define	XFS_DAENTER_DBS(mp,w)	\
+	(XFS_DA_NODE_MAXDEPTH + (((w) == XFS_DATA_FORK) ? 2 : 0))
+
+#define	XFS_DAENTER_BLOCKS(mp,w)	\
+	(XFS_DAENTER_1B(mp,w) * XFS_DAENTER_DBS(mp,w))
+
+#define	XFS_DAENTER_BMAP1B(mp,w)	\
+	XFS_NEXTENTADD_SPACE_RES(mp, XFS_DAENTER_1B(mp, w), w)
+
+#define	XFS_DAENTER_BMAPS(mp,w)		\
+	(XFS_DAENTER_DBS(mp,w) * XFS_DAENTER_BMAP1B(mp,w))
 
 /*
  * A buffer has a format structure overhead in the log in addition

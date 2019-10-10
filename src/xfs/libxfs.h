@@ -199,7 +199,7 @@ extern int		libxfs_nproc(void);
 extern unsigned long	libxfs_physmem(void);	/* in kilobytes */
 
 #include "xfs_ialloc.h"
-#include "xfs_trans_space.h"
+//#include "xfs_trans_space.h"
 
 #define XFS_INOBT_IS_FREE_DISK(rp,i)		\
 			((be64_to_cpu((rp)->ir_free) & XFS_INOBT_MASK(i)) != 0)

@@ -26,7 +26,7 @@
 #include <xfs/xfs_da_format.h>
 #include "xfs_da_btree.h"
 #include "xfs_inode.h"
-#include "xfs_bmap_btree.h"
+//#include "xfs_bmap_btree.h"
 #include "xfs_ialloc.h"
 #include "xfs_trans.h"
 #include "xfs_trans_space.h"
@@ -34,6 +34,12 @@
 #include "xfs_quota_defs.h"
 
 #define	XFS_TRANS_PERM_LOG_RES	0x04
+#define XFS_BM_MAXLEVELS(mp,w)		((mp)->m_bm_maxlevels[(w)])
+#define XFS_BMBT_BLOCK_LEN(mp) \
+	(xfs_sb_version_hascrc(&((mp)->m_sb)) ? \
+		XFS_BTREE_LBLOCK_CRC_LEN : XFS_BTREE_LBLOCK_LEN)
+
+
 /*
  * A buffer has a format structure overhead in the log in addition
  * to the data, so we need to take this into account when reserving

@@ -21,8 +21,9 @@
 
 /* These match kernel side includes */
 #include "xfs_inode_buf.h"
-#include "xfs_inode_fork.h"
 
+#define	XFS_INLINE_EXTS		2
+#define	XFS_INLINE_DATA		32
 struct xfs_trans;
 struct xfs_mount;
 struct xfs_inode_log_item;
@@ -43,6 +44,31 @@ struct inode {
 	struct timespec	i_ctime;
 };
 
+typedef struct xfs_ext_irec {
+	xfs_bmbt_rec_host_t *er_extbuf;	/* block of extent records */
+	xfs_extnum_t	er_extoff;	/* extent offset in file */
+	xfs_extnum_t	er_extcount;	/* number of extents in page/block */
+} xfs_ext_irec_t;
+typedef struct xfs_ifork {
+	int			if_bytes;	/* bytes in if_u1 */
+	int			if_real_bytes;	/* bytes allocated in if_u1 */
+	struct xfs_btree_block	*if_broot;	/* file's incore btree root */
+	short			if_broot_bytes;	/* bytes allocated for root */
+	unsigned char		if_flags;	/* per-fork flags */
+	union {
+		xfs_bmbt_rec_host_t *if_extents;/* linear map file exts */
+		xfs_ext_irec_t	*if_ext_irec;	/* irec map file exts */
+		char		*if_data;	/* inline file data */
+	} if_u1;
+	union {
+		xfs_bmbt_rec_host_t if_inline_ext[XFS_INLINE_EXTS];
+						/* very small file extents */
+		char		if_inline_data[XFS_INLINE_DATA];
+						/* very small file data */
+		xfs_dev_t	if_rdev;	/* dev number if special */
+		uuid_t		if_uuid;	/* mount point value */
+	} if_u2;
+} xfs_ifork_t;
 typedef struct xfs_inode {
 	struct cache_node	i_node;
 	struct xfs_mount	*i_mount;	/* fs mount struct ptr */

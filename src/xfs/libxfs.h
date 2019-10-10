@@ -62,13 +62,11 @@
 #include <xfs/xfs_da_format.h>
 #include "xfs_da_btree.h"
 #include "xfs_dir2.h"
-#include "xfs_inode_fork.h"
+//#include "xfs_inode_fork.h"
 #include "xfs_inode_buf.h"
 #include "xfs_inode.h"
-//#include "xfs_alloc.h"
 #include "xfs_btree.h"
 #include "xfs_bmap.h"
-//#include "xfs_rmap_btree.h"
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))

@@ -21,7 +21,6 @@
 
 #include "libxfs_priv.h"
 #include "xfs_fs.h"
-//#include "xfs_shared.h"
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
 #include "xfs_trans_resv.h"
@@ -29,9 +28,8 @@
 #include "radix-tree.h"
 #include "xfs_defer.h"
 #include "xfs_inode_buf.h"
-#include "xfs_inode_fork.h"
+//#include "xfs_inode_fork.h"
 #include "xfs_inode.h"
-//#include "xfs_rmap_btree.h"
 #include "libxfs_priv.h"
 #include "libxfs.h"		/* for now */
 

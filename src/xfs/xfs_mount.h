@@ -20,20 +20,7 @@
 #define __XFS_MOUNT_H__
 #include "libxfs.h"
 
-struct xfs_inode;
-struct xfs_buftarg;
-struct xfs_dir_ops;
-struct xfs_da_geometry;
 typedef	int32_t	atomic_t;
-#define RADIX_TREE_MAP_SHIFT    6
-#define RADIX_TREE_MAP_SIZE (1UL << RADIX_TREE_MAP_SHIFT)
-#define RADIX_TREE_TAG_LONGS    \
-      ((RADIX_TREE_MAP_SIZE + BITS_PER_LONG - 1) / BITS_PER_LONG)
-
-/*
- * Define a user-level mount structure with all we need
- * in order to make use of the numerous XFS_* macros.
- */
 typedef struct xfs_mount {
 	xfs_sb_t		m_sb;		/* copy of fs superblock */
 #define m_icount	m_sb.sb_icount
@@ -104,28 +91,12 @@ typedef struct xfs_mount {
 	const struct xfs_dir_ops *m_nondir_inode_ops; /* !dir inode ops */
 #define M_DIROPS(mp)	((mp)->m_dir_inode_ops)
 
-	/*
-	 * anonymous struct to allow xfs_dquot_buf.c to compile.
-	 * Pointer is always null in userspace, so code does not use it at all
-	 */
 	struct {
 		int	qi_dqperchunk;
 	}			*m_quotainfo;
 
-	/*
-	 * xlog is defined in libxlog and thus is not intialized by libxfs. This
-	 * allows an application to initialize and store a reference to the log
-	 * if warranted.
-	 */
 	struct xlog		*m_log;
 } xfs_mount_t;
-
-/* per-AG block reservation data structures*/
-enum xfs_ag_resv_type {
-	XFS_AG_RESV_NONE = 0,
-	XFS_AG_RESV_METADATA,
-	XFS_AG_RESV_AGFL,
-};
 
 struct xfs_ag_resv {
 	/* number of blocks originally reserved here */
@@ -135,11 +106,6 @@ struct xfs_ag_resv {
 	/* number of blocks originally asked for */
 	xfs_extlen_t	ar_asked;
 };
-
-/*
- * Per-ag incore structure, copies of information in agf and agi,
- * to improve the performance of allocation group selection.
- */
 typedef struct xfs_perag {
 	struct xfs_mount *pag_mount;	/* owner filesystem */
 	xfs_agnumber_t	pag_agno;	/* AG this structure belongs to */
@@ -176,28 +142,12 @@ typedef struct xfs_perag {
 	__uint8_t	pagf_refcount_level;
 } xfs_perag_t;
 
-static inline struct xfs_ag_resv *
-xfs_perag_resv(
-	struct xfs_perag	*pag,
-	enum xfs_ag_resv_type	type)
-{
-	switch (type) {
-	case XFS_AG_RESV_METADATA:
-		return &pag->pag_meta_resv;
-	case XFS_AG_RESV_AGFL:
-		return &pag->pag_agfl_resv;
-	default:
-		return NULL;
-	}
-}
-
 #define LIBXFS_MOUNT_DEBUGGER		0x0001
 #define LIBXFS_MOUNT_32BITINODES	0x0002
 #define LIBXFS_MOUNT_32BITINOOPT	0x0004
 #define LIBXFS_MOUNT_COMPAT_ATTR	0x0008
 #define LIBXFS_MOUNT_ATTR2		0x0010
 #define LIBXFS_MOUNT_WANT_CORRUPTED	0x0020
-
 #define LIBXFS_BHASHSIZE(sbp) 		(1<<10)
 
 extern xfs_mount_t	*libxfs_mount (xfs_mount_t *, xfs_sb_t *,

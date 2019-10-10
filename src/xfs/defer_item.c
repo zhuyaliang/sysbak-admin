@@ -22,7 +22,6 @@
 #include <xfs/xfs_log_format.h>
 #include "xfs_mount.h"
 #include "xfs_defer.h"
-#include "xfs_rmap.h"
 #include "xfs_inode.h"
 
 enum xfs_refcount_intent_type {
@@ -38,6 +37,26 @@ struct xfs_refcount_intent {
     xfs_fsblock_t               ri_startblock;
     xfs_extlen_t                ri_blockcount;
 };
+
+enum xfs_rmap_intent_type {
+	XFS_RMAP_MAP,
+	XFS_RMAP_MAP_SHARED,
+	XFS_RMAP_UNMAP,
+	XFS_RMAP_UNMAP_SHARED,
+	XFS_RMAP_CONVERT,
+	XFS_RMAP_CONVERT_SHARED,
+	XFS_RMAP_ALLOC,
+	XFS_RMAP_FREE,
+};
+
+struct xfs_rmap_intent {
+	struct list_head			ri_list;
+	enum xfs_rmap_intent_type		ri_type;
+	__uint64_t				ri_owner;
+	int					ri_whichfork;
+	struct xfs_bmbt_irec1			ri_bmap;
+};
+
 
 #define container_of(ptr, type, member) ({          \
     const typeof( ((type *)0)->member ) *__mptr = (ptr);    \

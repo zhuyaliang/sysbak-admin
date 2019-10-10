@@ -25,16 +25,16 @@
         sizeof(struct xfs_agfl) : 0)) / \
       sizeof(xfs_agblock_t))
 typedef enum {
-    XFS_EXTFMT_NOSTATE = 0,
-    XFS_EXTFMT_HASSTATE
-} xfs_exntfmt_t;
+    XFS_EXTFMT_NOSTATE1 = 0,
+    XFS_EXTFMT_HASSTATE1
+} xfs_exntfmt_t1;
 
 typedef struct xfs_bmbt_irec1
 {
     xfs_fileoff_t   br_startoff;    /* starting file offset */
     xfs_fsblock_t   br_startblock;  /* starting block number */
     xfs_filblks_t   br_blockcount;  /* number of blocks */
-    xfs_exntfmt_t   br_state;   /* extent state */
+    xfs_exntfmt_t1   br_state;   /* extent state */
 } xfs_bmbt_irec_t1;
 
 struct xfs_extent_free_item

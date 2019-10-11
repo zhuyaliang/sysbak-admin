@@ -26,6 +26,14 @@
 ### 备份分区到文件
 ```sysbak_admin_btrfs_ptf_async```
 
+## xfs 文件系统
+
+### 备份分区到分区
+```sysbak_admin_xfsfs_ptp_async```
+
+### 备份分区到文件
+```sysbak_admin_xfsfs_ptf_async```
+
 ## 恢复备份
 ```sysbak_admin_restore_async```
 ## test 使用说明

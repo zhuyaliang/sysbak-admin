@@ -18,8 +18,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <libsysbak/sysbak-gdbus.h>
-#include <libsysbak/sysbak-extfs.h>
+#include <libsysbak/sysbak-fs.h>
 
 #define   TESTCONFIG     "./test.ini"
 #define   TESTMAX         3
@@ -42,17 +41,17 @@ typedef struct
 
 static void start_test_ptf (SysbakAdmin *sysbak)
 {
-	sysbak_admin_extfs_ptf_async (sysbak);
+	sysbak_admin_btrfs_ptf_async (sysbak);
 }    
 
 static void start_test_ptp (SysbakAdmin *sysbak)
 {
-	sysbak_admin_extfs_ptp_async (sysbak);
+	sysbak_admin_btrfs_ptp_async (sysbak);
 }    
 
 static void start_test_restore (SysbakAdmin *sysbak)
 {
-	sysbak_admin_extfs_restore_async (sysbak);
+	sysbak_admin_restore_async (sysbak);
 } 
 
 static void finished_cb (SysbakAdmin   *sysbak,

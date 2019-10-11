@@ -15,16 +15,18 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef __SYSBAK_FS_H__
-#define __SYSBAK_FS_H__
+#ifndef __SYSBAK_XFSFS_H__
+#define __SYSBAK_XFSFS_H__
 
 #include <glib.h>
 #include <gio/gio.h>
 #include "sysbak-gdbus.h"
 #include "sysbak-check.h"
-#include "sysbak-btrfs.h"
-#include "sysbak-extfs.h"
-#include "sysbak-fatfs.h"
-#include "sysbak-xfsfs.h"
+
+    
+gboolean     sysbak_admin_xfsfs_ptf_async      (SysbakAdmin *sysbak);
+
+
+gboolean     sysbak_admin_xfsfs_ptp_async      (SysbakAdmin *sysbak);
 
 #endif

@@ -8,6 +8,7 @@ headers = files(
   'sysbak-fatfs.h',
   'sysbak-btrfs.h',
   'sysbak-extfs.h',
+  'sysbak-xfsfs.h',
   'sysbak-check.h',
 )
 
@@ -21,6 +22,7 @@ sources = files(
   'sysbak-extfs.c',
   'sysbak-fatfs.c',
   'sysbak-btrfs.c',
+  'sysbak-xfsfs.c',
   'sysbak-check.c',
 )
 

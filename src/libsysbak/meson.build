@@ -7,11 +7,12 @@ headers = files(
   'sysbak-gdbus.h',
   'sysbak-fatfs.h',
   'sysbak-btrfs.h',
+  'sysbak-extfs.h',
   'sysbak-check.h',
 )
 
 install_headers(
-  headers + ['sysbak-extfs.h'],
+  headers + ['sysbak-fs.h'],
   install_dir: join_paths(sysbak_pkgincludedir, subdir),
 )
 

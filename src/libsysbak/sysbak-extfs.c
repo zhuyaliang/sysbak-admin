@@ -140,7 +140,7 @@ gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak)
 
     return TRUE;      /// finish
 }
-gboolean sysbak_admin_extfs_restore_async (SysbakAdmin *sysbak)
+gboolean sysbak_admin_restore_async (SysbakAdmin *sysbak)
 {
 	const char  *source,*target;
 	gboolean     overwrite;

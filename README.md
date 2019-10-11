@@ -10,9 +10,6 @@
 ### 备份分区到文件
 ```sysbak_admin_extfs_ptf_async```
 
-### 恢复备份
-```sysbak_admin_extfs_restore_async```
-
 ## fat/12/16/32 文件系统
 
 ### 备份分区到分区
@@ -21,6 +18,16 @@
 ### 备份分区到文件
 ```sysbak_admin_fatfs_ptf_async```
 
+## btrfs 文件系统
+
+### 备份分区到分区
+```sysbak_admin_btrfs_ptp_async```
+
+### 备份分区到文件
+```sysbak_admin_btrfs_ptf_async```
+
+## 恢复备份
+```sysbak_admin_restore_async```
 ## test 使用说明
 ```test目录下是测试例程，make 后可直接使用,test.ini是测试配置文件，测试时需要修改选项```
 

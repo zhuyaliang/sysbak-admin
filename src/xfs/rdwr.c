@@ -1,4 +1,3 @@
-#include "xfs_init.h"
 #include "xfs_fs.h"
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>

@@ -17,8 +17,6 @@
  */
 
 #include <sys/stat.h>
-#include "xfs_init.h"
-
 #include "xfs_fs.h"
 #include <xfs/xfs_format.h>
 #include <xfs/xfs_log_format.h>
@@ -169,9 +167,6 @@ libxfs_device_close(dev_t dev)
 static int
 check_open(char *path, int flags, char **rawfile, char **blockfile)
 {
-	//int readonly = (flags & LIBXFS_ISREADONLY);
-	//int inactive = (flags & LIBXFS_ISINACTIVE);
-	//int dangerously = (flags & LIBXFS_DANGEROUSLY);
 	struct stat	stbuf;
 
 	if (stat(path, &stbuf) < 0) {

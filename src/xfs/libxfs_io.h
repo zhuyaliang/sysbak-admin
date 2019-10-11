@@ -115,7 +115,6 @@ extern int	libxfs_writebuf_int(xfs_buf_t *, int);
 extern int	libxfs_writebufr(struct xfs_buf *);
 extern int	libxfs_readbufr(struct xfs_buftarg *, xfs_daddr_t, xfs_buf_t *, int, int);
 extern int	libxfs_readbufr_map(struct xfs_buftarg *, struct xfs_buf *, int);
-
 extern int libxfs_bhash_size;
 
 #define LIBXFS_BREAD	0x1

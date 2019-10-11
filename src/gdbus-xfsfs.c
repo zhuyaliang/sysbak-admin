@@ -109,13 +109,9 @@ static void fs_close(void)
 }
 static gboolean fs_open(char* device)
 {
-    //struct stat     statbuf;
-    //int         source_is_file = 0;
     xfs_sb_t        *sb;
-    //int             tmp_residue;
     unsigned int    source_blocksize;       /* source filesystem blocksize */
     unsigned int    source_sectorsize;      /* source disk sectorsize */
-    //int             first_residue;
     if ((source_fd = open(device, O_RDONLY)) < 0) 
     {
         return FALSE;

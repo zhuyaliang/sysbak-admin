@@ -341,15 +341,24 @@ int write_and_map_eb(struct btrfs_trans_handle *trans,
 	if (raid_map) {
 		ret = write_raid56_with_parity(root->fs_info, eb, multi,
 					       length, raid_map);
-		BUG_ON(ret);
+		if (ret)
+        {
+            return -1;
+        }    
 	} else while (dev_nr < multi->num_stripes) {
-		BUG_ON(ret);
+		if (ret)
+        {
+            return -1;
+        }    
 		eb->fd = multi->stripes[dev_nr].dev->fd;
 		eb->dev_bytenr = multi->stripes[dev_nr].physical;
 		multi->stripes[dev_nr].dev->total_ios++;
 		dev_nr++;
 		ret = write_extent_to_disk(eb);
-		BUG_ON(ret);
+		if (ret)
+        {
+            return -1;
+        }    
 	}
 	kfree(raid_map);
 	kfree(multi);
@@ -360,13 +369,15 @@ int write_tree_block(struct btrfs_trans_handle *trans,
 		     struct btrfs_root *root,
 		     struct extent_buffer *eb)
 {
-	if (check_tree_block(root->fs_info, eb)) {
-		BUG();
+	if (check_tree_block(root->fs_info, eb)) 
+    {
+		return -1;
 	}
 
 	if (trans && !btrfs_buffer_uptodate(eb, trans->transid))
-		BUG();
-
+    {
+        return -1;
+    }    
 	btrfs_set_header_flag(eb, BTRFS_HEADER_FLAG_WRITTEN);
 	csum_tree_block(root, eb, 0);
 
@@ -408,7 +419,8 @@ static int update_cowonly_root(struct btrfs_trans_handle *trans,
 	struct btrfs_root *tree_root = root->fs_info->tree_root;
 
 	btrfs_write_dirty_block_groups(trans, root);
-	while(1) {
+	while(1) 
+    {
 		old_root_bytenr = btrfs_root_bytenr(&root->root_item);
 		if (old_root_bytenr == root->node->start)
 			break;
@@ -420,7 +432,10 @@ static int update_cowonly_root(struct btrfs_trans_handle *trans,
 		ret = btrfs_update_root(trans, tree_root,
 					&root->root_key,
 					&root->root_item);
-		BUG_ON(ret);
+		if(ret)
+        {
+            return -1;
+        }    
 		btrfs_write_dirty_block_groups(trans, root);
 	}
 	return 0;
@@ -472,9 +487,15 @@ static int __commit_transaction(struct btrfs_trans_handle *trans,
 			break;
 		while(start <= end) {
 			eb = find_first_extent_buffer(tree, start);
-			BUG_ON(!eb || eb->start != start);
+			if (!eb || eb->start != start)
+            {
+                return -1;
+            }    
 			ret = write_tree_block(trans, root, eb);
-			BUG_ON(ret);
+			if (ret)
+            {
+                return -1;
+            }    
 			start += eb->len;
 			clear_extent_buffer_dirty(eb);
 			free_extent_buffer(eb);
@@ -505,12 +526,21 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans,
 	root->root_item.level = btrfs_header_level(root->node);
 	ret = btrfs_update_root(trans, root->fs_info->tree_root,
 				&root->root_key, &root->root_item);
-	BUG_ON(ret);
+	if (ret)
+    {
+        return -1;
+    }    
 commit_tree:
 	ret = commit_tree_roots(trans, fs_info);
-	BUG_ON(ret);
+	if (ret)
+    {
+        return -1;
+    }    
 	ret = __commit_transaction(trans, root);
-	BUG_ON(ret);
+	if (ret)
+    {
+        return -1;
+    }    
 	write_ctree_super(trans, root);
 	btrfs_finish_extent_commit(trans, fs_info->extent_root,
 			           &fs_info->pinned_extents);
@@ -635,7 +665,10 @@ struct btrfs_root *btrfs_read_fs_root_no_cache(struct btrfs_fs_info *fs_info,
 		     root, fs_info, location->objectid);
 
 	path = btrfs_alloc_path();
-	BUG_ON(!path);
+	if (!path)
+    {
+        return NULL;
+    }    
 	ret = btrfs_search_slot(NULL, tree_root, location, path, 0, 0);
 	if (ret != 0) {
 		if (ret > 0)
@@ -712,8 +745,11 @@ struct btrfs_root *btrfs_read_fs_root(struct btrfs_fs_info *fs_info,
 	if (location->objectid == BTRFS_QUOTA_TREE_OBJECTID)
 		return fs_info->quota_root;
 
-	BUG_ON(location->objectid == BTRFS_TREE_RELOC_OBJECTID ||
-	       location->offset != (u64)-1);
+	if (location->objectid == BTRFS_TREE_RELOC_OBJECTID ||
+	       location->offset != (u64)-1)
+    {
+        return NULL;
+    }    
 
 	node = rb_search(&fs_info->fs_root_tree, (void *)&objectid,
 			 btrfs_fs_roots_compare_objectids, NULL);
@@ -726,7 +762,10 @@ struct btrfs_root *btrfs_read_fs_root(struct btrfs_fs_info *fs_info,
 
 	ret = rb_insert(&fs_info->fs_root_tree, &root->rb_node,
 			btrfs_fs_roots_compare_roots);
-	BUG_ON(ret);
+	if (ret)
+    {
+        return NULL;
+    }    
 	return root;
 }
 
@@ -1483,7 +1522,10 @@ int write_all_supers(struct btrfs_root *root)
 		btrfs_set_super_flags(sb, flags | BTRFS_HEADER_FLAG_WRITTEN);
 
 		ret = write_dev_supers(root, sb, dev);
-		BUG_ON(ret);
+		if (ret)
+        {
+            return -1;
+        }    
 	}
 	return 0;
 }
@@ -1523,14 +1565,23 @@ int close_ctree_fs_info(struct btrfs_fs_info *fs_info)
 
 	if (fs_info->last_trans_committed !=
 	    fs_info->generation) {
-		BUG_ON(!root);
+		if (!root)
+        {
+            return -1;
+        }    
 		trans = btrfs_start_transaction(root, 1);
 		btrfs_commit_transaction(trans, root);
 		trans = btrfs_start_transaction(root, 1);
 		ret = commit_tree_roots(trans, fs_info);
-		BUG_ON(ret);
+		if (ret)
+        {
+            return -1;
+        }    
 		ret = __commit_transaction(trans, root);
-		BUG_ON(ret);
+		if (ret)
+        {
+            return -1;
+        }    
 		write_ctree_super(trans, root);
 		btrfs_free_transaction(root, trans);
 	}

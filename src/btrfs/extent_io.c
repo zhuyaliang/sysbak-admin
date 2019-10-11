@@ -54,7 +54,6 @@ static struct extent_state *alloc_extent_state(void)
 static void btrfs_free_extent_state(struct extent_state *state)
 {
 	state->refs--;
-	BUG_ON(state->refs < 0);
 	if (state->refs == 0)
 		free(state);
 }
@@ -138,13 +137,19 @@ static int insert_state(struct extent_io_tree *tree,
 {
 	int ret;
 
-	BUG_ON(end < start);
+	if (end < start)
+    {
+        return -1;
+    }    
 	state->state |= bits;
 	state->start = start;
 	state->end = end;
 	update_extent_state(state);
 	ret = insert_cache_extent(&tree->state, &state->cache_node);
-	BUG_ON(ret);
+	if (ret)
+    {
+        return -1;
+    }    
 	merge_state(tree, state);
 	return 0;
 }
@@ -165,7 +170,10 @@ static int split_state(struct extent_io_tree *tree, struct extent_state *orig,
 	orig->start = split;
 	update_extent_state(orig);
 	ret = insert_cache_extent(&tree->state, &prealloc->cache_node);
-	BUG_ON(ret);
+	if (ret)
+    {
+        return -1;
+    }    
 	return 0;
 }
 
@@ -236,7 +244,10 @@ again:
 	 */
 	if (state->start < start) {
 		err = split_state(tree, state, prealloc, start);
-		BUG_ON(err == -EEXIST);
+		if (err == -EEXIST)
+        {
+            return -1;
+        }    
 		prealloc = NULL;
 		if (err)
 			goto out;
@@ -258,7 +269,10 @@ again:
 	 */
 	if (state->start <= end && state->end > end) {
 		err = split_state(tree, state, prealloc, end + 1);
-		BUG_ON(err == -EEXIST);
+		if (err == -EEXIST)
+        {
+            return -1;
+        }    
 
 		set |= clear_state_bit(tree, prealloc, bits);
 		prealloc = NULL;
@@ -305,7 +319,10 @@ again:
 	node = search_cache_extent(&tree->state, start);
 	if (!node) {
 		err = insert_state(tree, prealloc, start, end, bits);
-		BUG_ON(err == -EEXIST);
+		if (err == -EEXIST)
+        {
+            return -1;
+        }    
 		prealloc = NULL;
 		goto out;
 	}
@@ -346,7 +363,10 @@ again:
 	 */
 	if (state->start < start) {
 		err = split_state(tree, state, prealloc, start);
-		BUG_ON(err == -EEXIST);
+		if (err == -EEXIST)
+        {
+            return -1;
+        }    
 		prealloc = NULL;
 		if (err)
 			goto out;
@@ -377,7 +397,10 @@ again:
 			this_end = last_start -1;
 		err = insert_state(tree, prealloc, start, this_end,
 				bits);
-		BUG_ON(err == -EEXIST);
+		if (err == -EEXIST)
+        {
+            return -1;
+        }    
 		prealloc = NULL;
 		if (err)
 			goto out;
@@ -391,7 +414,10 @@ again:
 	 * on the first half
 	 */
 	err = split_state(tree, state, prealloc, end + 1);
-	BUG_ON(err == -EEXIST);
+	if (err == -EEXIST)
+    {
+        return -1;
+    }    
 
 	state->state |= bits;
 	merge_state(tree, prealloc);
@@ -536,7 +562,6 @@ static struct extent_buffer *__alloc_extent_buffer(struct extent_io_tree *tree,
 
 	eb = calloc(1, sizeof(struct extent_buffer) + blocksize);
 	if (!eb) {
-		BUG();
 		return NULL;
 	}
 
@@ -560,14 +585,11 @@ void free_extent_buffer(struct extent_buffer *eb)
 		return;
 
 	eb->refs--;
-	BUG_ON(eb->refs < 0);
 	if (eb->refs == 0) {
 		struct extent_io_tree *tree = eb->tree;
-		BUG_ON(eb->flags & EXTENT_DIRTY);
 		list_del_init(&eb->lru);
 		list_del_init(&eb->recow);
 		if (!(eb->flags & EXTENT_BUFFER_DUMMY)) {
-			BUG_ON(tree->cache_size < eb->len);
 			remove_cache_extent(&tree->cache, &eb->cache_node);
 			tree->cache_size -= eb->len;
 		}

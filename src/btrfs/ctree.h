@@ -271,7 +271,6 @@ struct btrfs_free_space_header
 
 static inline unsigned long btrfs_chunk_item_size(int num_stripes)
 {
-	BUG_ON(num_stripes == 0);
 	return sizeof(struct btrfs_chunk) +
 		sizeof(struct btrfs_stripe) * (num_stripes - 1);
 }

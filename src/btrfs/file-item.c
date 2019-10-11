@@ -52,20 +52,28 @@ static noinline int truncate_one_csum(struct btrfs_trans_handle *trans,
         u32 new_size = (bytenr - key->offset) / blocksize;
         new_size *= csum_size;
         ret = btrfs_truncate_item(trans, root, path, new_size, 1);
-        BUG_ON(ret);
+        if (ret)
+        {
+            return -1;
+        }    
     } else if (key->offset >= bytenr && csum_end > end_byte &&
            end_byte > key->offset) {
         u32 new_size = (csum_end - end_byte) / blocksize;
         new_size *= csum_size;
 
         ret = btrfs_truncate_item(trans, root, path, new_size, 0);
-        BUG_ON(ret);
-
+        if (ret)
+        {
+            return -1;
+        }    
         key->offset = end_byte;
         ret = btrfs_set_item_key_safe(root, path, key);
-        BUG_ON(ret);
+        if (ret)
+        {
+            return -1;
+        }    
     } else {
-        BUG();
+        return -1;
     }
     return 0;
 }
@@ -122,7 +130,10 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
 		/* delete the entire item, it is inside our range */
 		if (key.offset >= bytenr && csum_end <= end_byte) {
 			ret = btrfs_del_item(trans, root, path);
-			BUG_ON(ret);
+			if (ret)
+            {
+                return -1;
+            }    
 		} else if (key.offset < bytenr && csum_end > end_byte) {
 			unsigned long offset;
 			unsigned long shift_len;
@@ -140,13 +151,19 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
 			key.offset = bytenr;
 
 			ret = btrfs_split_item(trans, root, path, &key, offset);
-			BUG_ON(ret && ret != -EAGAIN);
+			if (ret && ret != -EAGAIN)
+            {
+                return -1;
+            }    
 
 			key.offset = end_byte - 1;
 		} else {
 			ret = truncate_one_csum(trans, root, path,
 						&key, bytenr, len);
-			BUG_ON(ret);
+			if (ret)
+            {
+                return -1;
+            }    
 		}
 		btrfs_release_path(path);
 	}

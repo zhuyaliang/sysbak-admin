@@ -1,0 +1,946 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/3fdf28bc/
+BLKDISCARD	utils.c	/^#define BLKDISCARD	/;"	d	file:
+BLOCK_GROUP_DATA	extent_io.h	/^#define BLOCK_GROUP_DATA /;"	d
+BLOCK_GROUP_DIRTY	extent_io.h	/^#define BLOCK_GROUP_DIRTY /;"	d
+BLOCK_GROUP_METADATA	extent_io.h	/^#define BLOCK_GROUP_METADATA /;"	d
+BLOCK_GROUP_SYSTEM	extent_io.h	/^#define BLOCK_GROUP_SYSTEM /;"	d
+BTRFS_BACKREF_REV_MASK	ctree.h	/^#define BTRFS_BACKREF_REV_MASK	/;"	d
+BTRFS_BACKREF_REV_MAX	ctree.h	/^#define BTRFS_BACKREF_REV_MAX	/;"	d
+BTRFS_BACKREF_REV_SHIFT	ctree.h	/^#define BTRFS_BACKREF_REV_SHIFT	/;"	d
+BTRFS_BAD_BYTENR	disk-io.c	/^#define BTRFS_BAD_BYTENR	/;"	d	file:
+BTRFS_BAD_FSID	disk-io.c	/^#define BTRFS_BAD_FSID	/;"	d	file:
+BTRFS_BAD_LEVEL	disk-io.c	/^#define BTRFS_BAD_LEVEL	/;"	d	file:
+BTRFS_BAD_NRITEMS	disk-io.c	/^#define BTRFS_BAD_NRITEMS	/;"	d	file:
+BTRFS_BALANCE_ARGS_CONVERT	volumes.h	/^#define BTRFS_BALANCE_ARGS_CONVERT	/;"	d
+BTRFS_BALANCE_ARGS_DEVID	volumes.h	/^#define BTRFS_BALANCE_ARGS_DEVID	/;"	d
+BTRFS_BALANCE_ARGS_DRANGE	volumes.h	/^#define BTRFS_BALANCE_ARGS_DRANGE	/;"	d
+BTRFS_BALANCE_ARGS_LIMIT	volumes.h	/^#define BTRFS_BALANCE_ARGS_LIMIT	/;"	d
+BTRFS_BALANCE_ARGS_LIMIT_RANGE	volumes.h	/^#define BTRFS_BALANCE_ARGS_LIMIT_RANGE	/;"	d
+BTRFS_BALANCE_ARGS_PROFILES	volumes.h	/^#define BTRFS_BALANCE_ARGS_PROFILES	/;"	d
+BTRFS_BALANCE_ARGS_SOFT	volumes.h	/^#define BTRFS_BALANCE_ARGS_SOFT	/;"	d
+BTRFS_BALANCE_ARGS_STRIPES_RANGE	volumes.h	/^#define BTRFS_BALANCE_ARGS_STRIPES_RANGE /;"	d
+BTRFS_BALANCE_ARGS_USAGE	volumes.h	/^#define BTRFS_BALANCE_ARGS_USAGE	/;"	d
+BTRFS_BALANCE_ARGS_USAGE_RANGE	volumes.h	/^#define BTRFS_BALANCE_ARGS_USAGE_RANGE	/;"	d
+BTRFS_BALANCE_ARGS_VRANGE	volumes.h	/^#define BTRFS_BALANCE_ARGS_VRANGE	/;"	d
+BTRFS_BALANCE_DATA	volumes.h	/^#define BTRFS_BALANCE_DATA	/;"	d
+BTRFS_BALANCE_FORCE	volumes.h	/^#define BTRFS_BALANCE_FORCE	/;"	d
+BTRFS_BALANCE_METADATA	volumes.h	/^#define BTRFS_BALANCE_METADATA	/;"	d
+BTRFS_BALANCE_RESUME	volumes.h	/^#define BTRFS_BALANCE_RESUME	/;"	d
+BTRFS_BALANCE_SYSTEM	volumes.h	/^#define BTRFS_BALANCE_SYSTEM	/;"	d
+BTRFS_BALANCE_TYPE_MASK	volumes.h	/^#define BTRFS_BALANCE_TYPE_MASK	/;"	d
+BTRFS_BLOCK_FLAG_FULL_BACKREF	ctree.h	/^#define BTRFS_BLOCK_FLAG_FULL_BACKREF	/;"	d
+BTRFS_BLOCK_GROUP_DATA	ctree.h	/^#define BTRFS_BLOCK_GROUP_DATA	/;"	d
+BTRFS_BLOCK_GROUP_DUP	ctree.h	/^#define BTRFS_BLOCK_GROUP_DUP	/;"	d
+BTRFS_BLOCK_GROUP_ITEM_KEY	ctree.h	/^#define BTRFS_BLOCK_GROUP_ITEM_KEY /;"	d
+BTRFS_BLOCK_GROUP_METADATA	ctree.h	/^#define BTRFS_BLOCK_GROUP_METADATA	/;"	d
+BTRFS_BLOCK_GROUP_PROFILE_MASK	ctree.h	/^#define BTRFS_BLOCK_GROUP_PROFILE_MASK	/;"	d
+BTRFS_BLOCK_GROUP_RAID0	ctree.h	/^#define BTRFS_BLOCK_GROUP_RAID0	/;"	d
+BTRFS_BLOCK_GROUP_RAID1	ctree.h	/^#define BTRFS_BLOCK_GROUP_RAID1	/;"	d
+BTRFS_BLOCK_GROUP_RAID10	ctree.h	/^#define BTRFS_BLOCK_GROUP_RAID10	/;"	d
+BTRFS_BLOCK_GROUP_RAID5	ctree.h	/^#define BTRFS_BLOCK_GROUP_RAID5 /;"	d
+BTRFS_BLOCK_GROUP_RAID6	ctree.h	/^#define BTRFS_BLOCK_GROUP_RAID6 /;"	d
+BTRFS_BLOCK_GROUP_SYSTEM	ctree.h	/^#define BTRFS_BLOCK_GROUP_SYSTEM	/;"	d
+BTRFS_BLOCK_GROUP_TYPE_MASK	ctree.h	/^#define BTRFS_BLOCK_GROUP_TYPE_MASK	/;"	d
+BTRFS_BLOCK_RESERVED_1M_FOR_SUPER	ctree.h	/^#define BTRFS_BLOCK_RESERVED_1M_FOR_SUPER	/;"	d
+BTRFS_CHUNK_ITEM_KEY	ctree.h	/^#define BTRFS_CHUNK_ITEM_KEY	/;"	d
+BTRFS_CHUNK_TREE_OBJECTID	ctree.h	/^#define BTRFS_CHUNK_TREE_OBJECTID /;"	d
+BTRFS_COMPAT_EXTENT_TREE_V0	ctree.h	/^#define BTRFS_COMPAT_EXTENT_TREE_V0$/;"	d
+BTRFS_CSUM_SIZE	ctree.h	/^#define BTRFS_CSUM_SIZE /;"	d
+BTRFS_CSUM_TREE_OBJECTID	ctree.h	/^#define BTRFS_CSUM_TREE_OBJECTID /;"	d
+BTRFS_DEV_EXTENT_KEY	ctree.h	/^#define BTRFS_DEV_EXTENT_KEY	/;"	d
+BTRFS_DEV_ITEMS_OBJECTID	ctree.h	/^#define BTRFS_DEV_ITEMS_OBJECTID /;"	d
+BTRFS_DEV_ITEM_KEY	ctree.h	/^#define BTRFS_DEV_ITEM_KEY	/;"	d
+BTRFS_DEV_TREE_OBJECTID	ctree.h	/^#define BTRFS_DEV_TREE_OBJECTID /;"	d
+BTRFS_DIR_ITEM_KEY	ctree.h	/^#define BTRFS_DIR_ITEM_KEY	/;"	d
+BTRFS_EXTENT_CSUM_KEY	ctree.h	/^#define BTRFS_EXTENT_CSUM_KEY	/;"	d
+BTRFS_EXTENT_CSUM_OBJECTID	ctree.h	/^#define BTRFS_EXTENT_CSUM_OBJECTID /;"	d
+BTRFS_EXTENT_DATA_KEY	ctree.h	/^#define BTRFS_EXTENT_DATA_KEY	/;"	d
+BTRFS_EXTENT_DATA_REF_KEY	ctree.h	/^#define BTRFS_EXTENT_DATA_REF_KEY	/;"	d
+BTRFS_EXTENT_FLAG_DATA	ctree.h	/^#define BTRFS_EXTENT_FLAG_DATA	/;"	d
+BTRFS_EXTENT_FLAG_TREE_BLOCK	ctree.h	/^#define BTRFS_EXTENT_FLAG_TREE_BLOCK	/;"	d
+BTRFS_EXTENT_ITEM_KEY	ctree.h	/^#define BTRFS_EXTENT_ITEM_KEY	/;"	d
+BTRFS_EXTENT_REF_V0_KEY	ctree.h	/^#define BTRFS_EXTENT_REF_V0_KEY	/;"	d
+BTRFS_EXTENT_TREE_OBJECTID	ctree.h	/^#define BTRFS_EXTENT_TREE_OBJECTID /;"	d
+BTRFS_FEATURE_COMPAT_RO_FREE_SPACE_TREE	ctree.h	/^#define BTRFS_FEATURE_COMPAT_RO_FREE_SPACE_TREE	/;"	d
+BTRFS_FEATURE_COMPAT_RO_SUPP	ctree.h	/^#define BTRFS_FEATURE_COMPAT_RO_SUPP	/;"	d
+BTRFS_FEATURE_INCOMPAT_BIG_METADATA	ctree.h	/^#define BTRFS_FEATURE_INCOMPAT_BIG_METADATA /;"	d
+BTRFS_FEATURE_INCOMPAT_COMPRESS_LZO	ctree.h	/^#define BTRFS_FEATURE_INCOMPAT_COMPRESS_LZO	/;"	d
+BTRFS_FEATURE_INCOMPAT_DEFAULT_SUBVOL	ctree.h	/^#define BTRFS_FEATURE_INCOMPAT_DEFAULT_SUBVOL	/;"	d
+BTRFS_FEATURE_INCOMPAT_EXTENDED_IREF	ctree.h	/^#define BTRFS_FEATURE_INCOMPAT_EXTENDED_IREF	/;"	d
+BTRFS_FEATURE_INCOMPAT_MIXED_BACKREF	ctree.h	/^#define BTRFS_FEATURE_INCOMPAT_MIXED_BACKREF	/;"	d
+BTRFS_FEATURE_INCOMPAT_MIXED_GROUPS	ctree.h	/^#define BTRFS_FEATURE_INCOMPAT_MIXED_GROUPS	/;"	d
+BTRFS_FEATURE_INCOMPAT_NO_HOLES	ctree.h	/^#define BTRFS_FEATURE_INCOMPAT_NO_HOLES	/;"	d
+BTRFS_FEATURE_INCOMPAT_RAID56	ctree.h	/^#define BTRFS_FEATURE_INCOMPAT_RAID56	/;"	d
+BTRFS_FEATURE_INCOMPAT_SKINNY_METADATA	ctree.h	/^#define BTRFS_FEATURE_INCOMPAT_SKINNY_METADATA	/;"	d
+BTRFS_FEATURE_INCOMPAT_SUPP	ctree.h	/^#define BTRFS_FEATURE_INCOMPAT_SUPP	/;"	d
+BTRFS_FILE_EXTENT_INLINE	ctree.h	/^#define BTRFS_FILE_EXTENT_INLINE /;"	d
+BTRFS_FIRST_CHUNK_TREE_OBJECTID	ctree.h	/^#define BTRFS_FIRST_CHUNK_TREE_OBJECTID /;"	d
+BTRFS_FIRST_FREE_OBJECTID	ctree.h	/^#define BTRFS_FIRST_FREE_OBJECTID /;"	d
+BTRFS_FREE_SPACE_TREE_OBJECTID	ctree.h	/^#define BTRFS_FREE_SPACE_TREE_OBJECTID /;"	d
+BTRFS_FS_TREE_OBJECTID	ctree.h	/^#define BTRFS_FS_TREE_OBJECTID /;"	d
+BTRFS_HEADER_FLAG_RELOC	ctree.h	/^#define BTRFS_HEADER_FLAG_RELOC	/;"	d
+BTRFS_HEADER_FLAG_WRITTEN	ctree.h	/^#define BTRFS_HEADER_FLAG_WRITTEN	/;"	d
+BTRFS_LABEL_SIZE	ctree.h	/^#define BTRFS_LABEL_SIZE /;"	d
+BTRFS_LEAF_DATA_SIZE	ctree.h	/^#define BTRFS_LEAF_DATA_SIZE(/;"	d
+BTRFS_MAGIC	ctree.h	/^#define BTRFS_MAGIC /;"	d
+BTRFS_MAX_DEVS	volumes.c	/^#define BTRFS_MAX_DEVS(/;"	d	file:
+BTRFS_MAX_DEVS_SYS_CHUNK	volumes.c	/^#define BTRFS_MAX_DEVS_SYS_CHUNK /;"	d	file:
+BTRFS_MAX_EXTENT_ITEM_SIZE	ctree.h	/^#define BTRFS_MAX_EXTENT_ITEM_SIZE(/;"	d
+BTRFS_MAX_LEVEL	ctree.h	/^#define BTRFS_MAX_LEVEL /;"	d
+BTRFS_METADATA_ITEM_KEY	ctree.h	/^#define BTRFS_METADATA_ITEM_KEY	/;"	d
+BTRFS_MIXED_BACKREF_REV	ctree.h	/^#define BTRFS_MIXED_BACKREF_REV	/;"	d
+BTRFS_NODEPTRS_PER_BLOCK	ctree.h	/^#define BTRFS_NODEPTRS_PER_BLOCK(/;"	d
+BTRFS_NUM_BACKUP_ROOTS	ctree.h	/^#define BTRFS_NUM_BACKUP_ROOTS /;"	d
+BTRFS_QUOTA_TREE_OBJECTID	ctree.h	/^#define BTRFS_QUOTA_TREE_OBJECTID /;"	d
+BTRFS_RAID5_P_STRIPE	volumes.h	/^#define BTRFS_RAID5_P_STRIPE /;"	d
+BTRFS_RAID6_Q_STRIPE	volumes.h	/^#define BTRFS_RAID6_Q_STRIPE /;"	d
+BTRFS_ROOT_ITEM_KEY	ctree.h	/^#define BTRFS_ROOT_ITEM_KEY	/;"	d
+BTRFS_ROOT_TREE_OBJECTID	ctree.h	/^#define BTRFS_ROOT_TREE_OBJECTID /;"	d
+BTRFS_SETGET_FUNCS	ctree.h	/^#define BTRFS_SETGET_FUNCS(/;"	d
+BTRFS_SETGET_HEADER_FUNCS	ctree.h	/^#define BTRFS_SETGET_HEADER_FUNCS(/;"	d
+BTRFS_SETGET_STACK_FUNCS	ctree.h	/^#define BTRFS_SETGET_STACK_FUNCS(/;"	d
+BTRFS_SHARED_BLOCK_REF_KEY	ctree.h	/^#define BTRFS_SHARED_BLOCK_REF_KEY	/;"	d
+BTRFS_SHARED_DATA_REF_KEY	ctree.h	/^#define BTRFS_SHARED_DATA_REF_KEY	/;"	d
+BTRFS_STRIPE_LEN	volumes.h	/^#define BTRFS_STRIPE_LEN	/;"	d
+BTRFS_SUPER_FLAG_CHANGING_FSID	ctree.h	/^#define BTRFS_SUPER_FLAG_CHANGING_FSID	/;"	d
+BTRFS_SUPER_FLAG_METADUMP	ctree.h	/^#define BTRFS_SUPER_FLAG_METADUMP	/;"	d
+BTRFS_SUPER_INFO_OFFSET	disk-io.h	/^#define BTRFS_SUPER_INFO_OFFSET /;"	d
+BTRFS_SUPER_INFO_SIZE	disk-io.h	/^#define BTRFS_SUPER_INFO_SIZE /;"	d
+BTRFS_SUPER_MIRROR_MAX	disk-io.h	/^#define BTRFS_SUPER_MIRROR_MAX	/;"	d
+BTRFS_SUPER_MIRROR_SHIFT	disk-io.h	/^#define BTRFS_SUPER_MIRROR_SHIFT /;"	d
+BTRFS_SYSTEM_CHUNK_ARRAY_SIZE	ctree.h	/^#define BTRFS_SYSTEM_CHUNK_ARRAY_SIZE /;"	d
+BTRFS_TREE_BLOCK_BAD_KEY_ORDER	ctree.h	/^	BTRFS_TREE_BLOCK_BAD_KEY_ORDER,$/;"	e	enum:btrfs_tree_block_status
+BTRFS_TREE_BLOCK_CLEAN	ctree.h	/^	BTRFS_TREE_BLOCK_CLEAN,$/;"	e	enum:btrfs_tree_block_status
+BTRFS_TREE_BLOCK_INVALID_FREE_SPACE	ctree.h	/^	BTRFS_TREE_BLOCK_INVALID_FREE_SPACE,$/;"	e	enum:btrfs_tree_block_status
+BTRFS_TREE_BLOCK_INVALID_LEVEL	ctree.h	/^	BTRFS_TREE_BLOCK_INVALID_LEVEL,$/;"	e	enum:btrfs_tree_block_status
+BTRFS_TREE_BLOCK_INVALID_NRITEMS	ctree.h	/^	BTRFS_TREE_BLOCK_INVALID_NRITEMS,$/;"	e	enum:btrfs_tree_block_status
+BTRFS_TREE_BLOCK_INVALID_OFFSETS	ctree.h	/^	BTRFS_TREE_BLOCK_INVALID_OFFSETS,$/;"	e	enum:btrfs_tree_block_status
+BTRFS_TREE_BLOCK_INVALID_PARENT_KEY	ctree.h	/^	BTRFS_TREE_BLOCK_INVALID_PARENT_KEY,$/;"	e	enum:btrfs_tree_block_status
+BTRFS_TREE_BLOCK_REF_KEY	ctree.h	/^#define BTRFS_TREE_BLOCK_REF_KEY	/;"	d
+BTRFS_TREE_LOG_OBJECTID	ctree.h	/^#define BTRFS_TREE_LOG_OBJECTID /;"	d
+BTRFS_TREE_RELOC_OBJECTID	ctree.h	/^#define BTRFS_TREE_RELOC_OBJECTID /;"	d
+BTRFS_UUID_SIZE	ctree.h	/^#define BTRFS_UUID_SIZE /;"	d
+BTRFS_UUID_UNPARSED_SIZE	utils.h	/^#define BTRFS_UUID_UNPARSED_SIZE	/;"	d
+EXTENT_BAD_TRANSID	extent_io.h	/^#define EXTENT_BAD_TRANSID /;"	d
+EXTENT_BUFFER_DUMMY	extent_io.h	/^#define EXTENT_BUFFER_DUMMY /;"	d
+EXTENT_BUFFER_FILLED	extent_io.h	/^#define EXTENT_BUFFER_FILLED /;"	d
+EXTENT_CSUM	extent_io.h	/^#define EXTENT_CSUM /;"	d
+EXTENT_DEFRAG	extent_io.h	/^#define EXTENT_DEFRAG /;"	d
+EXTENT_DEFRAG_DONE	extent_io.h	/^#define EXTENT_DEFRAG_DONE /;"	d
+EXTENT_DELALLOC	extent_io.h	/^#define EXTENT_DELALLOC /;"	d
+EXTENT_DIRTY	extent_io.h	/^#define EXTENT_DIRTY /;"	d
+EXTENT_IOBITS	extent_io.h	/^#define EXTENT_IOBITS /;"	d
+EXTENT_LOCKED	extent_io.h	/^#define EXTENT_LOCKED /;"	d
+EXTENT_NEW	extent_io.h	/^#define EXTENT_NEW /;"	d
+EXTENT_UPTODATE	extent_io.h	/^#define EXTENT_UPTODATE /;"	d
+EXTENT_WRITEBACK	extent_io.h	/^#define EXTENT_WRITEBACK /;"	d
+FREE_RB_BASED_TREE	rbtree-utils.h	/^#define FREE_RB_BASED_TREE(/;"	d
+MASK	raid6.c	/^static inline __attribute_const__ unative_t MASK(unative_t v)$/;"	f	typeref:typename:__attribute_const__ unative_t	file:
+MAX_CSUM_ITEMS	file-item.c	/^#define MAX_CSUM_ITEMS(/;"	d	file:
+NBYTES	raid6.c	/^# define NBYTES(/;"	d	file:
+NSHIFT	raid6.c	/^# define NSHIFT /;"	d	file:
+NSIZE	raid6.c	/^# define NSIZE /;"	d	file:
+OPEN_CTREE_BACKUP_ROOT	disk-io.h	/^	OPEN_CTREE_BACKUP_ROOT		= (1 << 2),$/;"	e	enum:btrfs_open_ctree_flags
+OPEN_CTREE_CHUNK_ROOT_ONLY	disk-io.h	/^	OPEN_CTREE_CHUNK_ROOT_ONLY	= OPEN_CTREE_PARTIAL +$/;"	e	enum:btrfs_open_ctree_flags
+OPEN_CTREE_EXCLUSIVE	disk-io.h	/^	OPEN_CTREE_EXCLUSIVE		= (1 << 6),$/;"	e	enum:btrfs_open_ctree_flags
+OPEN_CTREE_IGNORE_CHUNK_TREE_ERROR	disk-io.h	/^	OPEN_CTREE_IGNORE_CHUNK_TREE_ERROR = (1 << 11)$/;"	e	enum:btrfs_open_ctree_flags
+OPEN_CTREE_IGNORE_FSID_MISMATCH	disk-io.h	/^	OPEN_CTREE_IGNORE_FSID_MISMATCH	= (1 << 10),$/;"	e	enum:btrfs_open_ctree_flags
+OPEN_CTREE_NO_BLOCK_GROUPS	disk-io.h	/^	OPEN_CTREE_NO_BLOCK_GROUPS	= (1 << 5),$/;"	e	enum:btrfs_open_ctree_flags
+OPEN_CTREE_NO_DEVICES	disk-io.h	/^	OPEN_CTREE_NO_DEVICES		= (1 << 7),$/;"	e	enum:btrfs_open_ctree_flags
+OPEN_CTREE_PARTIAL	disk-io.h	/^	OPEN_CTREE_PARTIAL		= (1 << 1),$/;"	e	enum:btrfs_open_ctree_flags
+OPEN_CTREE_RECOVER_SUPER	disk-io.h	/^	OPEN_CTREE_RECOVER_SUPER	= (1 << 3),$/;"	e	enum:btrfs_open_ctree_flags
+OPEN_CTREE_RESTORE	disk-io.h	/^	OPEN_CTREE_RESTORE		= (1 << 4),$/;"	e	enum:btrfs_open_ctree_flags
+OPEN_CTREE_SUPPRESS_CHECK_BLOCK_ERRORS	disk-io.h	/^	OPEN_CTREE_SUPPRESS_CHECK_BLOCK_ERRORS	= (1 << 8),$/;"	e	enum:btrfs_open_ctree_flags
+OPEN_CTREE_WRITES	disk-io.h	/^	OPEN_CTREE_WRITES		= (1 << 0),$/;"	e	enum:btrfs_open_ctree_flags
+PENDING_BACKREF_UPDATE	extent-tree.c	/^#define PENDING_BACKREF_UPDATE /;"	d	file:
+PENDING_EXTENT_DELETE	extent-tree.c	/^#define PENDING_EXTENT_DELETE /;"	d	file:
+PENDING_EXTENT_INSERT	extent-tree.c	/^#define PENDING_EXTENT_INSERT /;"	d	file:
+RADIX_TREE_INDEX_BITS	utils.c	/^#define RADIX_TREE_INDEX_BITS /;"	d	file:
+RADIX_TREE_MAP_SHIFT	utils.c	/^#define RADIX_TREE_MAP_SHIFT /;"	d	file:
+RADIX_TREE_MAX_PATH	utils.c	/^#define RADIX_TREE_MAX_PATH /;"	d	file:
+SHLBYTE	raid6.c	/^static inline __attribute_const__ unative_t SHLBYTE(unative_t v)$/;"	f	typeref:typename:__attribute_const__ unative_t	file:
+__BTRFS_CTREE_H__	ctree.h	/^#define __BTRFS_CTREE_H__$/;"	d
+__BTRFS_DISK_IO_H__	disk-io.h	/^#define __BTRFS_DISK_IO_H__$/;"	d
+__BTRFS_EXTENT_IO_H__	extent_io.h	/^#define __BTRFS_EXTENT_IO_H__$/;"	d
+__BTRFS_LEAF_DATA_SIZE	ctree.h	/^#define __BTRFS_LEAF_DATA_SIZE(/;"	d
+__BTRFS_TRANSACTION_H__	transaction.h	/^#define __BTRFS_TRANSACTION_H__$/;"	d
+__BTRFS_UTILS_H__	utils.h	/^#define __BTRFS_UTILS_H__$/;"	d
+__BTRFS_VOLUMES_H__	volumes.h	/^#define __BTRFS_VOLUMES_H__$/;"	d
+__OPEN_CTREE_RETURN_CHUNK_ROOT	disk-io.h	/^	__OPEN_CTREE_RETURN_CHUNK_ROOT	= (1 << 9),$/;"	e	enum:btrfs_open_ctree_flags
+__RBTREE_UTILS__	rbtree-utils.h	/^#define __RBTREE_UTILS__$/;"	d
+__alloc_extent_buffer	extent_io.c	/^static struct extent_buffer *__alloc_extent_buffer(struct extent_io_tree *tree,$/;"	f	typeref:struct:extent_buffer *	file:
+__btrfs_cow_block	ctree.c	/^int __btrfs_cow_block(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+__btrfs_map_block	volumes.c	/^int __btrfs_map_block(struct btrfs_mapping_tree *map_tree, int rw,$/;"	f	typeref:typename:int
+__btrfs_mod_ref	extent-tree.c	/^static int __btrfs_mod_ref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+__btrfs_remove_free_space_cache	extent-tree.c	/^static void __btrfs_remove_free_space_cache(struct btrfs_free_space_ctl *ctl)$/;"	f	typeref:typename:void	file:
+__commit_transaction	disk-io.c	/^static int __commit_transaction(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+__csum_tree_block_size	disk-io.c	/^static int __csum_tree_block_size(struct extent_buffer *buf, u16 csum_size,$/;"	f	typeref:typename:int	file:
+__find_device	volumes.c	/^static struct btrfs_device *__find_device(struct list_head *head, u64 devid,$/;"	f	typeref:struct:btrfs_device *	file:
+__find_space_info	extent-tree.c	/^static struct btrfs_space_info *__find_space_info(struct btrfs_fs_info *info,$/;"	f	typeref:struct:btrfs_space_info *	file:
+__free_extent	extent-tree.c	/^static int __free_extent(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+__maxindex	utils.c	/^static unsigned long __maxindex(unsigned int height)$/;"	f	typeref:typename:unsigned long	file:
+__setup_root	disk-io.c	/^int __setup_root(u32 nodesize, u32 leafsize, u32 sectorsize,$/;"	f	typeref:typename:int
+__strncpy_null	utils.c	/^char *__strncpy_null(char *dest, const char *src, size_t n)$/;"	f	typeref:typename:char *
+account_super_bytes	extent-tree.c	/^static void account_super_bytes(struct btrfs_fs_info *fs_info,$/;"	f	typeref:typename:void	file:
+add_root_to_dirty_list	ctree.c	/^void add_root_to_dirty_list(struct btrfs_root *root)$/;"	f	typeref:typename:void
+alloc_exclude_nr	transaction.h	/^	u64 alloc_exclude_nr;$/;"	m	struct:btrfs_trans_handle	typeref:typename:u64
+alloc_exclude_start	transaction.h	/^	u64 alloc_exclude_start;$/;"	m	struct:btrfs_trans_handle	typeref:typename:u64
+alloc_extent_buffer	extent_io.c	/^struct extent_buffer *alloc_extent_buffer(struct extent_io_tree *tree,$/;"	f	typeref:struct:extent_buffer *
+alloc_extent_state	extent_io.c	/^static struct extent_state *alloc_extent_state(void)$/;"	f	typeref:struct:extent_state *	file:
+alloc_reserved_tree_block	extent-tree.c	/^static int alloc_reserved_tree_block(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+alloc_start	ctree.h	/^	u64 alloc_start;$/;"	m	struct:btrfs_fs_info	typeref:typename:u64
+alloc_tree_block	extent-tree.c	/^static int alloc_tree_block(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+atime	ctree.h	/^	struct btrfs_timespec atime;$/;"	m	struct:btrfs_inode_item	typeref:struct:btrfs_timespec
+avail_data_alloc_bits	ctree.h	/^	u64 avail_data_alloc_bits;$/;"	m	struct:btrfs_fs_info	typeref:typename:u64
+avail_metadata_alloc_bits	ctree.h	/^	u64 avail_metadata_alloc_bits;$/;"	m	struct:btrfs_fs_info	typeref:typename:u64
+avail_system_alloc_bits	ctree.h	/^	u64 avail_system_alloc_bits;$/;"	m	struct:btrfs_fs_info	typeref:typename:u64
+avoid_meta_chunk_alloc	ctree.h	/^	unsigned int avoid_meta_chunk_alloc:1;$/;"	m	struct:btrfs_fs_info	typeref:typename:unsigned int:1
+avoid_sys_chunk_alloc	ctree.h	/^	unsigned int avoid_sys_chunk_alloc:1;$/;"	m	struct:btrfs_fs_info	typeref:typename:unsigned int:1
+balance_level	ctree.c	/^static int balance_level(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+balance_node_right	ctree.c	/^static int balance_node_right(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+bandwidth	ctree.h	/^	u8 bandwidth;$/;"	m	struct:btrfs_dev_item	typeref:typename:u8
+bin_search	ctree.c	/^static int bin_search(struct extent_buffer *eb, struct btrfs_key *key,$/;"	f	typeref:typename:int	file:
+bitmap	extent-tree.c	/^	unsigned long *bitmap;$/;"	m	struct:btrfs_free_space	typeref:typename:unsigned long *	file:
+block_group	ctree.h	/^	__le64 block_group;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le64
+block_group	transaction.h	/^	struct btrfs_block_group_cache *block_group;$/;"	m	struct:btrfs_trans_handle	typeref:struct:btrfs_block_group_cache *
+block_group_bits	extent-tree.c	/^static int block_group_bits(struct btrfs_block_group_cache *cache, u64 bits)$/;"	f	typeref:typename:int	file:
+block_group_cache	ctree.h	/^	struct extent_io_tree block_group_cache;$/;"	m	struct:btrfs_fs_info	typeref:struct:extent_io_tree
+block_group_state_bits	extent-tree.c	/^static int block_group_state_bits(u64 flags)$/;"	f	typeref:typename:int	file:
+blockptr	ctree.h	/^	__le64 blockptr;$/;"	m	struct:btrfs_key_ptr	typeref:typename:__le64
+blocks_reserved	transaction.h	/^	unsigned long blocks_reserved;$/;"	m	struct:btrfs_trans_handle	typeref:typename:unsigned long
+blocks_used	transaction.h	/^	unsigned long blocks_used;$/;"	m	struct:btrfs_trans_handle	typeref:typename:unsigned long
+btrfs_add_block_group	extent-tree.c	/^btrfs_add_block_group(struct btrfs_fs_info *fs_info, u64 bytes_used, u64 type,$/;"	f	typeref:struct:btrfs_block_group_cache *
+btrfs_add_corrupt_extent_record	ctree.c	/^static int btrfs_add_corrupt_extent_record(struct btrfs_fs_info *info,$/;"	f	typeref:typename:int	file:
+btrfs_add_system_chunk	volumes.c	/^int btrfs_add_system_chunk(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_alloc_chunk	volumes.c	/^int btrfs_alloc_chunk(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_alloc_dev_extent	volumes.c	/^static int btrfs_alloc_dev_extent(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+btrfs_alloc_free_block	extent-tree.c	/^struct extent_buffer *btrfs_alloc_free_block(struct btrfs_trans_handle *trans,$/;"	f	typeref:struct:extent_buffer *
+btrfs_alloc_path	ctree.c	/^struct btrfs_path *btrfs_alloc_path(void)$/;"	f	typeref:struct:btrfs_path *
+btrfs_bio_stripe	volumes.h	/^struct btrfs_bio_stripe {$/;"	s
+btrfs_block_can_be_shared	ctree.c	/^static int btrfs_block_can_be_shared(struct btrfs_root *root,$/;"	f	typeref:typename:int	file:
+btrfs_block_group_cache	ctree.h	/^struct btrfs_block_group_cache {$/;"	s
+btrfs_block_group_item	ctree.h	/^struct btrfs_block_group_item {$/;"	s
+btrfs_buffer_header	ctree.h	/^static inline struct btrfs_header *btrfs_buffer_header(struct extent_buffer *eb)$/;"	f	typeref:struct:btrfs_header *
+btrfs_buffer_leaf	ctree.h	/^static inline struct btrfs_leaf *btrfs_buffer_leaf(struct extent_buffer *eb)$/;"	f	typeref:struct:btrfs_leaf *
+btrfs_buffer_node	ctree.h	/^static inline struct btrfs_node *btrfs_buffer_node(struct extent_buffer *eb)$/;"	f	typeref:struct:btrfs_node *
+btrfs_check_chunk_valid	volumes.c	/^static int btrfs_check_chunk_valid(struct btrfs_root *root,$/;"	f	typeref:typename:int	file:
+btrfs_check_leaf	ctree.c	/^btrfs_check_leaf(struct btrfs_root *root, struct btrfs_disk_key *parent_key,$/;"	f	typeref:enum:btrfs_tree_block_status
+btrfs_check_node	ctree.c	/^btrfs_check_node(struct btrfs_root *root, struct btrfs_disk_key *parent_key,$/;"	f	typeref:enum:btrfs_tree_block_status
+btrfs_chunk	ctree.h	/^struct btrfs_chunk $/;"	s
+btrfs_chunk_item_size	ctree.h	/^static inline unsigned long btrfs_chunk_item_size(int num_stripes)$/;"	f	typeref:typename:unsigned long
+btrfs_chunk_readonly	volumes.c	/^int btrfs_chunk_readonly(struct btrfs_root *root, u64 chunk_offset)$/;"	f	typeref:typename:int
+btrfs_clear_header_flag	ctree.h	/^static inline int btrfs_clear_header_flag(struct extent_buffer *eb, u64 flag)$/;"	f	typeref:typename:int
+btrfs_close_all_devices	volumes.c	/^void btrfs_close_all_devices(void)$/;"	f	typeref:typename:void
+btrfs_close_devices	volumes.c	/^int btrfs_close_devices(struct btrfs_fs_devices *fs_devices)$/;"	f	typeref:typename:int
+btrfs_comp_cpu_keys	ctree.c	/^int btrfs_comp_cpu_keys(struct btrfs_key *k1, struct btrfs_key *k2)$/;"	f	typeref:typename:int
+btrfs_comp_keys	ctree.c	/^static int btrfs_comp_keys(struct btrfs_disk_key *disk, struct btrfs_key *k2)$/;"	f	typeref:typename:int	file:
+btrfs_corrupt_block	ctree.c	/^struct btrfs_corrupt_block {$/;"	s	file:
+btrfs_cow_block	ctree.c	/^int btrfs_cow_block(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_cpu_key_to_disk	ctree.h	/^static inline void btrfs_cpu_key_to_disk(struct btrfs_disk_key *disk,$/;"	f	typeref:typename:void
+btrfs_csum_data	disk-io.c	/^u32 btrfs_csum_data(struct btrfs_root *root, char *data, u32 seed, size_t len)$/;"	f	typeref:typename:u32
+btrfs_csum_final	disk-io.c	/^void btrfs_csum_final(u32 crc, char *result)$/;"	f	typeref:typename:void
+btrfs_csum_item	ctree.h	/^struct btrfs_csum_item {$/;"	s
+btrfs_csum_sizes	ctree.h	/^static int btrfs_csum_sizes[] = { 4 };$/;"	v	typeref:typename:int[]
+btrfs_dec_ref	extent-tree.c	/^int btrfs_dec_ref(struct btrfs_trans_handle *trans, struct btrfs_root *root,$/;"	f	typeref:typename:int
+btrfs_del_csums	file-item.c	/^int btrfs_del_csums(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_del_item	ctree.h	/^static inline int btrfs_del_item(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_del_items	ctree.c	/^int btrfs_del_items(struct btrfs_trans_handle *trans, struct btrfs_root *root,$/;"	f	typeref:typename:int
+btrfs_del_leaf	ctree.c	/^static noinline int btrfs_del_leaf(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:noinline int	file:
+btrfs_del_ptr	ctree.c	/^int btrfs_del_ptr(struct btrfs_trans_handle *trans, struct btrfs_root *root,$/;"	f	typeref:typename:int
+btrfs_dev_extent	ctree.h	/^struct btrfs_dev_extent {$/;"	s
+btrfs_dev_extent_chunk_tree_uuid	ctree.h	/^static inline u8 *btrfs_dev_extent_chunk_tree_uuid(struct btrfs_dev_extent *dev)$/;"	f	typeref:typename:u8 *
+btrfs_dev_item	ctree.h	/^struct btrfs_dev_item $/;"	s
+btrfs_device	volumes.h	/^struct btrfs_device {$/;"	s
+btrfs_device_avail_bytes	volumes.c	/^static int btrfs_device_avail_bytes(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+btrfs_device_fsid	ctree.h	/^static inline char *btrfs_device_fsid(struct btrfs_dev_item *d)$/;"	f	typeref:typename:char *
+btrfs_device_uuid	ctree.h	/^static inline char *btrfs_device_uuid(struct btrfs_dev_item *d)$/;"	f	typeref:typename:char *
+btrfs_disk_key	ctree.h	/^struct btrfs_disk_key $/;"	s
+btrfs_disk_key_to_cpu	ctree.h	/^static inline void btrfs_disk_key_to_cpu(struct btrfs_key *cpu,$/;"	f	typeref:typename:void
+btrfs_extend_item	ctree.c	/^int btrfs_extend_item(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_extent_data_ref	ctree.h	/^struct btrfs_extent_data_ref {$/;"	s
+btrfs_extent_inline_ref	ctree.h	/^struct btrfs_extent_inline_ref {$/;"	s
+btrfs_extent_inline_ref_size	ctree.h	/^static inline u32 btrfs_extent_inline_ref_size(int type)$/;"	f	typeref:typename:u32
+btrfs_extent_item	ctree.h	/^struct btrfs_extent_item {$/;"	s
+btrfs_extent_item_v0	ctree.h	/^struct btrfs_extent_item_v0 {$/;"	s
+btrfs_extent_ref_v0	ctree.h	/^struct btrfs_extent_ref_v0 {$/;"	s
+btrfs_file_extent_calc_inline_size	ctree.h	/^static inline u32 btrfs_file_extent_calc_inline_size(u32 datasize)$/;"	f	typeref:typename:u32
+btrfs_file_extent_inline_item_len	ctree.h	/^static inline u32 btrfs_file_extent_inline_item_len(struct extent_buffer *eb,$/;"	f	typeref:typename:u32
+btrfs_file_extent_inline_start	ctree.h	/^static inline unsigned long btrfs_file_extent_inline_start(struct$/;"	f	typeref:typename:unsigned long
+btrfs_file_extent_item	ctree.h	/^struct btrfs_file_extent_item {$/;"	s
+btrfs_find_block_group	extent-tree.c	/^btrfs_find_block_group(struct btrfs_root *root, struct btrfs_block_group_cache$/;"	f	typeref:struct:btrfs_block_group_cache *	file:
+btrfs_find_create_tree_block	disk-io.c	/^struct extent_buffer* btrfs_find_create_tree_block($/;"	f	typeref:struct:extent_buffer *
+btrfs_find_device	volumes.c	/^struct btrfs_device *btrfs_find_device(struct btrfs_root *root, u64 devid,$/;"	f	typeref:struct:btrfs_device *
+btrfs_find_last_root	root-tree.c	/^int btrfs_find_last_root(struct btrfs_root *root, u64 objectid,$/;"	f	typeref:typename:int
+btrfs_find_tree_block	disk-io.c	/^struct extent_buffer *btrfs_find_tree_block(struct btrfs_root *root,$/;"	f	typeref:struct:extent_buffer *
+btrfs_finish_extent_commit	extent-tree.c	/^int btrfs_finish_extent_commit(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_fixup_low_keys	ctree.c	/^void btrfs_fixup_low_keys(struct btrfs_root *root, struct btrfs_path *path,$/;"	f	typeref:typename:void
+btrfs_free_block_groups	extent-tree.c	/^int btrfs_free_block_groups(struct btrfs_fs_info *info)$/;"	f	typeref:typename:int
+btrfs_free_extent	extent-tree.c	/^int btrfs_free_extent(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_free_extent_state	extent_io.c	/^static void btrfs_free_extent_state(struct extent_state *state)$/;"	f	typeref:typename:void	file:
+btrfs_free_path	ctree.c	/^void btrfs_free_path(struct btrfs_path *p)$/;"	f	typeref:typename:void
+btrfs_free_space	extent-tree.c	/^struct btrfs_free_space {$/;"	s	file:
+btrfs_free_space_ctl	extent-tree.c	/^struct btrfs_free_space_ctl {$/;"	s	file:
+btrfs_free_space_header	ctree.h	/^struct btrfs_free_space_header $/;"	s
+btrfs_free_space_info	ctree.h	/^struct btrfs_free_space_info {$/;"	s
+btrfs_free_transaction	transaction.h	/^static inline void btrfs_free_transaction(struct btrfs_root *root,$/;"	f	typeref:typename:void
+btrfs_fs_compat_ro	ctree.h	/^static inline int btrfs_fs_compat_ro(struct btrfs_fs_info *fs_info, u64 flag)$/;"	f	typeref:typename:int
+btrfs_fs_devices	volumes.h	/^struct btrfs_fs_devices {$/;"	s
+btrfs_fs_incompat	ctree.h	/^static inline int btrfs_fs_incompat(struct btrfs_fs_info *fs_info, u64 flag)$/;"	f	typeref:typename:int
+btrfs_fs_info	ctree.h	/^struct btrfs_fs_info {$/;"	s
+btrfs_header	ctree.h	/^struct btrfs_header {$/;"	s
+btrfs_header_backref_rev	ctree.h	/^static inline int btrfs_header_backref_rev(struct extent_buffer *eb)$/;"	f	typeref:typename:int
+btrfs_header_chunk_tree_uuid	ctree.h	/^static inline unsigned long btrfs_header_chunk_tree_uuid(struct extent_buffer *eb)$/;"	f	typeref:typename:unsigned long
+btrfs_header_csum	ctree.h	/^static inline u8 *btrfs_header_csum(struct extent_buffer *eb)$/;"	f	typeref:typename:u8 *
+btrfs_header_flag	ctree.h	/^static inline int btrfs_header_flag(struct extent_buffer *eb, u64 flag)$/;"	f	typeref:typename:int
+btrfs_header_fsid	ctree.h	/^static inline unsigned long btrfs_header_fsid(void)$/;"	f	typeref:typename:unsigned long
+btrfs_inc_extent_ref	extent-tree.c	/^int btrfs_inc_extent_ref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_inc_ref	extent-tree.c	/^int btrfs_inc_ref(struct btrfs_trans_handle *trans, struct btrfs_root *root,$/;"	f	typeref:typename:int
+btrfs_init_path	ctree.c	/^inline void btrfs_init_path(struct btrfs_path *p)$/;"	f	typeref:typename:void
+btrfs_inode_extref	ctree.h	/^struct btrfs_inode_extref {$/;"	s
+btrfs_inode_item	ctree.h	/^struct btrfs_inode_item {$/;"	s
+btrfs_inode_ref	ctree.h	/^struct btrfs_inode_ref {$/;"	s
+btrfs_insert_empty_item	ctree.h	/^static inline int btrfs_insert_empty_item(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_insert_empty_items	ctree.c	/^int btrfs_insert_empty_items(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_insert_item	ctree.c	/^int btrfs_insert_item(struct btrfs_trans_handle *trans, struct btrfs_root$/;"	f	typeref:typename:int
+btrfs_is_leaf	ctree.h	/^static inline int btrfs_is_leaf(struct extent_buffer *eb)$/;"	f	typeref:typename:int
+btrfs_item	ctree.h	/^struct btrfs_item {$/;"	s
+btrfs_item_end	ctree.h	/^static inline u32 btrfs_item_end(struct extent_buffer *eb,$/;"	f	typeref:typename:u32
+btrfs_item_end_nr	ctree.h	/^static inline u32 btrfs_item_end_nr(struct extent_buffer *eb, int nr)$/;"	f	typeref:typename:u32
+btrfs_item_key	ctree.h	/^static inline void btrfs_item_key(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_item_key_to_cpu	ctree.h	/^static inline void btrfs_item_key_to_cpu(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_item_nr	ctree.h	/^static inline struct btrfs_item *btrfs_item_nr(int nr)$/;"	f	typeref:struct:btrfs_item *
+btrfs_item_nr_offset	ctree.h	/^static inline unsigned long btrfs_item_nr_offset(int nr)$/;"	f	typeref:typename:unsigned long
+btrfs_item_offset_nr	ctree.h	/^static inline u32 btrfs_item_offset_nr(struct extent_buffer *eb, int nr)$/;"	f	typeref:typename:u32
+btrfs_item_ptr	ctree.h	/^#define btrfs_item_ptr(/;"	d
+btrfs_item_ptr_offset	ctree.h	/^#define btrfs_item_ptr_offset(/;"	d
+btrfs_item_size_nr	ctree.h	/^static inline u32 btrfs_item_size_nr(struct extent_buffer *eb, int nr)$/;"	f	typeref:typename:u32
+btrfs_key	ctree.h	/^struct btrfs_key $/;"	s
+btrfs_key_ptr	ctree.h	/^struct btrfs_key_ptr {$/;"	s
+btrfs_key_type	ctree.h	/^static inline u8 btrfs_key_type(struct btrfs_key *key)$/;"	f	typeref:typename:u8
+btrfs_leaf	ctree.h	/^struct btrfs_leaf {$/;"	s
+btrfs_leaf_data	ctree.h	/^static inline unsigned long btrfs_leaf_data(struct extent_buffer *l)$/;"	f	typeref:typename:unsigned long
+btrfs_leaf_free_space	ctree.c	/^int btrfs_leaf_free_space(struct btrfs_root *root, struct extent_buffer *leaf)$/;"	f	typeref:typename:int
+btrfs_level_size	ctree.h	/^static inline u32 btrfs_level_size(struct btrfs_root *root, int level) {$/;"	f	typeref:typename:u32
+btrfs_lookup_block_group	extent-tree.c	/^struct btrfs_block_group_cache *btrfs_lookup_block_group(struct$/;"	f	typeref:struct:btrfs_block_group_cache *
+btrfs_lookup_extent_info	extent-tree.c	/^int btrfs_lookup_extent_info(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_lookup_first_block_group	extent-tree.c	/^struct btrfs_block_group_cache *btrfs_lookup_first_block_group(struct$/;"	f	typeref:struct:btrfs_block_group_cache *
+btrfs_make_block_group	extent-tree.c	/^int btrfs_make_block_group(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_map_block	volumes.c	/^int btrfs_map_block(struct btrfs_mapping_tree *map_tree, int rw,$/;"	f	typeref:typename:int
+btrfs_map_lookup_size	volumes.h	/^#define btrfs_map_lookup_size(/;"	d
+btrfs_mapping_tree	ctree.h	/^struct btrfs_mapping_tree$/;"	s
+btrfs_multi_bio	volumes.h	/^struct btrfs_multi_bio {$/;"	s
+btrfs_multi_bio_size	volumes.h	/^#define btrfs_multi_bio_size(/;"	d
+btrfs_next_leaf	ctree.c	/^int btrfs_next_leaf(struct btrfs_root *root, struct btrfs_path *path)$/;"	f	typeref:typename:int
+btrfs_node	ctree.h	/^struct btrfs_node {$/;"	s
+btrfs_node_blockptr	ctree.h	/^static inline u64 btrfs_node_blockptr(struct extent_buffer *eb, int nr)$/;"	f	typeref:typename:u64
+btrfs_node_key	ctree.h	/^static inline void btrfs_node_key(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_node_key_ptr_offset	ctree.h	/^static inline unsigned long btrfs_node_key_ptr_offset(int nr)$/;"	f	typeref:typename:unsigned long
+btrfs_node_key_to_cpu	ctree.h	/^static inline void btrfs_node_key_to_cpu(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_node_ptr_generation	ctree.h	/^static inline u64 btrfs_node_ptr_generation(struct extent_buffer *eb, int nr)$/;"	f	typeref:typename:u64
+btrfs_num_copies	volumes.c	/^int btrfs_num_copies(struct btrfs_mapping_tree *map_tree, u64 logical, u64 len)$/;"	f	typeref:typename:int
+btrfs_open_ctree_flags	disk-io.h	/^enum btrfs_open_ctree_flags {$/;"	g
+btrfs_open_devices	volumes.c	/^int btrfs_open_devices(struct btrfs_fs_devices *fs_devices, int flags)$/;"	f	typeref:typename:int
+btrfs_path	ctree.h	/^struct btrfs_path {$/;"	s
+btrfs_prev_leaf	ctree.c	/^int btrfs_prev_leaf(struct btrfs_root *root, struct btrfs_path *path)$/;"	f	typeref:typename:int
+btrfs_previous_item	ctree.c	/^int btrfs_previous_item(struct btrfs_root *root,$/;"	f	typeref:typename:int
+btrfs_radix_tree_init	utils.c	/^void btrfs_radix_tree_init(void)$/;"	f	typeref:typename:void
+btrfs_read_block_groups	extent-tree.c	/^int btrfs_read_block_groups(struct btrfs_root *root)$/;"	f	typeref:typename:int
+btrfs_read_chunk_tree	volumes.c	/^int btrfs_read_chunk_tree(struct btrfs_root *root)$/;"	f	typeref:typename:int
+btrfs_read_sys_array	volumes.c	/^int btrfs_read_sys_array(struct btrfs_root *root)$/;"	f	typeref:typename:int
+btrfs_release_path	ctree.c	/^void btrfs_release_path(struct btrfs_path *p)$/;"	f	typeref:typename:void
+btrfs_remove_free_space_cache	extent-tree.c	/^static void btrfs_remove_free_space_cache(struct btrfs_block_group_cache *block_group)$/;"	f	typeref:typename:void	file:
+btrfs_reserve_extent	extent-tree.c	/^int btrfs_reserve_extent(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_rmap_block	volumes.c	/^int btrfs_rmap_block(struct btrfs_mapping_tree *map_tree,$/;"	f	typeref:typename:int
+btrfs_root	ctree.h	/^struct btrfs_root {$/;"	s
+btrfs_root_backup	ctree.h	/^struct btrfs_root_backup {$/;"	s
+btrfs_root_item	ctree.h	/^struct btrfs_root_item {$/;"	s
+btrfs_root_ref	ctree.h	/^struct btrfs_root_ref {$/;"	s
+btrfs_sb_offset	disk-io.h	/^static inline u64 btrfs_sb_offset(int mirror)$/;"	f	typeref:typename:u64
+btrfs_scan_done	utils.c	/^static int btrfs_scan_done = 0;$/;"	v	typeref:typename:int	file:
+btrfs_scan_lblkid	utils.c	/^int btrfs_scan_lblkid(void)$/;"	f	typeref:typename:int
+btrfs_scan_one_device	volumes.c	/^int btrfs_scan_one_device(int fd, const char *path,$/;"	f	typeref:typename:int
+btrfs_scanned_uuids	volumes.c	/^struct list_head *btrfs_scanned_uuids(void)$/;"	f	typeref:struct:list_head *
+btrfs_search_header_len	ctree.h	/^static inline u32 btrfs_search_header_len(struct btrfs_ioctl_search_header *sh)$/;"	f	typeref:typename:u32
+btrfs_search_header_objectid	ctree.h	/^static inline u64 btrfs_search_header_objectid(struct btrfs_ioctl_search_header *sh)$/;"	f	typeref:typename:u64
+btrfs_search_header_offset	ctree.h	/^static inline u64 btrfs_search_header_offset(struct btrfs_ioctl_search_header *sh)$/;"	f	typeref:typename:u64
+btrfs_search_header_transid	ctree.h	/^static inline u64 btrfs_search_header_transid(struct btrfs_ioctl_search_header *sh)$/;"	f	typeref:typename:u64
+btrfs_search_header_type	ctree.h	/^static inline u32 btrfs_search_header_type(struct btrfs_ioctl_search_header *sh)$/;"	f	typeref:typename:u32
+btrfs_search_slot	ctree.c	/^int btrfs_search_slot(struct btrfs_trans_handle *trans, struct btrfs_root$/;"	f	typeref:typename:int
+btrfs_set_block_flags	extent-tree.c	/^int btrfs_set_block_flags(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_set_header_backref_rev	ctree.h	/^static inline void btrfs_set_header_backref_rev(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_set_header_flag	ctree.h	/^static inline int btrfs_set_header_flag(struct extent_buffer *eb, u64 flag)$/;"	f	typeref:typename:int
+btrfs_set_item_key	ctree.h	/^static inline void btrfs_set_item_key(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_set_item_key_safe	ctree.c	/^int btrfs_set_item_key_safe(struct btrfs_root *root, struct btrfs_path *path,$/;"	f	typeref:typename:int
+btrfs_set_key_type	ctree.h	/^static inline void btrfs_set_key_type(struct btrfs_key *key, u8 val)$/;"	f	typeref:typename:void
+btrfs_set_node_blockptr	ctree.h	/^static inline void btrfs_set_node_blockptr(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_set_node_key	ctree.h	/^static inline void btrfs_set_node_key(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_set_node_ptr_generation	ctree.h	/^static inline void btrfs_set_node_ptr_generation(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_set_stripe_devid_nr	ctree.h	/^static inline void btrfs_set_stripe_devid_nr(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_set_stripe_offset_nr	ctree.h	/^static inline void btrfs_set_stripe_offset_nr(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_set_tree_block_key	ctree.h	/^static inline void btrfs_set_tree_block_key(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_shared_data_ref	ctree.h	/^struct btrfs_shared_data_ref {$/;"	s
+btrfs_space_info	ctree.h	/^struct btrfs_space_info {$/;"	s
+btrfs_split_item	ctree.c	/^int btrfs_split_item(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_start_transaction	transaction.h	/^btrfs_start_transaction(struct btrfs_root *root, int num_blocks)$/;"	f	typeref:struct:btrfs_trans_handle *
+btrfs_stripe	ctree.h	/^struct btrfs_stripe $/;"	s
+btrfs_stripe_dev_uuid	ctree.h	/^static inline char *btrfs_stripe_dev_uuid(struct btrfs_stripe *s)$/;"	f	typeref:typename:char *
+btrfs_stripe_dev_uuid_nr	ctree.h	/^static inline char *btrfs_stripe_dev_uuid_nr(struct btrfs_chunk *c, int nr)$/;"	f	typeref:typename:char *
+btrfs_stripe_devid_nr	ctree.h	/^static inline u64 btrfs_stripe_devid_nr(struct extent_buffer *eb,$/;"	f	typeref:typename:u64
+btrfs_stripe_nr	ctree.h	/^static inline struct btrfs_stripe *btrfs_stripe_nr(struct btrfs_chunk *c,$/;"	f	typeref:struct:btrfs_stripe *
+btrfs_stripe_offset_nr	ctree.h	/^static inline u64 btrfs_stripe_offset_nr(struct extent_buffer *eb,$/;"	f	typeref:typename:u64
+btrfs_super_block	ctree.h	/^struct btrfs_super_block {$/;"	s
+btrfs_super_csum_size	ctree.h	/^static inline int btrfs_super_csum_size(struct btrfs_super_block *s)$/;"	f	typeref:typename:int
+btrfs_super_fsid	ctree.h	/^static inline u8 *btrfs_super_fsid(struct extent_buffer *eb)$/;"	f	typeref:typename:u8 *
+btrfs_timespec	ctree.h	/^struct btrfs_timespec {$/;"	s
+btrfs_trans_handle	transaction.h	/^struct btrfs_trans_handle {$/;"	s
+btrfs_tree_block_info	ctree.h	/^struct btrfs_tree_block_info {$/;"	s
+btrfs_tree_block_key	ctree.h	/^static inline void btrfs_tree_block_key(struct extent_buffer *eb,$/;"	f	typeref:typename:void
+btrfs_tree_block_status	ctree.h	/^enum btrfs_tree_block_status {$/;"	g
+btrfs_truncate_item	ctree.c	/^int btrfs_truncate_item(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_update_device	volumes.c	/^int btrfs_update_device(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+btrfs_update_root	root-tree.c	/^int btrfs_update_root(struct btrfs_trans_handle *trans, struct btrfs_root$/;"	f	typeref:typename:int
+btrfs_write_dirty_block_groups	extent-tree.c	/^int btrfs_write_dirty_block_groups(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+byte_limit	ctree.h	/^	__le64 byte_limit;$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+bytenr	ctree.h	/^	__le64 bytenr; \/* this block number *\/$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+bytenr	ctree.h	/^	__le64 bytenr; \/* which block this node is supposed to live in *\/$/;"	m	struct:btrfs_header	typeref:typename:__le64
+bytenr	ctree.h	/^	__le64 bytenr;$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+bytenr	extent-tree.c	/^	u64 bytenr;$/;"	m	struct:pending_extent_op	typeref:typename:u64	file:
+bytes	extent-tree.c	/^	u64 bytes;$/;"	m	struct:btrfs_free_space	typeref:typename:u64	file:
+bytes_pinned	ctree.h	/^	u64 bytes_pinned;$/;"	m	struct:btrfs_space_info	typeref:typename:u64
+bytes_super	ctree.h	/^	u64 bytes_super;$/;"	m	struct:btrfs_block_group_cache	typeref:typename:u64
+bytes_used	ctree.h	/^	__le64 bytes_used;$/;"	m	struct:btrfs_dev_item	typeref:typename:__le64
+bytes_used	ctree.h	/^	__le64 bytes_used;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+bytes_used	ctree.h	/^	__le64 bytes_used;$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+bytes_used	ctree.h	/^	__le64 bytes_used;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+bytes_used	ctree.h	/^	u64 bytes_used;$/;"	m	struct:btrfs_space_info	typeref:typename:u64
+bytes_used	volumes.h	/^	u64 bytes_used;$/;"	m	struct:btrfs_device	typeref:typename:u64
+cache	ctree.c	/^	struct cache_extent cache;$/;"	m	struct:btrfs_corrupt_block	typeref:struct:cache_extent	file:
+cache	ctree.h	/^	struct cache_extent cache;$/;"	m	struct:btrfs_block_group_cache	typeref:struct:cache_extent
+cache	extent_io.h	/^	struct cache_tree cache;$/;"	m	struct:extent_io_tree	typeref:struct:cache_tree
+cache_block_group	extent-tree.c	/^static int cache_block_group(struct btrfs_root *root,$/;"	f	typeref:typename:int	file:
+cache_extent_search_range	extent-cache.c	/^struct cache_extent_search_range {$/;"	s	file:
+cache_generation	ctree.h	/^	__le64 cache_generation;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+cache_node	extent_io.h	/^	struct cache_extent cache_node;$/;"	m	struct:extent_buffer	typeref:struct:cache_extent
+cache_node	extent_io.h	/^	struct cache_extent cache_node;$/;"	m	struct:extent_state	typeref:struct:cache_extent
+cache_size	extent_io.h	/^	u64 cache_size;$/;"	m	struct:extent_io_tree	typeref:typename:u64
+cache_tree	ctree.h	/^	struct cache_tree cache_tree;$/;"	m	struct:btrfs_mapping_tree	typeref:struct:cache_tree
+cache_tree_comp_nodes	extent-cache.c	/^static int cache_tree_comp_nodes(struct rb_node *node1, struct rb_node *node2)$/;"	f	typeref:typename:int	file:
+cache_tree_comp_range	extent-cache.c	/^static int cache_tree_comp_range(struct rb_node *node, void *data)$/;"	f	typeref:typename:int	file:
+cache_tree_free_extents	extent-cache.c	/^void cache_tree_free_extents(struct cache_tree *tree,$/;"	f	typeref:typename:void
+cache_tree_init	extent-cache.c	/^void cache_tree_init(struct cache_tree *tree)$/;"	f	typeref:typename:void
+cached	ctree.h	/^	int cached;$/;"	m	struct:btrfs_block_group_cache	typeref:typename:int
+ce	volumes.h	/^	struct cache_extent ce;$/;"	m	struct:map_lookup	typeref:struct:cache_extent
+check_block	ctree.c	/^static int noinline check_block(struct btrfs_root *root,$/;"	f	typeref:typename:int noinline	file:
+check_crossing_stripes	volumes.h	/^static inline int check_crossing_stripes(u64 start, u64 len)$/;"	f	typeref:typename:int
+check_tree_block	disk-io.c	/^static int check_tree_block(struct btrfs_fs_info *fs_info,$/;"	f	typeref:typename:int	file:
+chunk_bytes_by_type	volumes.c	/^static u64 chunk_bytes_by_type(u64 type, u64 calc_size, int num_stripes,$/;"	f	typeref:typename:u64	file:
+chunk_objectid	ctree.h	/^	__le64 chunk_objectid;$/;"	m	struct:btrfs_block_group_item	typeref:typename:__le64
+chunk_objectid	ctree.h	/^	__le64 chunk_objectid;$/;"	m	struct:btrfs_dev_extent	typeref:typename:__le64
+chunk_offset	ctree.h	/^	__le64 chunk_offset;$/;"	m	struct:btrfs_dev_extent	typeref:typename:__le64
+chunk_root	ctree.h	/^	__le64 chunk_root;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+chunk_root	ctree.h	/^	__le64 chunk_root;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+chunk_root	ctree.h	/^	struct btrfs_root *chunk_root;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_root *
+chunk_root_gen	ctree.h	/^	__le64 chunk_root_gen;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+chunk_root_generation	ctree.h	/^	__le64 chunk_root_generation;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+chunk_root_level	ctree.h	/^	u8 chunk_root_level;$/;"	m	struct:btrfs_root_backup	typeref:typename:u8
+chunk_root_level	ctree.h	/^	u8 chunk_root_level;$/;"	m	struct:btrfs_super_block	typeref:typename:u8
+chunk_tree	ctree.h	/^	__le64 chunk_tree;$/;"	m	struct:btrfs_dev_extent	typeref:typename:__le64
+chunk_tree_uuid	ctree.h	/^	u8 chunk_tree_uuid[BTRFS_UUID_SIZE];$/;"	m	struct:btrfs_dev_extent	typeref:typename:u8[]
+chunk_tree_uuid	ctree.h	/^	u8 chunk_tree_uuid[BTRFS_UUID_SIZE];$/;"	m	struct:btrfs_fs_info	typeref:typename:u8[]
+chunk_tree_uuid	ctree.h	/^	u8 chunk_tree_uuid[BTRFS_UUID_SIZE];$/;"	m	struct:btrfs_header	typeref:typename:u8[]
+clear_extent_bits	extent_io.c	/^int clear_extent_bits(struct extent_io_tree *tree, u64 start,$/;"	f	typeref:typename:int
+clear_extent_buffer_dirty	extent_io.c	/^int clear_extent_buffer_dirty(struct extent_buffer *eb)$/;"	f	typeref:typename:int
+clear_extent_buffer_uptodate	extent_io.h	/^static inline int clear_extent_buffer_uptodate(struct extent_io_tree *tree,$/;"	f	typeref:typename:int
+clear_extent_dirty	extent_io.c	/^int clear_extent_dirty(struct extent_io_tree *tree, u64 start, u64 end,$/;"	f	typeref:typename:int
+clear_state_bit	extent_io.c	/^static int clear_state_bit(struct extent_io_tree *tree,$/;"	f	typeref:typename:int	file:
+close_ctree	disk-io.h	/^static inline int close_ctree(struct btrfs_root *root)$/;"	f	typeref:typename:int
+commit_root	ctree.h	/^	struct extent_buffer *commit_root;$/;"	m	struct:btrfs_root	typeref:struct:extent_buffer *
+commit_tree_roots	disk-io.c	/^static int commit_tree_roots(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+compat_flags	ctree.h	/^	__le64 compat_flags;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+compat_ro_flags	ctree.h	/^	__le64 compat_ro_flags;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+compression	ctree.h	/^	u8 compression;$/;"	m	struct:btrfs_file_extent_item	typeref:typename:u8
+convert_extent_item_v0	extent-tree.c	/^static int convert_extent_item_v0(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+copy_extent_buffer	extent_io.c	/^void copy_extent_buffer(struct extent_buffer *dst, struct extent_buffer *src,$/;"	f	typeref:typename:void
+copy_for_split	ctree.c	/^static noinline int copy_for_split(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:noinline int	file:
+corrupt_blocks	ctree.h	/^	struct cache_tree *corrupt_blocks;$/;"	m	struct:btrfs_fs_info	typeref:struct:cache_tree *
+count	ctree.h	/^	__le32 count;$/;"	m	struct:btrfs_extent_data_ref	typeref:typename:__le32
+count	ctree.h	/^	__le32 count;$/;"	m	struct:btrfs_extent_ref_v0	typeref:typename:__le32
+count	ctree.h	/^	__le32 count;$/;"	m	struct:btrfs_shared_data_ref	typeref:typename:__le32
+csum	ctree.h	/^	u8 csum;$/;"	m	struct:btrfs_csum_item	typeref:typename:u8
+csum	ctree.h	/^	u8 csum[BTRFS_CSUM_SIZE];$/;"	m	struct:btrfs_header	typeref:typename:u8[]
+csum	ctree.h	/^	u8 csum[BTRFS_CSUM_SIZE];$/;"	m	struct:btrfs_super_block	typeref:typename:u8[]
+csum_root	ctree.h	/^	__le64 csum_root;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+csum_root	ctree.h	/^	struct btrfs_root *csum_root;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_root *
+csum_root_gen	ctree.h	/^	__le64 csum_root_gen;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+csum_root_level	ctree.h	/^	u8 csum_root_level;$/;"	m	struct:btrfs_root_backup	typeref:typename:u8
+csum_tree_block	disk-io.c	/^static int csum_tree_block(struct btrfs_root *root, struct extent_buffer *buf,$/;"	f	typeref:typename:int	file:
+csum_tree_block_fs_info	disk-io.c	/^static int csum_tree_block_fs_info(struct btrfs_fs_info *fs_info,$/;"	f	typeref:typename:int	file:
+csum_tree_block_size	disk-io.c	/^int csum_tree_block_size(struct extent_buffer *buf, u16 csum_size, int verify)$/;"	f	typeref:typename:int
+csum_type	ctree.h	/^	__le16 csum_type;$/;"	m	struct:btrfs_super_block	typeref:typename:__le16
+ctime	ctree.h	/^	struct btrfs_timespec ctime;$/;"	m	struct:btrfs_inode_item	typeref:struct:btrfs_timespec
+ctime	ctree.h	/^	struct btrfs_timespec ctime;$/;"	m	struct:btrfs_root_item	typeref:struct:btrfs_timespec
+ctransid	ctree.h	/^	__le64 ctransid; \/* updated when an inode changes *\/$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+data	extent_io.h	/^	char data[];$/;"	m	struct:extent_buffer	typeref:typename:char[]
+data_alloc_profile	ctree.h	/^	u64 data_alloc_profile;$/;"	m	struct:btrfs_fs_info	typeref:typename:u64
+del_pending_extents	extent-tree.c	/^static int del_pending_extents(struct btrfs_trans_handle *trans, struct$/;"	f	typeref:typename:int	file:
+dev	volumes.c	/^	struct btrfs_device *dev;$/;"	m	struct:stripe	typeref:struct:btrfs_device *	file:
+dev	volumes.h	/^	struct btrfs_device *dev;$/;"	m	struct:btrfs_bio_stripe	typeref:struct:btrfs_device *
+dev_bytenr	extent_io.h	/^	u64 dev_bytenr;$/;"	m	struct:extent_buffer	typeref:typename:u64
+dev_group	ctree.h	/^	__le32 dev_group;$/;"	m	struct:btrfs_dev_item	typeref:typename:__le32
+dev_item	ctree.h	/^	struct btrfs_dev_item dev_item;$/;"	m	struct:btrfs_super_block	typeref:struct:btrfs_dev_item
+dev_list	volumes.h	/^	struct list_head dev_list;$/;"	m	struct:btrfs_device	typeref:struct:list_head
+dev_root	ctree.h	/^	__le64 dev_root;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+dev_root	ctree.h	/^	struct btrfs_root *dev_root;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_root *
+dev_root	volumes.h	/^	struct btrfs_root *dev_root;$/;"	m	struct:btrfs_device	typeref:struct:btrfs_root *
+dev_root_gen	ctree.h	/^	__le64 dev_root_gen;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+dev_root_level	ctree.h	/^	u8 dev_root_level;$/;"	m	struct:btrfs_root_backup	typeref:typename:u8
+dev_uuid	ctree.h	/^	u8 dev_uuid[BTRFS_UUID_SIZE];$/;"	m	struct:btrfs_stripe	typeref:typename:u8[]
+device_list_add	volumes.c	/^static int device_list_add(const char *path,$/;"	f	typeref:typename:int	file:
+devices	volumes.h	/^	struct list_head devices;$/;"	m	struct:btrfs_fs_devices	typeref:struct:list_head
+devid	ctree.h	/^	__le64 devid;$/;"	m	struct:btrfs_dev_item	typeref:typename:__le64
+devid	ctree.h	/^	__le64 devid;$/;"	m	struct:btrfs_stripe	typeref:typename:__le64
+devid	volumes.h	/^	u64 devid;$/;"	m	struct:btrfs_device	typeref:typename:u64
+dirid	ctree.h	/^	__le64 dirid;$/;"	m	struct:btrfs_root_ref	typeref:typename:__le64
+dirty_cowonly_roots	ctree.h	/^	struct list_head dirty_cowonly_roots;$/;"	m	struct:btrfs_fs_info	typeref:struct:list_head
+dirty_list	ctree.h	/^	struct list_head dirty_list;$/;"	m	struct:btrfs_root	typeref:struct:list_head
+disk_bytenr	ctree.h	/^	__le64 disk_bytenr;$/;"	m	struct:btrfs_file_extent_item	typeref:typename:__le64
+disk_num_bytes	ctree.h	/^	__le64 disk_num_bytes;$/;"	m	struct:btrfs_file_extent_item	typeref:typename:__le64
+div_factor	utils.c	/^u64 div_factor(u64 num, int factor)$/;"	f	typeref:typename:u64
+do_chunk_alloc	extent-tree.c	/^static int do_chunk_alloc(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+drop_level	ctree.h	/^	u8 drop_level;$/;"	m	struct:btrfs_root_item	typeref:typename:u8
+drop_progress	ctree.h	/^	struct btrfs_disk_key drop_progress;$/;"	m	struct:btrfs_root_item	typeref:struct:btrfs_disk_key
+encryption	ctree.h	/^	u8 encryption;$/;"	m	struct:btrfs_file_extent_item	typeref:typename:u8
+end	extent_io.h	/^	u64 end;$/;"	m	struct:extent_state	typeref:typename:u64
+error	volumes.h	/^	int error;$/;"	m	struct:btrfs_multi_bio	typeref:typename:int
+excluded_extents	ctree.h	/^	struct extent_io_tree *excluded_extents;$/;"	m	struct:btrfs_fs_info	typeref:struct:extent_io_tree *
+extent_buffer	extent_io.h	/^struct extent_buffer {$/;"	s
+extent_buffer_get	extent_io.h	/^static inline void extent_buffer_get(struct extent_buffer *eb)$/;"	f	typeref:typename:void
+extent_buffer_uptodate	extent_io.h	/^static inline int extent_buffer_uptodate(struct extent_buffer *eb)$/;"	f	typeref:typename:int
+extent_cache	ctree.h	/^	struct extent_io_tree extent_cache;$/;"	m	struct:btrfs_fs_info	typeref:struct:extent_io_tree
+extent_count	ctree.h	/^	__le32 extent_count;$/;"	m	struct:btrfs_free_space_info	typeref:typename:__le32
+extent_ins	ctree.h	/^	struct extent_io_tree extent_ins;$/;"	m	struct:btrfs_fs_info	typeref:struct:extent_io_tree
+extent_io_tree	extent_io.h	/^struct extent_io_tree {$/;"	s
+extent_io_tree_cleanup	extent_io.c	/^void extent_io_tree_cleanup(struct extent_io_tree *tree)$/;"	f	typeref:typename:void
+extent_io_tree_init	extent_io.c	/^void extent_io_tree_init(struct extent_io_tree *tree)$/;"	f	typeref:typename:void
+extent_ref_type	extent-tree.c	/^static inline int extent_ref_type(u64 parent, u64 owner)$/;"	f	typeref:typename:int	file:
+extent_root	ctree.h	/^	__le64 extent_root;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+extent_root	ctree.h	/^	struct btrfs_root *extent_root;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_root *
+extent_root_gen	ctree.h	/^	__le64 extent_root_gen;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+extent_root_level	ctree.h	/^	u8 extent_root_level;$/;"	m	struct:btrfs_root_backup	typeref:typename:u8
+extent_state	extent_io.h	/^struct extent_state {$/;"	s
+extents_thresh	extent-tree.c	/^	int extents_thresh;$/;"	m	struct:btrfs_free_space_ctl	typeref:typename:int	file:
+fd	extent_io.h	/^	int fd;$/;"	m	struct:extent_buffer	typeref:typename:int
+fd	volumes.h	/^	int fd;$/;"	m	struct:btrfs_device	typeref:typename:int
+fill_device_from_item	volumes.c	/^static int fill_device_from_item(struct extent_buffer *leaf,$/;"	f	typeref:typename:int	file:
+fill_missing_device	volumes.c	/^static struct btrfs_device *fill_missing_device(u64 devid)$/;"	f	typeref:struct:btrfs_device *	file:
+find_extent_buffer	extent_io.c	/^struct extent_buffer *find_extent_buffer(struct extent_io_tree *tree,$/;"	f	typeref:struct:extent_buffer *
+find_first_block_group	extent-tree.c	/^static int find_first_block_group(struct btrfs_root *root,$/;"	f	typeref:typename:int	file:
+find_first_extent_bit	extent_io.c	/^int find_first_extent_bit(struct extent_io_tree *tree, u64 start,$/;"	f	typeref:typename:int
+find_first_extent_buffer	extent_io.c	/^struct extent_buffer *find_first_extent_buffer(struct extent_io_tree *tree,$/;"	f	typeref:struct:extent_buffer *
+find_free_dev_extent	volumes.c	/^static int find_free_dev_extent(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+find_free_extent	extent-tree.c	/^static int noinline find_free_extent(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int noinline	file:
+find_fsid	volumes.c	/^static struct btrfs_fs_devices *find_fsid(u8 *fsid)$/;"	f	typeref:struct:btrfs_fs_devices *	file:
+find_next_chunk	volumes.c	/^static int find_next_chunk(struct btrfs_root *root, u64 objectid, u64 *offset)$/;"	f	typeref:typename:int	file:
+find_next_key	utils.c	/^int find_next_key(struct btrfs_path *path, struct btrfs_key *key)$/;"	f	typeref:typename:int
+find_raid56_stripe_len	volumes.c	/^static u32 find_raid56_stripe_len(u32 data_devices, u32 dev_stripe_target)$/;"	f	typeref:typename:u32	file:
+find_search_start	extent-tree.c	/^static int noinline find_search_start(struct btrfs_root *root,$/;"	f	typeref:typename:int noinline	file:
+finish_current_insert	extent-tree.c	/^static int finish_current_insert(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+first_cache_extent	extent-cache.c	/^struct cache_extent *first_cache_extent(struct cache_tree *tree)$/;"	f	typeref:struct:cache_extent *
+flags	ctree.h	/^	__le32 flags;$/;"	m	struct:btrfs_free_space_info	typeref:typename:__le32
+flags	ctree.h	/^	__le64 flags;$/;"	m	struct:btrfs_block_group_item	typeref:typename:__le64
+flags	ctree.h	/^	__le64 flags;$/;"	m	struct:btrfs_extent_item	typeref:typename:__le64
+flags	ctree.h	/^	__le64 flags;$/;"	m	struct:btrfs_header	typeref:typename:__le64
+flags	ctree.h	/^	__le64 flags;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le64
+flags	ctree.h	/^	__le64 flags;$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+flags	ctree.h	/^	__le64 flags;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+flags	ctree.h	/^	u64 flags;$/;"	m	struct:btrfs_block_group_cache	typeref:typename:u64
+flags	ctree.h	/^	u64 flags;$/;"	m	struct:btrfs_space_info	typeref:typename:u64
+flags	extent-tree.c	/^	u64 flags;$/;"	m	struct:pending_extent_op	typeref:typename:u64	file:
+flags	extent_io.h	/^	int flags;$/;"	m	struct:extent_buffer	typeref:typename:int
+free_extent_buffer	extent_io.c	/^void free_extent_buffer(struct extent_buffer *eb)$/;"	f	typeref:typename:void
+free_extent_hook	ctree.h	/^	int (*free_extent_hook)(struct btrfs_trans_handle *trans,$/;"	m	struct:btrfs_fs_info	typeref:typename:int (*)(struct btrfs_trans_handle * trans,struct btrfs_root * root,u64 bytenr,u64 num_bytes,u64 parent,u64 root_objectid,u64 owner,u64 offset,int refs_to_drop)
+free_extent_state_func	extent_io.c	/^static void free_extent_state_func(struct cache_extent *cache)$/;"	f	typeref:typename:void	file:
+free_extents	extent-tree.c	/^	int free_extents;$/;"	m	struct:btrfs_free_space_ctl	typeref:typename:int	file:
+free_space	extent-tree.c	/^	u64 free_space;$/;"	m	struct:btrfs_free_space_ctl	typeref:typename:u64	file:
+free_space_cache	ctree.h	/^	struct extent_io_tree free_space_cache;$/;"	m	struct:btrfs_fs_info	typeref:struct:extent_io_tree
+free_space_ctl	ctree.h	/^	struct btrfs_free_space_ctl *free_space_ctl;$/;"	m	struct:btrfs_block_group_cache	typeref:struct:btrfs_free_space_ctl *
+free_space_offset	extent-tree.c	/^	struct rb_root free_space_offset;$/;"	m	struct:btrfs_free_space_ctl	typeref:struct:rb_root	file:
+free_space_root	ctree.h	/^	struct btrfs_root *free_space_root;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_root *
+fs_devices	ctree.h	/^	struct btrfs_fs_devices *fs_devices;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_fs_devices *
+fs_devices	volumes.h	/^	struct btrfs_fs_devices *fs_devices;$/;"	m	struct:btrfs_device	typeref:struct:btrfs_fs_devices *
+fs_info	ctree.h	/^	struct btrfs_fs_info *fs_info;$/;"	m	struct:btrfs_root	typeref:struct:btrfs_fs_info *
+fs_mutex	ctree.h	/^	struct mutex fs_mutex;$/;"	m	struct:btrfs_fs_info	typeref:struct:mutex
+fs_root	ctree.h	/^	__le64 fs_root;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+fs_root	ctree.h	/^	struct btrfs_root *fs_root;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_root *
+fs_root_gen	ctree.h	/^	__le64 fs_root_gen;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+fs_root_level	ctree.h	/^	u8 fs_root_level;$/;"	m	struct:btrfs_root_backup	typeref:typename:u8
+fs_root_tree	ctree.h	/^	struct rb_root fs_root_tree;$/;"	m	struct:btrfs_fs_info	typeref:struct:rb_root
+fsck_extent_cache	ctree.h	/^	struct cache_tree *fsck_extent_cache;$/;"	m	struct:btrfs_fs_info	typeref:struct:cache_tree *
+fsid	ctree.h	/^	u8 fsid[BTRFS_FSID_SIZE];    \/* FS specific uuid *\/$/;"	m	struct:btrfs_super_block	typeref:typename:u8[]
+fsid	ctree.h	/^	u8 fsid[BTRFS_FSID_SIZE]; \/* FS specific uuid *\/$/;"	m	struct:btrfs_header	typeref:typename:u8[]
+fsid	ctree.h	/^	u8 fsid[BTRFS_FSID_SIZE];$/;"	m	struct:btrfs_fs_info	typeref:typename:u8[]
+fsid	ctree.h	/^	u8 fsid[BTRFS_UUID_SIZE];$/;"	m	struct:btrfs_dev_item	typeref:typename:u8[]
+fsid	volumes.h	/^	u8 fsid[BTRFS_FSID_SIZE]; \/* FS specific uuid *\/$/;"	m	struct:btrfs_fs_devices	typeref:typename:u8[]
+full	ctree.h	/^	int full;$/;"	m	struct:btrfs_space_info	typeref:typename:int
+generation	ctree.h	/^	__le64 generation;$/;"	m	struct:btrfs_dev_item	typeref:typename:__le64
+generation	ctree.h	/^	__le64 generation;$/;"	m	struct:btrfs_extent_item	typeref:typename:__le64
+generation	ctree.h	/^	__le64 generation;$/;"	m	struct:btrfs_extent_ref_v0	typeref:typename:__le64
+generation	ctree.h	/^	__le64 generation;$/;"	m	struct:btrfs_file_extent_item	typeref:typename:__le64
+generation	ctree.h	/^	__le64 generation;$/;"	m	struct:btrfs_free_space_header	typeref:typename:__le64
+generation	ctree.h	/^	__le64 generation;$/;"	m	struct:btrfs_header	typeref:typename:__le64
+generation	ctree.h	/^	__le64 generation;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le64
+generation	ctree.h	/^	__le64 generation;$/;"	m	struct:btrfs_key_ptr	typeref:typename:__le64
+generation	ctree.h	/^	__le64 generation;$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+generation	ctree.h	/^	__le64 generation;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+generation	ctree.h	/^	u64 generation;$/;"	m	struct:btrfs_fs_info	typeref:typename:u64
+generation	volumes.h	/^	u64 generation;$/;"	m	struct:btrfs_device	typeref:typename:u64
+generation_v2	ctree.h	/^	__le64 generation_v2;$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+generic_bin_search	ctree.c	/^static int generic_bin_search(struct extent_buffer *eb, unsigned long p,$/;"	f	typeref:typename:int	file:
+get_state_private	extent_io.c	/^int get_state_private(struct extent_io_tree *tree, u64 start, u64 *private)$/;"	f	typeref:typename:int
+gid	ctree.h	/^	__le32 gid;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le32
+hash_extent_data_ref	extent-tree.c	/^static u64 hash_extent_data_ref(u64 root_objectid, u64 owner, u64 offset)$/;"	f	typeref:typename:u64	file:
+hash_extent_data_ref_item	extent-tree.c	/^static u64 hash_extent_data_ref_item(struct extent_buffer *leaf,$/;"	f	typeref:typename:u64	file:
+header	ctree.h	/^	struct btrfs_header header;$/;"	m	struct:btrfs_leaf	typeref:struct:btrfs_header
+header	ctree.h	/^	struct btrfs_header header;$/;"	m	struct:btrfs_node	typeref:struct:btrfs_header
+height_to_maxindex	utils.c	/^static unsigned long height_to_maxindex[RADIX_TREE_MAX_PATH] __read_mostly;$/;"	v	typeref:typename:unsigned long[RADIX_TREE_MAX_PATH]__read_mostly	file:
+highest_inode	ctree.h	/^	u64 highest_inode;$/;"	m	struct:btrfs_root	typeref:typename:u64
+ignore_chunk_tree_error	ctree.h	/^	unsigned int ignore_chunk_tree_error:1;$/;"	m	struct:btrfs_fs_info	typeref:typename:unsigned int:1
+ignore_fsid_mismatch	ctree.h	/^	unsigned int ignore_fsid_mismatch:1;$/;"	m	struct:btrfs_fs_info	typeref:typename:unsigned int:1
+incompat_flags	ctree.h	/^	__le64 incompat_flags;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+index	ctree.h	/^	__le64 index;$/;"	m	struct:btrfs_inode_extref	typeref:typename:__le64
+index	ctree.h	/^	__le64 index;$/;"	m	struct:btrfs_inode_ref	typeref:typename:__le64
+inode	ctree.h	/^	struct btrfs_inode_item inode;$/;"	m	struct:btrfs_root_item	typeref:struct:btrfs_inode_item
+insert_cache_extent	extent-cache.c	/^int insert_cache_extent(struct cache_tree *tree, struct cache_extent *pe)$/;"	f	typeref:typename:int
+insert_extent_backref	extent-tree.c	/^static int insert_extent_backref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+insert_extent_data_ref	extent-tree.c	/^static noinline int insert_extent_data_ref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:noinline int	file:
+insert_inline_extent_backref	extent-tree.c	/^static int insert_inline_extent_backref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+insert_new_root	ctree.c	/^static int noinline insert_new_root(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int noinline	file:
+insert_ptr	ctree.c	/^static int insert_ptr(struct btrfs_trans_handle *trans, struct btrfs_root$/;"	f	typeref:typename:int	file:
+insert_state	extent_io.c	/^static int insert_state(struct extent_io_tree *tree,$/;"	f	typeref:typename:int	file:
+insert_tree_block_ref	extent-tree.c	/^static noinline int insert_tree_block_ref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:noinline int	file:
+io_align	ctree.h	/^	__le32 io_align;$/;"	m	struct:btrfs_chunk	typeref:typename:__le32
+io_align	ctree.h	/^	__le32 io_align;$/;"	m	struct:btrfs_dev_item	typeref:typename:__le32
+io_align	volumes.h	/^	int io_align;$/;"	m	struct:map_lookup	typeref:typename:int
+io_align	volumes.h	/^	u32 io_align;$/;"	m	struct:btrfs_device	typeref:typename:u32
+io_width	ctree.h	/^	__le32 io_width;$/;"	m	struct:btrfs_chunk	typeref:typename:__le32
+io_width	ctree.h	/^	__le32 io_width;$/;"	m	struct:btrfs_dev_item	typeref:typename:__le32
+io_width	volumes.h	/^	int io_width;$/;"	m	struct:map_lookup	typeref:typename:int
+io_width	volumes.h	/^	u32 io_width;$/;"	m	struct:btrfs_device	typeref:typename:u32
+is_chunk_recover	ctree.h	/^	unsigned int is_chunk_recover:1;$/;"	m	struct:btrfs_fs_info	typeref:typename:unsigned int:1
+is_parity_stripe	volumes.c	/^#define is_parity_stripe(/;"	d	file:
+item	ctree.h	/^	struct btrfs_block_group_item item;$/;"	m	struct:btrfs_block_group_cache	typeref:struct:btrfs_block_group_item
+items	ctree.h	/^	struct btrfs_item items[];$/;"	m	struct:btrfs_leaf	typeref:struct:btrfs_item[]
+key	ctree.c	/^	struct btrfs_key key;$/;"	m	struct:btrfs_corrupt_block	typeref:struct:btrfs_key	file:
+key	ctree.h	/^	struct btrfs_disk_key key;$/;"	m	struct:btrfs_item	typeref:struct:btrfs_disk_key
+key	ctree.h	/^	struct btrfs_disk_key key;$/;"	m	struct:btrfs_key_ptr	typeref:struct:btrfs_disk_key
+key	ctree.h	/^	struct btrfs_disk_key key;$/;"	m	struct:btrfs_tree_block_info	typeref:struct:btrfs_disk_key
+key	ctree.h	/^	struct btrfs_key key;$/;"	m	struct:btrfs_block_group_cache	typeref:struct:btrfs_key
+key	extent-tree.c	/^	struct btrfs_disk_key key;$/;"	m	struct:pending_extent_op	typeref:struct:btrfs_disk_key	file:
+label	ctree.h	/^	char label[BTRFS_LABEL_SIZE];$/;"	m	struct:btrfs_super_block	typeref:typename:char[]
+label	volumes.h	/^	char *label;$/;"	m	struct:btrfs_device	typeref:typename:char *
+last_inode_alloc	ctree.h	/^	u64 last_inode_alloc;$/;"	m	struct:btrfs_root	typeref:typename:u64
+last_snapshot	ctree.h	/^	__le64 last_snapshot;$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+last_trans	ctree.h	/^	u64 last_trans;$/;"	m	struct:btrfs_root	typeref:typename:u64
+last_trans_committed	ctree.h	/^	u64 last_trans_committed;$/;"	m	struct:btrfs_fs_info	typeref:typename:u64
+latest_bdev	volumes.h	/^	int latest_bdev;$/;"	m	struct:btrfs_fs_devices	typeref:typename:int
+latest_devid	volumes.h	/^	u64 latest_devid;$/;"	m	struct:btrfs_fs_devices	typeref:typename:u64
+latest_trans	volumes.h	/^	u64 latest_trans;$/;"	m	struct:btrfs_fs_devices	typeref:typename:u64
+leaf_data_end	ctree.c	/^static inline unsigned int leaf_data_end(struct btrfs_root *root,$/;"	f	typeref:typename:unsigned int	file:
+leaf_space_used	ctree.c	/^static int leaf_space_used(struct extent_buffer *l, int start, int nr)$/;"	f	typeref:typename:int	file:
+leafsize	ctree.h	/^	__le32 leafsize;$/;"	m	struct:btrfs_super_block	typeref:typename:__le32
+leafsize	ctree.h	/^	u32 leafsize;$/;"	m	struct:btrfs_root	typeref:typename:u32
+len	extent_io.h	/^	u32 len;$/;"	m	struct:extent_buffer	typeref:typename:u32
+length	ctree.h	/^	__le64 length;$/;"	m	struct:btrfs_chunk	typeref:typename:__le64
+length	ctree.h	/^	__le64 length;$/;"	m	struct:btrfs_dev_extent	typeref:typename:__le64
+level	ctree.c	/^	int level;$/;"	m	struct:btrfs_corrupt_block	typeref:typename:int	file:
+level	ctree.h	/^	u8 level;$/;"	m	struct:btrfs_header	typeref:typename:u8
+level	ctree.h	/^	u8 level;$/;"	m	struct:btrfs_root_item	typeref:typename:u8
+level	ctree.h	/^	u8 level;$/;"	m	struct:btrfs_tree_block_info	typeref:typename:u8
+level	extent-tree.c	/^	int level;$/;"	m	struct:pending_extent_op	typeref:typename:int	file:
+list	ctree.h	/^	struct list_head list;$/;"	m	struct:btrfs_space_info	typeref:struct:list_head
+list	extent-tree.c	/^	struct list_head list;$/;"	m	struct:btrfs_free_space	typeref:struct:list_head	file:
+list	volumes.h	/^	struct list_head list;$/;"	m	struct:btrfs_fs_devices	typeref:struct:list_head
+location	ctree.h	/^	struct btrfs_disk_key location;$/;"	m	struct:btrfs_free_space_header	typeref:struct:btrfs_disk_key
+locks	ctree.h	/^	int locks[BTRFS_MAX_LEVEL];$/;"	m	struct:btrfs_path	typeref:typename:int[]
+log_root	ctree.h	/^	__le64 log_root;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+log_root_level	ctree.h	/^	u8 log_root_level;$/;"	m	struct:btrfs_super_block	typeref:typename:u8
+log_root_transid	ctree.h	/^	__le64 log_root_transid;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+log_root_tree	ctree.h	/^	struct btrfs_root *log_root_tree;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_root *
+lookup_cache_extent	extent-cache.c	/^struct cache_extent *lookup_cache_extent(struct cache_tree *tree,$/;"	f	typeref:struct:cache_extent *
+lookup_extent_backref	extent-tree.c	/^static int lookup_extent_backref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+lookup_extent_data_ref	extent-tree.c	/^static noinline int lookup_extent_data_ref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:noinline int	file:
+lookup_inline_extent_backref	extent-tree.c	/^static int lookup_inline_extent_backref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+lookup_tree_block_ref	extent-tree.c	/^static noinline int lookup_tree_block_ref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:noinline int	file:
+lowest_bdev	volumes.h	/^	int lowest_bdev;$/;"	m	struct:btrfs_fs_devices	typeref:typename:int
+lowest_devid	volumes.h	/^	u64 lowest_devid;$/;"	m	struct:btrfs_fs_devices	typeref:typename:u64
+lowest_level	ctree.h	/^	int lowest_level;$/;"	m	struct:btrfs_path	typeref:typename:int
+lru	extent_io.h	/^	struct list_head lru;$/;"	m	struct:extent_buffer	typeref:struct:list_head
+lru	extent_io.h	/^	struct list_head lru;$/;"	m	struct:extent_io_tree	typeref:struct:list_head
+magic	ctree.h	/^	__le64 magic;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+map_lookup	volumes.h	/^struct map_lookup {$/;"	s
+mapping_tree	ctree.h	/^	struct btrfs_mapping_tree mapping_tree;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_mapping_tree
+match_extent_data_ref	extent-tree.c	/^static int match_extent_data_ref(struct extent_buffer *leaf,$/;"	f	typeref:typename:int	file:
+max	utils.h	/^#define max(/;"	d
+max_nritems	disk-io.c	/^static u32 max_nritems(u8 level, u32 nodesize)$/;"	f	typeref:typename:u32	file:
+max_t	utils.h	/^#define max_t(/;"	d
+memcmp_extent_buffer	extent_io.c	/^int memcmp_extent_buffer(struct extent_buffer *eb, const void *ptrv,$/;"	f	typeref:typename:int
+memmove_extent_buffer	extent_io.c	/^void memmove_extent_buffer(struct extent_buffer *dst, unsigned long dst_offset,$/;"	f	typeref:typename:void
+memset_extent_buffer	extent_io.c	/^void memset_extent_buffer(struct extent_buffer *eb, char c,$/;"	f	typeref:typename:void
+merge_state	extent_io.c	/^static int merge_state(struct extent_io_tree *tree,$/;"	f	typeref:typename:int	file:
+metadata_alloc_profile	ctree.h	/^	u64 metadata_alloc_profile;$/;"	m	struct:btrfs_fs_info	typeref:typename:u64
+min	utils.h	/^#define min(/;"	d
+min_t	utils.h	/^#define min_t(/;"	d
+mode	ctree.h	/^	__le32 mode;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le32
+mtime	ctree.h	/^	struct btrfs_timespec mtime;$/;"	m	struct:btrfs_inode_item	typeref:struct:btrfs_timespec
+name	ctree.h	/^	__u8   name[0]; \/* name goes here *\/$/;"	m	struct:btrfs_inode_extref	typeref:typename:__u8[0]
+name	volumes.h	/^	char *name;$/;"	m	struct:btrfs_device	typeref:typename:char *
+name_len	ctree.h	/^	__le16 name_len;$/;"	m	struct:btrfs_inode_extref	typeref:typename:__le16
+name_len	ctree.h	/^	__le16 name_len;$/;"	m	struct:btrfs_inode_ref	typeref:typename:__le16
+name_len	ctree.h	/^	__le16 name_len;$/;"	m	struct:btrfs_root_ref	typeref:typename:__le16
+nbytes	ctree.h	/^	__le64 nbytes;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le64
+new_chunk_tree_uuid	ctree.h	/^	u8 *new_chunk_tree_uuid;$/;"	m	struct:btrfs_fs_info	typeref:typename:u8 *
+new_fsid	ctree.h	/^	u8 *new_fsid;$/;"	m	struct:btrfs_fs_info	typeref:typename:u8 *
+next_cache_extent	extent-cache.c	/^struct cache_extent *next_cache_extent(struct cache_extent *pe)$/;"	f	typeref:struct:cache_extent *
+nlink	ctree.h	/^	__le32 nlink;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le32
+node	ctree.h	/^	struct extent_buffer *node;$/;"	m	struct:btrfs_root	typeref:struct:extent_buffer *
+nodes	ctree.h	/^	struct extent_buffer *nodes[BTRFS_MAX_LEVEL];$/;"	m	struct:btrfs_path	typeref:struct:extent_buffer * []
+nodesize	ctree.h	/^	__le32 nodesize;$/;"	m	struct:btrfs_super_block	typeref:typename:__le32
+nodesize	ctree.h	/^	u32 nodesize;$/;"	m	struct:btrfs_root	typeref:typename:u32
+nr_data_stripes	volumes.c	/^static inline int nr_data_stripes(struct map_lookup *map)$/;"	f	typeref:typename:int	file:
+nr_parity_stripes	volumes.c	/^static inline int nr_parity_stripes(struct map_lookup *map)$/;"	f	typeref:typename:int	file:
+nritems	ctree.h	/^	__le32 nritems;$/;"	m	struct:btrfs_header	typeref:typename:__le32
+nsec	ctree.h	/^	__le32 nsec;$/;"	m	struct:btrfs_timespec	typeref:typename:__le32
+num_bitmaps	ctree.h	/^	__le64 num_bitmaps;$/;"	m	struct:btrfs_free_space_header	typeref:typename:__le64
+num_bytes	ctree.h	/^	__le64 num_bytes;$/;"	m	struct:btrfs_file_extent_item	typeref:typename:__le64
+num_bytes	extent-tree.c	/^	u64 num_bytes;$/;"	m	struct:pending_extent_op	typeref:typename:u64	file:
+num_devices	ctree.h	/^	__le64 num_devices;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+num_devices	ctree.h	/^	__le64 num_devices;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+num_entries	ctree.h	/^	__le64 num_entries;$/;"	m	struct:btrfs_free_space_header	typeref:typename:__le64
+num_stripes	ctree.h	/^	__le16 num_stripes;$/;"	m	struct:btrfs_chunk	typeref:typename:__le16
+num_stripes	volumes.h	/^	int num_stripes;$/;"	m	struct:btrfs_multi_bio	typeref:typename:int
+num_stripes	volumes.h	/^	int num_stripes;$/;"	m	struct:map_lookup	typeref:typename:int
+objectid	ctree.h	/^	__le64 objectid;$/;"	m	struct:btrfs_disk_key	typeref:typename:__le64
+objectid	ctree.h	/^	__le64 objectid;$/;"	m	struct:btrfs_extent_data_ref	typeref:typename:__le64
+objectid	ctree.h	/^	__le64 objectid;$/;"	m	struct:btrfs_extent_ref_v0	typeref:typename:__le64
+objectid	ctree.h	/^	u64 objectid;$/;"	m	struct:btrfs_key	typeref:typename:u64
+objectid	ctree.h	/^	u64 objectid;$/;"	m	struct:btrfs_root	typeref:typename:u64
+objectid	extent-cache.c	/^	u64 objectid;$/;"	m	struct:cache_extent_search_range	typeref:typename:u64	file:
+offset	ctree.h	/^	__le32 offset;$/;"	m	struct:btrfs_item	typeref:typename:__le32
+offset	ctree.h	/^	__le64 offset;$/;"	m	struct:btrfs_disk_key	typeref:typename:__le64
+offset	ctree.h	/^	__le64 offset;$/;"	m	struct:btrfs_extent_data_ref	typeref:typename:__le64
+offset	ctree.h	/^	__le64 offset;$/;"	m	struct:btrfs_extent_inline_ref	typeref:typename:__le64
+offset	ctree.h	/^	__le64 offset;$/;"	m	struct:btrfs_file_extent_item	typeref:typename:__le64
+offset	ctree.h	/^	__le64 offset;$/;"	m	struct:btrfs_stripe	typeref:typename:__le64
+offset	ctree.h	/^	u64 offset;$/;"	m	struct:btrfs_key	typeref:typename:u64
+offset	extent-tree.c	/^	u64 offset;$/;"	m	struct:btrfs_free_space	typeref:typename:u64	file:
+offset_index	extent-tree.c	/^	struct rb_node offset_index;$/;"	m	struct:btrfs_free_space	typeref:struct:rb_node	file:
+on_restoring	ctree.h	/^	unsigned int on_restoring:1;$/;"	m	struct:btrfs_fs_info	typeref:typename:unsigned int:1
+open_seed_devices	volumes.c	/^static int open_seed_devices(struct btrfs_root *root, u8 *fsid)$/;"	f	typeref:typename:int	file:
+orphan_data_extents	ctree.h	/^	struct list_head orphan_data_extents;$/;"	m	struct:btrfs_root	typeref:struct:list_head
+other_encoding	ctree.h	/^	__le16 other_encoding; \/* spare for later use *\/$/;"	m	struct:btrfs_file_extent_item	typeref:typename:__le16
+otime	ctree.h	/^	struct btrfs_timespec otime;$/;"	m	struct:btrfs_inode_item	typeref:struct:btrfs_timespec
+otime	ctree.h	/^	struct btrfs_timespec otime;$/;"	m	struct:btrfs_root_item	typeref:struct:btrfs_timespec
+otransid	ctree.h	/^	__le64 otransid; \/* trans when created *\/$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+owner	ctree.h	/^	__le64 owner;$/;"	m	struct:btrfs_chunk	typeref:typename:__le64
+owner	ctree.h	/^	__le64 owner;$/;"	m	struct:btrfs_header	typeref:typename:__le64
+parent_objectid	ctree.h	/^	__le64 parent_objectid;$/;"	m	struct:btrfs_inode_extref	typeref:typename:__le64
+parent_uuid	ctree.h	/^	u8 parent_uuid[BTRFS_UUID_SIZE];$/;"	m	struct:btrfs_root_item	typeref:typename:u8[]
+parity_smaller	volumes.c	/^static inline int parity_smaller(u64 a, u64 b)$/;"	f	typeref:typename:int	file:
+pending_del	ctree.h	/^	struct extent_io_tree pending_del;$/;"	m	struct:btrfs_fs_info	typeref:struct:extent_io_tree
+pending_extent_op	extent-tree.c	/^struct pending_extent_op {$/;"	s	file:
+physical	volumes.c	/^	u64 physical;$/;"	m	struct:stripe	typeref:typename:u64	file:
+physical	volumes.h	/^	u64 physical;$/;"	m	struct:btrfs_bio_stripe	typeref:typename:u64
+pin_down_bytes	extent-tree.c	/^static int pin_down_bytes(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+pinned	ctree.h	/^	u64 pinned;$/;"	m	struct:btrfs_block_group_cache	typeref:typename:u64
+pinned_extents	ctree.h	/^	struct extent_io_tree pinned_extents;$/;"	m	struct:btrfs_fs_info	typeref:struct:extent_io_tree
+prev_cache_extent	extent-cache.c	/^struct cache_extent *prev_cache_extent(struct cache_extent *pe)$/;"	f	typeref:struct:cache_extent *
+private	extent-tree.c	/^	void *private;$/;"	m	struct:btrfs_free_space_ctl	typeref:typename:void *	file:
+ptrs	ctree.h	/^	struct btrfs_key_ptr ptrs[];$/;"	m	struct:btrfs_node	typeref:struct:btrfs_key_ptr[]
+push_leaf_left	ctree.c	/^static int push_leaf_left(struct btrfs_trans_handle *trans, struct btrfs_root$/;"	f	typeref:typename:int	file:
+push_leaf_right	ctree.c	/^static int push_leaf_right(struct btrfs_trans_handle *trans, struct btrfs_root$/;"	f	typeref:typename:int	file:
+push_node_left	ctree.c	/^static int push_node_left(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+push_nodes_for_insert	ctree.c	/^static int noinline push_nodes_for_insert(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int noinline	file:
+quota_enabled	ctree.h	/^	unsigned int quota_enabled:1;$/;"	m	struct:btrfs_fs_info	typeref:typename:unsigned int:1
+quota_root	ctree.h	/^	struct btrfs_root *quota_root;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_root *
+raid6_gen_syndrome	raid6.c	/^void raid6_gen_syndrome(int disks, size_t bytes, void **ptrs)$/;"	f	typeref:typename:void
+ram_bytes	ctree.h	/^	__le64 ram_bytes;$/;"	m	struct:btrfs_file_extent_item	typeref:typename:__le64
+rb_compare_keys	rbtree-utils.h	/^typedef int (*rb_compare_keys)(struct rb_node *node, void *key);$/;"	t	typeref:typename:int (*)(struct rb_node * node,void * key)
+rb_compare_nodes	rbtree-utils.h	/^typedef int (*rb_compare_nodes)(struct rb_node *node1, struct rb_node *node2);$/;"	t	typeref:typename:int (*)(struct rb_node * node1,struct rb_node * node2)
+rb_free_node	rbtree-utils.h	/^typedef void (*rb_free_node)(struct rb_node *node);$/;"	t	typeref:typename:void (*)(struct rb_node * node)
+rb_free_nodes	rbtree-utils.c	/^void rb_free_nodes(struct rb_root *root, rb_free_node free_node)$/;"	f	typeref:typename:void
+rb_insert	rbtree-utils.c	/^int rb_insert(struct rb_root *root, struct rb_node *node,$/;"	f	typeref:typename:int
+rb_node	ctree.h	/^	struct rb_node rb_node;$/;"	m	struct:btrfs_root	typeref:struct:rb_node
+rb_search	rbtree-utils.c	/^struct rb_node *rb_search(struct rb_root *root, void *key, rb_compare_keys comp,$/;"	f	typeref:struct:rb_node *
+rdev	ctree.h	/^	__le64 rdev;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le64
+read_eb_member	ctree.h	/^#define read_eb_member(/;"	d
+read_extent_buffer	extent_io.c	/^void read_extent_buffer(struct extent_buffer *eb, void *dst,$/;"	f	typeref:typename:void
+read_extent_from_disk	extent_io.c	/^int read_extent_from_disk(struct extent_buffer *eb,$/;"	f	typeref:typename:int
+read_node_slot	ctree.c	/^struct extent_buffer *read_node_slot(struct btrfs_root *root,$/;"	f	typeref:struct:extent_buffer *
+read_one_chunk	volumes.c	/^static int read_one_chunk(struct btrfs_root *root, struct btrfs_key *key,$/;"	f	typeref:typename:int	file:
+read_one_dev	volumes.c	/^static int read_one_dev(struct btrfs_root *root,$/;"	f	typeref:typename:int	file:
+read_tree_block	disk-io.h	/^static inline struct extent_buffer* read_tree_block($/;"	f	typeref:struct:extent_buffer *
+read_tree_block_fs_info	disk-io.c	/^struct extent_buffer* read_tree_block_fs_info($/;"	f	typeref:struct:extent_buffer *
+read_whole_eb	disk-io.c	/^int read_whole_eb(struct btrfs_fs_info *info, struct extent_buffer *eb, int mirror)$/;"	f	typeref:typename:int
+reada	ctree.h	/^	int reada;$/;"	m	struct:btrfs_path	typeref:typename:int
+reada_for_search	ctree.c	/^void reada_for_search(struct btrfs_root *root, struct btrfs_path *path,$/;"	f	typeref:typename:void
+readahead_tree_block	disk-io.c	/^void readahead_tree_block(struct btrfs_root *root, u64 bytenr, u32 blocksize,$/;"	f	typeref:typename:void
+readonly	ctree.h	/^	unsigned int readonly:1;$/;"	m	struct:btrfs_fs_info	typeref:typename:unsigned int:1
+received_uuid	ctree.h	/^	u8 received_uuid[BTRFS_UUID_SIZE];$/;"	m	struct:btrfs_root_item	typeref:typename:u8[]
+recow	extent_io.h	/^	struct list_head recow;$/;"	m	struct:extent_buffer	typeref:struct:list_head
+recow_ebs	ctree.h	/^	struct list_head recow_ebs;$/;"	m	struct:btrfs_fs_info	typeref:struct:list_head
+ref_cows	ctree.h	/^	int ref_cows;$/;"	m	struct:btrfs_root	typeref:typename:int
+refs	ctree.h	/^	__le32 refs;$/;"	m	struct:btrfs_extent_item_v0	typeref:typename:__le32
+refs	ctree.h	/^	__le32 refs;$/;"	m	struct:btrfs_root_item	typeref:typename:__le32
+refs	ctree.h	/^	__le64 refs;$/;"	m	struct:btrfs_extent_item	typeref:typename:__le64
+refs	extent_io.h	/^	int refs;$/;"	m	struct:extent_buffer	typeref:typename:int
+refs	extent_io.h	/^	int refs;$/;"	m	struct:extent_state	typeref:typename:int
+remove_cache_extent	extent-cache.c	/^void remove_cache_extent(struct cache_tree *tree, struct cache_extent *pe)$/;"	f	typeref:typename:void
+remove_extent_backref	extent-tree.c	/^static int remove_extent_backref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+remove_extent_data_ref	extent-tree.c	/^static noinline int remove_extent_data_ref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:noinline int	file:
+remove_sb_from_cache	extent-tree.c	/^static int remove_sb_from_cache(struct btrfs_root *root,$/;"	f	typeref:typename:int	file:
+reserved	ctree.h	/^	__le64 reserved[30];$/;"	m	struct:btrfs_super_block	typeref:typename:__le64[30]
+reserved	ctree.h	/^	__le64 reserved[4];$/;"	m	struct:btrfs_inode_item	typeref:typename:__le64[4]
+reserved	ctree.h	/^        __le64 reserved[8]; \/* for future *\/$/;"	m	struct:btrfs_root_item	typeref:typename:__le64[8]
+rmw_eb	volumes.c	/^static int rmw_eb(struct btrfs_fs_info *info,$/;"	f	typeref:typename:int	file:
+ro	ctree.h	/^	int ro;$/;"	m	struct:btrfs_block_group_cache	typeref:typename:int
+root	ctree.h	/^	__le64 root;$/;"	m	struct:btrfs_extent_data_ref	typeref:typename:__le64
+root	ctree.h	/^	__le64 root;$/;"	m	struct:btrfs_extent_ref_v0	typeref:typename:__le64
+root	ctree.h	/^	__le64 root;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+root_dir_objectid	ctree.h	/^	__le64 root_dir_objectid;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+root_dirid	ctree.h	/^	__le64 root_dirid;$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+root_item	ctree.h	/^	struct btrfs_root_item root_item;$/;"	m	struct:btrfs_root	typeref:struct:btrfs_root_item
+root_key	ctree.h	/^	struct btrfs_key root_key;$/;"	m	struct:btrfs_root	typeref:struct:btrfs_key
+root_level	ctree.h	/^	u8 root_level;$/;"	m	struct:btrfs_super_block	typeref:typename:u8
+rtime	ctree.h	/^	struct btrfs_timespec rtime;$/;"	m	struct:btrfs_root_item	typeref:struct:btrfs_timespec
+rtransid	ctree.h	/^	__le64 rtransid; \/* trans when received. non-zero for received subvol *\/$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+running_transaction	ctree.h	/^	struct btrfs_trans_handle *running_transaction;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_trans_handle *
+search_cache_extent	extent-cache.c	/^struct cache_extent *search_cache_extent(struct cache_tree *tree, u64 start)$/;"	f	typeref:struct:cache_extent *
+search_for_split	ctree.h	/^	unsigned int search_for_split:1;$/;"	m	struct:btrfs_path	typeref:typename:unsigned int:1
+sec	ctree.h	/^	__le64 sec;$/;"	m	struct:btrfs_timespec	typeref:typename:__le64
+sector_size	ctree.h	/^	__le32 sector_size;$/;"	m	struct:btrfs_chunk	typeref:typename:__le32
+sector_size	ctree.h	/^	__le32 sector_size;$/;"	m	struct:btrfs_dev_item	typeref:typename:__le32
+sector_size	volumes.h	/^	int sector_size;$/;"	m	struct:map_lookup	typeref:typename:int
+sector_size	volumes.h	/^	u32 sector_size;$/;"	m	struct:btrfs_device	typeref:typename:u32
+sectorsize	ctree.h	/^	__le32 sectorsize;$/;"	m	struct:btrfs_super_block	typeref:typename:__le32
+sectorsize	ctree.h	/^	u32 sectorsize;$/;"	m	struct:btrfs_root	typeref:typename:u32
+sectorsize	extent-tree.c	/^	u32 sectorsize;$/;"	m	struct:btrfs_free_space_ctl	typeref:typename:u32	file:
+seed	volumes.h	/^	struct btrfs_fs_devices *seed;$/;"	m	struct:btrfs_fs_devices	typeref:struct:btrfs_fs_devices *
+seeding	volumes.h	/^	int seeding;$/;"	m	struct:btrfs_fs_devices	typeref:typename:int
+seek_speed	ctree.h	/^	u8 seek_speed;$/;"	m	struct:btrfs_dev_item	typeref:typename:u8
+sequence	ctree.h	/^	__le64 sequence;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le64
+sequence	ctree.h	/^	__le64 sequence;$/;"	m	struct:btrfs_root_ref	typeref:typename:__le64
+set_avail_alloc_bits	extent-tree.c	/^static void set_avail_alloc_bits(struct btrfs_fs_info *fs_info, u64 flags)$/;"	f	typeref:typename:void	file:
+set_extent_bits	extent_io.c	/^int set_extent_bits(struct extent_io_tree *tree, u64 start,$/;"	f	typeref:typename:int
+set_extent_buffer_dirty	extent_io.c	/^int set_extent_buffer_dirty(struct extent_buffer *eb)$/;"	f	typeref:typename:int
+set_extent_buffer_uptodate	extent_io.h	/^static inline int set_extent_buffer_uptodate(struct extent_buffer *eb)$/;"	f	typeref:typename:int
+set_extent_dirty	extent_io.c	/^int set_extent_dirty(struct extent_io_tree *tree, u64 start, u64 end,$/;"	f	typeref:typename:int
+set_state_private	extent_io.c	/^int set_state_private(struct extent_io_tree *tree, u64 start, u64 private)$/;"	f	typeref:typename:int
+setup_inline_extent_backref	extent-tree.c	/^static int setup_inline_extent_backref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+should_cow_block	ctree.c	/^static inline int should_cow_block(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+size	ctree.h	/^	__le32 size;$/;"	m	struct:btrfs_item	typeref:typename:__le32
+size	ctree.h	/^	__le64 size;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le64
+size	extent-cache.c	/^	u64 size;$/;"	m	struct:cache_extent_search_range	typeref:typename:u64	file:
+skip_check_block	ctree.h	/^	unsigned int skip_check_block:1;$/;"	m	struct:btrfs_path	typeref:typename:unsigned int:1
+slots	ctree.h	/^	int slots[BTRFS_MAX_LEVEL];$/;"	m	struct:btrfs_path	typeref:typename:int[]
+sort_parity_stripes	volumes.c	/^static void sort_parity_stripes(struct btrfs_multi_bio *bbio, u64 *raid_map)$/;"	f	typeref:typename:void	file:
+space_info	ctree.h	/^	struct btrfs_space_info *space_info;$/;"	m	struct:btrfs_block_group_cache	typeref:struct:btrfs_space_info *
+space_info	ctree.h	/^	struct list_head space_info;$/;"	m	struct:btrfs_fs_info	typeref:struct:list_head
+split_eb_for_raid56	volumes.c	/^static void split_eb_for_raid56(struct btrfs_fs_info *info,$/;"	f	typeref:typename:void	file:
+split_leaf	ctree.c	/^static noinline int split_leaf(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:noinline int	file:
+split_node	ctree.c	/^static int split_node(struct btrfs_trans_handle *trans, struct btrfs_root$/;"	f	typeref:typename:int	file:
+split_state	extent_io.c	/^static int split_state(struct extent_io_tree *tree, struct extent_state *orig,$/;"	f	typeref:typename:int	file:
+start	extent-cache.c	/^	u64 start;$/;"	m	struct:cache_extent_search_range	typeref:typename:u64	file:
+start	extent-tree.c	/^	u64 start;$/;"	m	struct:btrfs_free_space_ctl	typeref:typename:u64	file:
+start	extent_io.h	/^	u64 start;$/;"	m	struct:extent_buffer	typeref:typename:u64
+start	extent_io.h	/^	u64 start;$/;"	m	struct:extent_state	typeref:typename:u64
+start_offset	ctree.h	/^	__le64 start_offset;$/;"	m	struct:btrfs_dev_item	typeref:typename:__le64
+state	extent_io.h	/^	struct cache_tree state;$/;"	m	struct:extent_io_tree	typeref:struct:cache_tree
+state	extent_io.h	/^	unsigned long state;$/;"	m	struct:extent_state	typeref:typename:unsigned long
+stime	ctree.h	/^	struct btrfs_timespec stime;$/;"	m	struct:btrfs_root_item	typeref:struct:btrfs_timespec
+stransid	ctree.h	/^	__le64 stransid; \/* trans when sent. non-zero for received subvol *\/$/;"	m	struct:btrfs_root_item	typeref:typename:__le64
+stripe	ctree.h	/^	struct btrfs_stripe stripe;$/;"	m	struct:btrfs_chunk	typeref:struct:btrfs_stripe
+stripe	volumes.c	/^struct stripe {$/;"	s	file:
+stripe_align	extent-tree.c	/^static u64 stripe_align(struct btrfs_root *root, u64 val)$/;"	f	typeref:typename:u64	file:
+stripe_len	ctree.h	/^	__le64 stripe_len;$/;"	m	struct:btrfs_chunk	typeref:typename:__le64
+stripe_len	volumes.h	/^	int stripe_len;$/;"	m	struct:map_lookup	typeref:typename:int
+stripes	volumes.h	/^	struct btrfs_bio_stripe stripes[];$/;"	m	struct:btrfs_multi_bio	typeref:struct:btrfs_bio_stripe[]
+stripes	volumes.h	/^	struct btrfs_bio_stripe stripes[];$/;"	m	struct:map_lookup	typeref:struct:btrfs_bio_stripe[]
+stripesize	ctree.h	/^	__le32 stripesize;$/;"	m	struct:btrfs_super_block	typeref:typename:__le32
+stripesize	ctree.h	/^	u32 stripesize;$/;"	m	struct:btrfs_root	typeref:typename:u32
+strncpy_null	utils.h	/^#define strncpy_null(/;"	d
+sub_stripes	ctree.h	/^	__le16 sub_stripes;$/;"	m	struct:btrfs_chunk	typeref:typename:__le16
+sub_stripes	volumes.h	/^	int sub_stripes;$/;"	m	struct:map_lookup	typeref:typename:int
+super_bytenr	ctree.h	/^	u64 super_bytenr;$/;"	m	struct:btrfs_fs_info	typeref:typename:u64
+super_bytes_used	volumes.h	/^	u64 super_bytes_used;$/;"	m	struct:btrfs_device	typeref:typename:u64
+super_copy	ctree.h	/^	struct btrfs_super_block *super_copy;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_super_block *
+super_roots	ctree.h	/^	struct btrfs_root_backup super_roots[BTRFS_NUM_BACKUP_ROOTS];$/;"	m	struct:btrfs_super_block	typeref:struct:btrfs_root_backup[]
+suppress_check_block_errors	ctree.h	/^	unsigned int suppress_check_block_errors:1;$/;"	m	struct:btrfs_fs_info	typeref:typename:unsigned int:1
+sys_chunk_array	ctree.h	/^	u8 sys_chunk_array[BTRFS_SYSTEM_CHUNK_ARRAY_SIZE];$/;"	m	struct:btrfs_super_block	typeref:typename:u8[]
+sys_chunk_array_size	ctree.h	/^	__le32 sys_chunk_array_size;$/;"	m	struct:btrfs_super_block	typeref:typename:__le32
+system_alloc_profile	ctree.h	/^	u64 system_alloc_profile;$/;"	m	struct:btrfs_fs_info	typeref:typename:u64
+system_allocs	ctree.h	/^	int system_allocs;$/;"	m	struct:btrfs_fs_info	typeref:typename:int
+test_range_bit	extent_io.c	/^int test_range_bit(struct extent_io_tree *tree, u64 start, u64 end,$/;"	f	typeref:typename:int
+total_bitmaps	extent-tree.c	/^	int total_bitmaps;$/;"	m	struct:btrfs_free_space_ctl	typeref:typename:int	file:
+total_bytes	ctree.h	/^	__le64 total_bytes;$/;"	m	struct:btrfs_dev_item	typeref:typename:__le64
+total_bytes	ctree.h	/^	__le64 total_bytes;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+total_bytes	ctree.h	/^	__le64 total_bytes;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+total_bytes	ctree.h	/^	u64 total_bytes;$/;"	m	struct:btrfs_space_info	typeref:typename:u64
+total_bytes	volumes.h	/^	u64 total_bytes;$/;"	m	struct:btrfs_device	typeref:typename:u64
+total_devs	volumes.h	/^	u64 total_devs;$/;"	m	struct:btrfs_device	typeref:typename:u64
+total_ios	volumes.h	/^	u64 total_ios;$/;"	m	struct:btrfs_device	typeref:typename:u64
+total_pinned	ctree.h	/^	u64 total_pinned;$/;"	m	struct:btrfs_fs_info	typeref:typename:u64
+track_dirty	ctree.h	/^	int track_dirty;$/;"	m	struct:btrfs_root	typeref:typename:int
+transid	ctree.h	/^	__le64 transid;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le64
+transid	transaction.h	/^	u64 transid;$/;"	m	struct:btrfs_trans_handle	typeref:typename:u64
+tree	extent_io.h	/^	struct extent_io_tree *tree;$/;"	m	struct:extent_buffer	typeref:struct:extent_io_tree *
+tree_root	ctree.h	/^	__le64 tree_root;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+tree_root	ctree.h	/^	struct btrfs_root *tree_root;$/;"	m	struct:btrfs_fs_info	typeref:struct:btrfs_root *
+tree_root_gen	ctree.h	/^	__le64 tree_root_gen;$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64
+tree_root_level	ctree.h	/^	u8 tree_root_level;$/;"	m	struct:btrfs_root_backup	typeref:typename:u8
+truncate_one_csum	file-item.c	/^static noinline int truncate_one_csum(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:noinline int	file:
+type	ctree.h	/^	__le64 type;$/;"	m	struct:btrfs_chunk	typeref:typename:__le64
+type	ctree.h	/^	__le64 type;$/;"	m	struct:btrfs_dev_item	typeref:typename:__le64
+type	ctree.h	/^	u32 type;$/;"	m	struct:btrfs_root	typeref:typename:u32
+type	ctree.h	/^	u8 type;$/;"	m	struct:btrfs_disk_key	typeref:typename:u8
+type	ctree.h	/^	u8 type;$/;"	m	struct:btrfs_extent_inline_ref	typeref:typename:u8
+type	ctree.h	/^	u8 type;$/;"	m	struct:btrfs_file_extent_item	typeref:typename:u8
+type	ctree.h	/^	u8 type;$/;"	m	struct:btrfs_key	typeref:typename:u8
+type	extent-tree.c	/^	int type;$/;"	m	struct:pending_extent_op	typeref:typename:int	file:
+type	volumes.h	/^	u64 type;$/;"	m	struct:btrfs_device	typeref:typename:u64
+type	volumes.h	/^	u64 type;$/;"	m	struct:map_lookup	typeref:typename:u64
+uid	ctree.h	/^	__le32 uid;$/;"	m	struct:btrfs_inode_item	typeref:typename:__le32
+unative_t	raid6.c	/^typedef uint32_t unative_t;$/;"	t	typeref:typename:uint32_t	file:
+unative_t	raid6.c	/^typedef uint64_t unative_t;$/;"	t	typeref:typename:uint64_t	file:
+unit	extent-tree.c	/^	int unit;$/;"	m	struct:btrfs_free_space_ctl	typeref:typename:int	file:
+unlink_free_space	extent-tree.c	/^static void unlink_free_space(struct btrfs_free_space_ctl *ctl,$/;"	f	typeref:typename:void	file:
+unsed_64	ctree.h	/^	__le64 unsed_64[4];$/;"	m	struct:btrfs_root_backup	typeref:typename:__le64[4]
+unused_8	ctree.h	/^	u8 unused_8[10];$/;"	m	struct:btrfs_root_backup	typeref:typename:u8[10]
+update_block_group	extent-tree.c	/^static int update_block_group(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+update_cowonly_root	disk-io.c	/^static int update_cowonly_root(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+update_extent_state	extent_io.c	/^static inline void update_extent_state(struct extent_state *state)$/;"	f	typeref:typename:void	file:
+update_inline_extent_backref	extent-tree.c	/^static int update_inline_extent_backref(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+update_pinned_extents	extent-tree.c	/^static int update_pinned_extents(struct btrfs_root *root,$/;"	f	typeref:typename:int	file:
+update_ref_for_cow	ctree.c	/^static noinline int update_ref_for_cow(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:noinline int	file:
+update_space_info	extent-tree.c	/^static int update_space_info(struct btrfs_fs_info *info, u64 flags,$/;"	f	typeref:typename:int	file:
+used	ctree.h	/^	__le64 used;$/;"	m	struct:btrfs_block_group_item	typeref:typename:__le64
+uuid	ctree.h	/^	u8 uuid[BTRFS_UUID_SIZE];$/;"	m	struct:btrfs_dev_item	typeref:typename:u8[]
+uuid	ctree.h	/^	u8 uuid[BTRFS_UUID_SIZE];$/;"	m	struct:btrfs_root_item	typeref:typename:u8[]
+uuid	volumes.h	/^	u8 uuid[BTRFS_UUID_SIZE];$/;"	m	struct:btrfs_device	typeref:typename:u8[]
+uuid_tree_generation	ctree.h	/^	__le64 uuid_tree_generation;$/;"	m	struct:btrfs_super_block	typeref:typename:__le64
+verify_parent_transid	disk-io.c	/^static int verify_parent_transid(struct extent_io_tree *io_tree,$/;"	f	typeref:typename:int	file:
+verify_tree_block_csum_silent	disk-io.c	/^int verify_tree_block_csum_silent(struct extent_buffer *buf, u16 csum_size)$/;"	f	typeref:typename:int
+write_and_map_eb	disk-io.c	/^int write_and_map_eb(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+write_eb_member	ctree.h	/^#define write_eb_member(/;"	d
+write_extent_buffer	extent_io.c	/^void write_extent_buffer(struct extent_buffer *eb, const void *src,$/;"	f	typeref:typename:void
+write_extent_to_disk	extent_io.c	/^int write_extent_to_disk(struct extent_buffer *eb)$/;"	f	typeref:typename:int
+write_one_cache_group	extent-tree.c	/^static int write_one_cache_group(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int	file:
+write_raid56_with_parity	volumes.c	/^int write_raid56_with_parity(struct btrfs_fs_info *info,$/;"	f	typeref:typename:int
+write_tree_block	disk-io.c	/^int write_tree_block(struct btrfs_trans_handle *trans,$/;"	f	typeref:typename:int
+writeable	volumes.h	/^	int writeable;$/;"	m	struct:btrfs_device	typeref:typename:int
+xprivate	extent_io.h	/^	u64 xprivate;$/;"	m	struct:extent_state	typeref:typename:u64

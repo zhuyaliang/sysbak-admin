@@ -37,9 +37,18 @@ btrfs_start_transaction(struct btrfs_root *root, int num_blocks)
 	struct btrfs_fs_info *fs_info = root->fs_info;
 	struct btrfs_trans_handle *h = malloc(sizeof(*h));
 
-	BUG_ON(!h);
-	BUG_ON(root->commit_root);
-	BUG_ON(fs_info->running_transaction);
+	if (!h)
+    {
+        return NULL;
+    }    
+	if (root->commit_root)
+    {
+        return NULL;
+    }    
+	if (fs_info->running_transaction)
+    {
+        return NULL;
+    }    
 	fs_info->running_transaction = h;
 	fs_info->generation++;
 	h->transid = fs_info->generation;

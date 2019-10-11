@@ -35,7 +35,10 @@ int btrfs_find_last_root(struct btrfs_root *root, u64 objectid,
 	search_key.offset = (u64)-1;
 
 	path = btrfs_alloc_path();
-	BUG_ON(!path);
+	if (!path)
+    {
+        return -1;
+    }    
 	ret = btrfs_search_slot(NULL, root, &search_key, path, 0, 0);
 	if (ret < 0)
 		goto out;
@@ -44,7 +47,10 @@ int btrfs_find_last_root(struct btrfs_root *root, u64 objectid,
 		goto out;
 	}
 
-	BUG_ON(ret == 0);
+	if (ret == 0)
+    {
+        return -1;
+    }    
 	l = path->nodes[0];
 	slot = path->slots[0] - 1;
 	btrfs_item_key_to_cpu(l, &found_key, slot);
@@ -73,11 +79,17 @@ int btrfs_update_root(struct btrfs_trans_handle *trans, struct btrfs_root
 	u32 old_len;
 
 	path = btrfs_alloc_path();
-	BUG_ON(!path);
+	if (!path)
+    {
+        return -1;
+    }    
 	ret = btrfs_search_slot(trans, root, key, path, 0, 1);
 	if (ret < 0)
 		goto out;
-	BUG_ON(ret != 0);
+	if (ret != 0)
+    {
+        return -1;
+    }    
 	l = path->nodes[0];
 	slot = path->slots[0];
 	ptr = btrfs_item_ptr_offset(l, slot);

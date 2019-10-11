@@ -117,7 +117,6 @@ struct btrfs_fs_info *open_ctree_fs_info(const char *filename,
 int close_ctree_fs_info(struct btrfs_fs_info *fs_info);
 static inline int close_ctree(struct btrfs_root *root)
 {
-	BUG_ON(!root);
 	return close_ctree_fs_info(root->fs_info);
 }
 

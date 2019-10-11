@@ -68,6 +68,7 @@ test_args = [
   '-Wmissing-prototypes',
   '-Wnested-externs',
   '-Wno-discarded-qualifiers',
+  '-Wno-address-of-packed-member',
   '-Wno-missing-field-initializers',
   '-Wno-strict-aliasing',
   '-Wno-suggest-attribute=format',

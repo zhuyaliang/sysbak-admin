@@ -6,6 +6,7 @@ subdir = 'libsysbak'
 headers = files(
   'sysbak-gdbus.h',
   'sysbak-fatfs.h',
+  'sysbak-btrfs.h',
   'sysbak-check.h',
 )
 
@@ -18,6 +19,7 @@ sources = files(
   'sysbak-gdbus.c',
   'sysbak-extfs.c',
   'sysbak-fatfs.c',
+  'sysbak-btrfs.c',
   'sysbak-check.c',
 )
 

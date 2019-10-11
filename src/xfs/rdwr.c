@@ -63,9 +63,6 @@ __initbuf(xfs_buf_t *bp, struct xfs_buftarg *btp, xfs_daddr_t bno,
 	bp->b_error = 0;
 	if (!bp->b_addr)
 		bp->b_addr = memalign(libxfs_device_alignment(), bytes);
-	if (!bp->b_addr) {
-		exit(1);
-	}
 	memset(bp->b_addr, 0, bytes);
 #ifdef XFS_BUF_TRACING
 	list_head_init(&bp->b_lock_list);
@@ -91,8 +88,9 @@ libxfs_initbuf_map(xfs_buf_t *bp, struct xfs_buftarg *btp,
 
 	bytes = sizeof(struct xfs_buf_map) * nmaps;
 	bp->b_maps = malloc(bytes);
-	if (!bp->b_maps) {
-		exit(1);
+	if (!bp->b_maps) 
+    {
+		return;
 	}
 	bp->b_nmaps = nmaps;
 
@@ -165,12 +163,14 @@ libxfs_getbufr_map(struct xfs_buftarg *btp, xfs_daddr_t blkno, int bblen,
 	xfs_buf_t	*bp;
 	int		blen = BBTOB(bblen);
 
-	if (!map || !nmaps) {
-		exit(1);
+	if (!map || !nmaps) 
+    {
+        return NULL;
 	}
 
-	if (blkno != map[0].bm_bn) {
-		exit(1);
+	if (blkno != map[0].bm_bn)
+    {
+        return NULL;
 	}
 
 	bp =__libxfs_getbufr(blen);
@@ -282,11 +282,11 @@ __read_buf(int fd, void *buf, int len, off64_t offset, int flags)
 	if (sts < 0) {
 		int error = errno;
 		if (flags & LIBXFS_EXIT_ON_FAILURE)
-			exit(1);
+			return -1;
 		return -error;
 	} else if (sts != len) {
 		if (flags & LIBXFS_EXIT_ON_FAILURE)
-			exit(1);
+			return -1;
 		return -EIO;
 	}
 	return 0;
@@ -355,11 +355,11 @@ __write_buf(int fd, void *buf, int len, off64_t offset, int flags)
 	if (sts < 0) {
 		int error = errno;
 		if (flags & LIBXFS_B_EXIT)
-			exit(1);
+			return -1;
 		return -error;
 	} else if (sts != len) {
 		if (flags & LIBXFS_B_EXIT)
-			exit(1);
+			return -1;
 		return -EIO;
 	}
 	return 0;

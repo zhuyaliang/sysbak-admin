@@ -45,8 +45,6 @@ enum xfs_buf_flags_t {  /* b_flags bits */
     LIBXFS_B_DISCONTIG  = 0x0010,   /* discontiguous buffer */
     LIBXFS_B_UNCHECKED  = 0x0020,   /* needs verification */
 };
-extern void	libxfs_buftarg_init(struct xfs_mount *mp, dev_t ddev,
-				    dev_t logdev, dev_t rtdev);
 
 #define LIBXFS_BBTOOFF64(bbs)	(((xfs_off_t)(bbs)) << BBSHIFT)
 

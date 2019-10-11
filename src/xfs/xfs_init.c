@@ -77,8 +77,9 @@ libxfs_device_to_fd(dev_t device)
     {    
         if (dev_map[d].dev == device)
 			return dev_map[d].fd;
-    }    
-	exit(1);
+    }   
+
+    return -1;
 }
 
 /* libxfs_device_open:
@@ -105,11 +106,12 @@ retry:
 	if ((fd = open(path, flags, 0666)) < 0) {
 		if (errno == EINVAL && --dio == 0)
 			goto retry;
-		exit(1);
+		return 0;
 	}
 
-	if (fstat(fd, &statb) < 0) {
-		exit(1);
+	if (fstat(fd, &statb) < 0) 
+    {
+		return 0;
 	}
 	if (!readonly && setblksize && (statb.st_mode & S_IFMT) == S_IFBLK) {
 		if (setblksize == 1)
@@ -118,7 +120,7 @@ retry:
 		else {
 			/* given an explicit blocksize to use */
 			if (platform_set_blocksize(fd, path, statb.st_rdev, setblksize, 1))
-			    exit(1);
+			    return 0;
 		}
 	}
 
@@ -127,7 +129,7 @@ retry:
 	for (d = 0; d < MAX_DEVS; d++)
 		if (dev_map[d].dev == dev) 
         {
-			exit(1);
+			return 0;
 		}
 
 	for (d = 0; d < MAX_DEVS; d++)
@@ -138,7 +140,7 @@ retry:
 
 			return dev;
 		}
-	exit(1);
+	return 0;
 	/* NOTREACHED */
 }
 
@@ -160,8 +162,6 @@ libxfs_device_close(dev_t dev)
 
 			return;
 		}
-
-	exit(1);
 }
 
 static int
@@ -232,6 +232,10 @@ libxfs_init(libxfs_init_t *a)
         {
 			a->ddev= libxfs_device_open(dname, a->dcreat, flags,
 						    a->setblksize);
+            if (a->ddev == 0)
+            {
+				goto done;
+            }    
 			a->dfd = libxfs_device_to_fd(a->ddev);
 			platform_findsizes(dname, a->dfd, &a->dsize,
 					   &a->dbsize);
@@ -242,6 +246,10 @@ libxfs_init(libxfs_init_t *a)
 				goto done;
 			a->ddev = libxfs_device_open(rawfile,
 					a->dcreat, flags, a->setblksize);
+            if (a->ddev == 0)
+            {
+				goto done;
+            }    
 			a->dfd = libxfs_device_to_fd(a->ddev);
 			platform_findsizes(rawfile, a->dfd,
 					   &a->dsize, &a->dbsize);
@@ -276,10 +284,6 @@ static kmem_zone_t *
 kmem_zone_init(int size, char *name)
 {
 	kmem_zone_t	*ptr = malloc(sizeof(kmem_zone_t));
-
-	if (ptr == NULL) {
-		exit(1);
-	}
 	ptr->zone_unitsize = size;
 	ptr->zone_name = name;
 	ptr->allocated = 0;
@@ -495,15 +499,12 @@ libxfs_buftarg_alloc(
 	struct xfs_buftarg	*btp;
 
 	btp = malloc(sizeof(*btp));
-	if (!btp) {
-		exit(1);
-	}
 	btp->bt_mount = mp;
 	btp->dev = dev;
 	return btp;
 }
 
-void
+static int
 libxfs_buftarg_init(
 	struct xfs_mount	*mp,
 	dev_t			dev,
@@ -511,24 +512,27 @@ libxfs_buftarg_init(
 	dev_t			rtdev)
 {
 	if (mp->m_ddev_targp) {
-		/* should already have all buftargs initialised */
 		if (mp->m_ddev_targp->dev != dev ||
-		    mp->m_ddev_targp->bt_mount != mp) {
-			exit(1);
+		    mp->m_ddev_targp->bt_mount != mp) 
+        {
+			return -1;
 		}
 		if (!logdev || logdev == dev) {
-			if (mp->m_logdev_targp != mp->m_ddev_targp) {
-				exit(1);
+			if (mp->m_logdev_targp != mp->m_ddev_targp) 
+            {
+				return -1;
 			}
 		} else if (mp->m_logdev_targp->dev != logdev ||
-			   mp->m_logdev_targp->bt_mount != mp) {
-			exit(1);
+			   mp->m_logdev_targp->bt_mount != mp) 
+        {
+			return -1;
 		}
 		if (rtdev && (mp->m_rtdev_targp->dev != rtdev ||
-			      mp->m_rtdev_targp->bt_mount != mp)) {
-			exit(1);
+			      mp->m_rtdev_targp->bt_mount != mp)) 
+        {
+			return -1;
 		}
-		return;
+		return 0;
 	}
 
 	mp->m_ddev_targp = libxfs_buftarg_alloc(mp, dev);
@@ -537,6 +541,8 @@ libxfs_buftarg_init(
 	else
 		mp->m_logdev_targp = libxfs_buftarg_alloc(mp, logdev);
 	mp->m_rtdev_targp = libxfs_buftarg_alloc(mp, rtdev);
+	
+    return 0;
 }
 static uint
 xfs_btree_compute_maxlevels(
@@ -690,7 +696,10 @@ libxfs_mount(
 	xfs_sb_t	*sbp;
 	int		error;
 
-	libxfs_buftarg_init(mp, dev, logdev, rtdev);
+	if (libxfs_buftarg_init(mp, dev, logdev, rtdev) < 0)
+    {
+        return NULL;
+    }    
 
 	mp->m_flags = (LIBXFS_MOUNT_32BITINODES|LIBXFS_MOUNT_32BITINOOPT);
 	mp->m_sb = *sb;
@@ -752,20 +761,21 @@ libxfs_mount(
 		if (!(flags & LIBXFS_MOUNT_DEBUGGER))
 			return NULL;
 	}
-	if (!(sbp->sb_versionnum & XFS_SB_VERSION_NLINKBIT)) {
-
-		exit(1);
+	if (!(sbp->sb_versionnum & XFS_SB_VERSION_NLINKBIT)) 
+    {
+        return NULL;
 	}
 
 	/* Check for supported directory formats */
-	if (!(sbp->sb_versionnum & XFS_SB_VERSION_DIRV2BIT)) {
-
-		exit(1);
+	if (!(sbp->sb_versionnum & XFS_SB_VERSION_DIRV2BIT)) 
+    {
+        return NULL;
 	}
 
 	/* check for unsupported other features */
-	if (!xfs_sb_good_version(sbp)) {
-		exit(1);
+	if (!xfs_sb_good_version(sbp)) 
+    {
+        return NULL;
 	}
 
 	xfs_da_mount(mp);
@@ -806,8 +816,9 @@ libxfs_mount(
 	}
 
 	error = libxfs_initialize_perag(mp, sbp->sb_agcount, &mp->m_maxagi);
-	if (error) {
-		exit(1);
+	if (error) 
+    {
+        return NULL;
 	}
 	return mp;
 }

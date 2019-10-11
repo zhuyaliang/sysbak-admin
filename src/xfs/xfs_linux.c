@@ -85,10 +85,7 @@ platform_findsizes(char *path, int fd, long long *sz, int *bsz)
 	__uint64_t	size;
 	int		error;
 
-	if (fstat(fd, &st) < 0) {
-		exit(1);
-	}
-
+    fstat(fd, &st);
 	if ((st.st_mode & S_IFMT) == S_IFREG) {
 		struct dioattr	da;
 
@@ -117,9 +114,6 @@ platform_findsizes(char *path, int fd, long long *sz, int *bsz)
 		unsigned long tmpsize;
 
 		error = ioctl(fd, BLKGETSIZE, &tmpsize);
-		if (error < 0) {
-			exit(1);
-		}
 		*sz = (long long)tmpsize;
 	}
 

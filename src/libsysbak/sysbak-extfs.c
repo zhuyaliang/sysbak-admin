@@ -59,7 +59,7 @@ gboolean sysbak_admin_extfs_ptf_async (SysbakAdmin *sysbak)
 		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }  
-    if(check_file_device (target) && overwrite)
+    if(check_file_device (target) && !overwrite)
     {
 		error_message = g_strdup_printf ("%s Overwrite is not set, but the %s file already exists",base_error,target);
 		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);

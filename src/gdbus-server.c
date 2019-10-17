@@ -20,6 +20,7 @@
 #include <fcntl.h>
 #include <assert.h>
 #include "gdbus-extfs.h"
+#include "gdbus-disk.h"
 #include "gdbus-fatfs.h"
 #include "gdbus-btrfs.h"
 #include "gdbus-xfsfs.h"
@@ -47,9 +48,11 @@ static void AcquiredCallback (GDBusConnection *Connection,
     iface->handle_sysbak_btrfs_ptf  = gdbus_sysbak_btrfs_ptf;
 	iface->handle_sysbak_btrfs_ptp  = gdbus_sysbak_btrfs_ptp;
     iface->handle_sysbak_xfsfs_ptf  = gdbus_sysbak_xfsfs_ptf;
-//	iface->handle_sysbak_xfsfs_ptp  = gdbus_sysbak_xfsfs_ptp;
+	iface->handle_sysbak_xfsfs_ptp  = gdbus_sysbak_xfsfs_ptp;
 	iface->handle_sysbak_restore    = gdbus_sysbak_restore;
-	iface->handle_get_extfs_device_info   = gdbus_get_extfs_device_info;
+    iface->handle_backup_partition_table = gdbus_backup_partition_table;
+    iface->handle_backup_disk_mbr   = gdbus_backup_disk_mbr;
+    iface->handle_get_extfs_device_info   = gdbus_get_extfs_device_info;
     iface->handle_get_fs_image_info = gdbus_get_fs_image_info; 
     if(!g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(sysbak_gdbus), 
                                          Connection, 

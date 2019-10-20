@@ -109,3 +109,42 @@ ERROR:
     g_error_free (error);
     return FALSE;
 }   
+gboolean gdbus_backup_lvm_meta (SysbakGdbus           *object,
+                                GDBusMethodInvocation *invocation,
+							    const gchar           *source,
+							    const gchar           *target)
+{
+    const gchar *argv[5];
+    gint         status;
+    GError      *error = NULL;
+    gchar       *standard_error;
+
+
+    argv[0] = "/sbin/vgcfgbackup";
+    argv[1] = "-f";
+    argv[2] = source;
+    argv[3] = target;
+	argv[4] = NULL;
+    
+    if (!g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, &standard_error, &status, &error))
+        goto ERROR;
+
+    if (!g_spawn_check_exit_status (status, &error))
+        goto ERROR;
+
+
+    sysbak_gdbus_complete_backup_lvm_meta (object,invocation); 
+    sysbak_gdbus_emit_sysbak_finished (object,
+                                       0,
+                                       0,
+                                       0);
+    return TRUE;
+ERROR:
+    
+    sysbak_gdbus_complete_backup_lvm_meta (object,invocation);
+    sysbak_gdbus_emit_sysbak_error (object,
+                                    standard_error,
+                                    1);
+    g_error_free (error);
+    return FALSE;
+}  

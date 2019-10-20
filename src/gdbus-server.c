@@ -52,6 +52,8 @@ static void AcquiredCallback (GDBusConnection *Connection,
 	iface->handle_sysbak_restore    = gdbus_sysbak_restore;
     iface->handle_backup_partition_table = gdbus_backup_partition_table;
     iface->handle_backup_disk_mbr   = gdbus_backup_disk_mbr;
+	iface->handle_backup_lvm_meta   = gdbus_backup_lvm_meta;
+
     iface->handle_get_extfs_device_info   = gdbus_get_extfs_device_info;
     iface->handle_get_fs_image_info = gdbus_get_fs_image_info; 
     if(!g_dbus_interface_skeleton_export(G_DBUS_INTERFACE_SKELETON(sysbak_gdbus), 

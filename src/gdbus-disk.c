@@ -46,8 +46,7 @@ gboolean gdbus_backup_partition_table (SysbakGdbus           *object,
     if (!g_spawn_check_exit_status (status, &error))
         goto ERROR;
 
-
-    sysbak_gdbus_complete_backup_partition_table (object,invocation); 
+    sysbak_gdbus_complete_backup_partition_table (object,invocation,TRUE); 
     sysbak_gdbus_emit_sysbak_finished (object,
                                        0,
                                        0,
@@ -56,8 +55,7 @@ gboolean gdbus_backup_partition_table (SysbakGdbus           *object,
     return TRUE;
 ERROR:
     g_free (cmd);
-    
-    sysbak_gdbus_complete_backup_partition_table (object,invocation);
+    sysbak_gdbus_complete_backup_partition_table (object,invocation,FALSE);
     sysbak_gdbus_emit_sysbak_error (object,
                                     standard_error,
                                     1);
@@ -119,7 +117,6 @@ gboolean gdbus_backup_lvm_meta (SysbakGdbus           *object,
     GError      *error = NULL;
     gchar       *standard_error;
 
-
     argv[0] = "/sbin/vgcfgbackup";
     argv[1] = "-f";
     argv[2] = source;
@@ -132,7 +129,6 @@ gboolean gdbus_backup_lvm_meta (SysbakGdbus           *object,
     if (!g_spawn_check_exit_status (status, &error))
         goto ERROR;
 
-
     sysbak_gdbus_complete_backup_lvm_meta (object,invocation); 
     sysbak_gdbus_emit_sysbak_finished (object,
                                        0,
@@ -140,7 +136,6 @@ gboolean gdbus_backup_lvm_meta (SysbakGdbus           *object,
                                        0);
     return TRUE;
 ERROR:
-    
     sysbak_gdbus_complete_backup_lvm_meta (object,invocation);
     sysbak_gdbus_emit_sysbak_error (object,
                                     standard_error,

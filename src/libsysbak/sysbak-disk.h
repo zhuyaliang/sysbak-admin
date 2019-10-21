@@ -26,4 +26,6 @@ gboolean       get_disk_info_config        (const char  *disk_name,
                                             const char  *config_name);
 
 gboolean       get_disk_mbr                (SysbakAdmin *sysbak);
+
+gboolean       get_disk_partition_table    (SysbakAdmin *sysbak);
 #endif

@@ -204,12 +204,38 @@ gboolean get_disk_mbr (SysbakAdmin *sysbak)
                                                  NULL,
 											    &error))
 	{
-		
 		return FALSE;
 	}
     
-    
     return ret;      /// finish
-
 }
 
+gboolean get_disk_partition_table (SysbakAdmin *sysbak)
+{
+    const char  *source,*target;
+    SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+    gboolean     ret;
+    
+    g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
+
+    source = sysbak_admin_get_source (sysbak);
+    target = sysbak_admin_get_target (sysbak);
+    proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+
+    if (!check_disk_device (source))
+    {
+        return FALSE;
+    }
+	if (!sysbak_gdbus_call_backup_partition_table_sync (proxy,
+                                                        source,
+                                                        target,
+											            &ret,
+                                                        NULL,
+											            &error))
+	{
+		return FALSE;
+	}
+    
+    return ret;      /// finish
+}    

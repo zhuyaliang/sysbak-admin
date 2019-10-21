@@ -63,7 +63,6 @@ static void on_progress (SysbakAdmin *sysbak,
                    signals[SIGNAL_PROGRESS], 
                    0,
                    &pdata);
-   // g_print ("\r percent %.2f speed %.2f elapsed %lu",percent,speed,elapsed);
 }    
 
 static void on_findshed (SysbakAdmin *sysbak,

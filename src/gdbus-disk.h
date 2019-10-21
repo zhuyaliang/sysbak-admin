@@ -35,6 +35,5 @@ gboolean    gdbus_backup_disk_mbr        (SysbakGdbus           *object,
 
 gboolean    gdbus_backup_lvm_meta        (SysbakGdbus           *object,
                                           GDBusMethodInvocation *invocation,
-							              const gchar           *source,
 							              const gchar           *target);
 #endif

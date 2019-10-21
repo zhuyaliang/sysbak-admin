@@ -28,4 +28,8 @@ gboolean       get_disk_info_config        (const char  *disk_name,
 gboolean       get_disk_mbr                (SysbakAdmin *sysbak);
 
 gboolean       get_disk_partition_table    (SysbakAdmin *sysbak);
+
+gboolean       get_disk_lvm_metadata       (SysbakAdmin *sysbak);
+
+gboolean       sysbak_admin_disk_to_file   (SysbakAdmin *sysbak);
 #endif

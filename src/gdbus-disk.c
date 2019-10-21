@@ -109,34 +109,38 @@ ERROR:
 }   
 gboolean gdbus_backup_lvm_meta (SysbakGdbus           *object,
                                 GDBusMethodInvocation *invocation,
-							    const gchar           *source,
 							    const gchar           *target)
 {
     const gchar *argv[5];
     gint         status;
     GError      *error = NULL;
     gchar       *standard_error;
+    const char  *s;
+    const char  *base = "%s";
 
+    s = g_strdup_printf ("%s-%s",target,base);
     argv[0] = "/sbin/vgcfgbackup";
     argv[1] = "-f";
-    argv[2] = source;
-    argv[3] = target;
-	argv[4] = NULL;
+    argv[2] = s;
+	argv[3] = NULL;
     
+    g_print ("s = %s\r\n",s);
     if (!g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, &standard_error, &status, &error))
         goto ERROR;
 
     if (!g_spawn_check_exit_status (status, &error))
         goto ERROR;
 
-    sysbak_gdbus_complete_backup_lvm_meta (object,invocation); 
+    sysbak_gdbus_complete_backup_lvm_meta (object,invocation,TRUE); 
     sysbak_gdbus_emit_sysbak_finished (object,
                                        0,
                                        0,
                                        0);
+    g_free (s);
     return TRUE;
 ERROR:
-    sysbak_gdbus_complete_backup_lvm_meta (object,invocation);
+    g_free (s);
+    sysbak_gdbus_complete_backup_lvm_meta (object,invocation,FALSE);
     sysbak_gdbus_emit_sysbak_error (object,
                                     standard_error,
                                     1);

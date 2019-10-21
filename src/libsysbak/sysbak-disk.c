@@ -29,9 +29,20 @@
 #include <json-c/bits.h>
 
 #include "sysbak-disk.h"
+#include "sysbak-xfsfs.h"
+#include "sysbak-extfs.h"
+#include "sysbak-btrfs.h"
+#include "sysbak-fatfs.h"
 #include "sysbak-admin-generated.h"
 
 #define   CMDOPTION   "NAME,FSTYPE,UUID";
+
+typedef void (*sysbak_func) (SysbakAdmin *);
+typedef struct
+{
+    char        *fs_type;
+    sysbak_func  sysbak_admin_type;
+}sys_admin;
 
 static gboolean check_disk_device (const char *path)
 {
@@ -133,7 +144,12 @@ static gboolean json_parse_array(json_object *jobj, char *key,const char *config
     }
     g_key_file_set_string(Kconfig,
                           "end",
-                          "TYPE",
+                          "name",
+                          "lvm");
+
+    g_key_file_set_string(Kconfig,
+                          "end",
+                          "fstype",
                           "lvm");
     for (i=0; i< arraylen; i++)
     {
@@ -238,4 +254,191 @@ gboolean get_disk_partition_table (SysbakAdmin *sysbak)
 	}
     
     return ret;      /// finish
+}    
+
+gboolean get_disk_lvm_metadata (SysbakAdmin *sysbak)
+{
+    const char  *target;
+    SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+    gboolean     ret;
+    
+    g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
+
+    target = sysbak_admin_get_target (sysbak);
+    proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+    
+    //g_print ("target = %s\r\n",target);
+	if (!sysbak_gdbus_call_backup_lvm_meta_sync (proxy,
+                                                 target,
+											    &ret,
+                                                 NULL,
+											    &error))
+	{
+		return FALSE;
+	}
+    
+    return ret;      /// finish
+}  
+
+static void progress_cb (SysbakAdmin   *sysbak,
+                         progress_data *pdata,
+                         gpointer       d)
+{
+    g_print ("\r percent %.2f speed %.2f elapsed  %2lu",
+                 pdata->percent,pdata->speed,pdata->elapsed);
+}    
+static void sysbak_admin_extfs (SysbakAdmin *sysbak)
+{
+    g_signal_connect(sysbak, 
+                    "signal-progress", 
+                     G_CALLBACK(progress_cb),
+                     NULL);
+    sysbak_admin_extfs_ptf_async (sysbak);
+}    
+static void sysbak_admin_fatfs (SysbakAdmin *sysbak) 
+{
+    sysbak_admin_fatfs_ptf_async (sysbak);
+}
+static void sysbak_admin_btrfs (SysbakAdmin *sysbak) 
+{
+    sysbak_admin_btrfs_ptf_async (sysbak);
+}
+static void sysbak_admin_xfsfs (SysbakAdmin *sysbak) 
+{
+    g_signal_connect(sysbak, 
+                    "signal-progress", 
+                     G_CALLBACK(progress_cb),
+                     NULL);
+    sysbak_admin_xfsfs_ptf_async (sysbak);
+}
+static void character_replace (char *str)
+{
+    int i = 0;
+
+    while (str[i] != '\0')
+    {
+        if (str[i] == '-')
+        {    
+            str[i] = '/';
+            break;
+        }
+        i++;
+    }    
+}   
+
+static void sysbak_admin_disk_data (SysbakAdmin  *sysbak,char *dir_name)
+{
+    char     *disk_info;
+    GKeyFile *keyfile;
+    char    **groups = NULL;
+    GError   *error = NULL;
+    gsize     length = 0;
+    int       i,j;
+    char     *partition;
+    char     *fs_type;
+    char     *source,*target;	
+    SysbakAdmin  *tmp_sysbak;
+    
+    static sys_admin array_data [6] =
+    {
+        {"ext2", sysbak_admin_extfs},
+        {"ext3", sysbak_admin_extfs},
+        {"ext4", sysbak_admin_extfs},
+        {"vfat", sysbak_admin_fatfs},
+        {"btrfs",sysbak_admin_btrfs},
+        {"xfs",  sysbak_admin_xfsfs}
+    };
+    
+    disk_info = g_strdup_printf ("%s/disk-info.ini",dir_name);
+    keyfile = g_key_file_new();
+    g_key_file_load_from_file(keyfile,disk_info, G_KEY_FILE_NONE, &error);
+    groups = g_key_file_get_groups(keyfile, &length);
+    for(i = 0; i < (int)length; i++)
+    {
+        partition = g_key_file_get_string (keyfile,
+                                           groups[i],
+                                          "name",
+                                           NULL);
+        
+        fs_type = g_key_file_get_string (keyfile,
+                                         groups[i],
+                                        "fstype",
+                                         &error);
+        
+        for (j = 0; j < 6; j++)
+        {
+            if (g_strcmp0 (fs_type,array_data[j].fs_type) == 0)
+            {
+                tmp_sysbak = sysbak_admin_new (); 
+                target = g_strdup_printf ("%s/%s.img",dir_name,partition);
+                character_replace (partition);
+                source = g_strdup_printf ("/dev/%s",partition);
+
+	            sysbak_admin_set_source (tmp_sysbak,source);
+	            sysbak_admin_set_target (tmp_sysbak,target);
+                sysbak_admin_set_option (tmp_sysbak,1);
+                array_data[j].sysbak_admin_type (tmp_sysbak);
+                g_free (source);
+                g_free (target);
+            }    
+        }    
+    }
+    g_free (disk_info);
+}    
+gboolean sysbak_admin_disk_to_file (SysbakAdmin  *sysbak)
+{
+    gboolean  ret;
+    char     *disk_info,*disk_mbr,*disk_table,*lvm_meta;
+    char     *source,*target;	
+    
+    source = sysbak_admin_get_source (sysbak);
+    target = sysbak_admin_get_target (sysbak);
+
+    if (!check_disk_device (source))
+    {
+        return FALSE;
+    }
+    // stp 1 Check if the file exists;
+    // stp 2 Check overwrite;
+    // stp 3 Check disk space;
+
+    lvm_meta = g_strdup_printf ("%s/lvm",target);
+	sysbak_admin_set_target (sysbak,lvm_meta);
+    ret = get_disk_lvm_metadata (sysbak);
+    g_free (lvm_meta);
+    if (!ret)
+    {
+        return FALSE;
+    }    
+    
+    disk_info = g_strdup_printf ("%s/disk-info.ini",target);
+    ret = get_disk_info_config (source,disk_info);
+    g_free (disk_info);
+    if (!ret)
+    {
+        return FALSE;
+    }    
+    
+    
+    disk_table = g_strdup_printf ("%s/disk-table",target);
+    sysbak_admin_set_target (sysbak,disk_table);
+    ret = get_disk_partition_table (sysbak);
+    g_free (disk_table);
+    if (!ret)
+    {
+        return FALSE;
+    }    
+    
+    disk_mbr = g_strdup_printf ("%s/disk-mbr",target);
+	sysbak_admin_set_target (sysbak,disk_mbr);
+    ret = get_disk_mbr (sysbak);
+    g_free (disk_mbr);
+    if (!ret)
+    {
+        return FALSE;
+    }    
+    sysbak_admin_disk_data (sysbak,target);
+
+    return TRUE;
 }    

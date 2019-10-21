@@ -116,9 +116,9 @@
     </method>
     
     <method name="BackupLvmMeta">
-        <arg name="source" direction="in" type="s">
-        </arg>
         <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="ret" direction="out" type="b">
         </arg>
     </method>
     <property name="Version" type="s" access="read">

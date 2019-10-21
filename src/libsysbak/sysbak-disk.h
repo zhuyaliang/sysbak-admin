@@ -15,17 +15,12 @@
 *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef __SYSBAK_FS_H__
-#define __SYSBAK_FS_H__
+#ifndef __SYSBAK_DISK_H__
+#define __SYSBAK_DISK_H__
 
 #include <glib.h>
 #include <gio/gio.h>
 #include "sysbak-gdbus.h"
-#include "sysbak-check.h"
-#include "sysbak-btrfs.h"
-#include "sysbak-extfs.h"
-#include "sysbak-fatfs.h"
-#include "sysbak-xfsfs.h"
-#include "sysbak-disk.h"
 
+gboolean get_disk_info_config (const char *disk_name,const char *config_name);
 #endif

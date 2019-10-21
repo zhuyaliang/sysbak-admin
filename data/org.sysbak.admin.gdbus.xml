@@ -109,6 +109,8 @@
         </arg>
         <arg name="target" direction="in" type="s">
         </arg>
+        <arg name="ret" direction="out" type="b">
+        </arg>
     </method>
     
     <method name="BackupLvmMeta">

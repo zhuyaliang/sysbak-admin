@@ -10,6 +10,7 @@ headers = files(
   'sysbak-extfs.h',
   'sysbak-xfsfs.h',
   'sysbak-check.h',
+  'sysbak-disk.h',
 )
 
 install_headers(
@@ -24,6 +25,7 @@ sources = files(
   'sysbak-btrfs.c',
   'sysbak-xfsfs.c',
   'sysbak-check.c',
+  'sysbak-disk.c',
 )
 
 dbus_sources = []
@@ -34,6 +36,7 @@ deps = [
   glib_dep,
   libaccounts_generated_dep,
   ext2fs_dep,
+  jsonc_dep,
 ]
 
 symbol_map = join_paths(meson.current_source_dir(), 'symbol.map')

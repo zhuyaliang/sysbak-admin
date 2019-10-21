@@ -91,7 +91,7 @@ gboolean gdbus_backup_disk_mbr (SysbakGdbus           *object,
         goto ERROR;
 
 
-    sysbak_gdbus_complete_backup_disk_mbr (object,invocation); 
+    sysbak_gdbus_complete_backup_disk_mbr (object,invocation,TRUE); 
     sysbak_gdbus_emit_sysbak_finished (object,
                                        0,
                                        0,
@@ -102,7 +102,7 @@ gboolean gdbus_backup_disk_mbr (SysbakGdbus           *object,
 ERROR:
     g_free (s);
     g_free (t);
-    sysbak_gdbus_complete_backup_disk_mbr (object,invocation);
+    sysbak_gdbus_complete_backup_disk_mbr (object,invocation,FALSE);
     sysbak_gdbus_emit_sysbak_error (object,
                                     standard_error,
                                     1);

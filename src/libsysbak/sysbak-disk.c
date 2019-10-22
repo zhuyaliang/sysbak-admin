@@ -281,19 +281,8 @@ gboolean get_disk_lvm_metadata (SysbakAdmin *sysbak)
     return ret;      /// finish
 }  
 
-static void progress_cb (SysbakAdmin   *sysbak,
-                         progress_data *pdata,
-                         gpointer       d)
-{
-    g_print ("\r percent %.2f speed %.2f elapsed  %2lu",
-                 pdata->percent,pdata->speed,pdata->elapsed);
-}    
 static void sysbak_admin_extfs (SysbakAdmin *sysbak)
 {
-    g_signal_connect(sysbak, 
-                    "signal-progress", 
-                     G_CALLBACK(progress_cb),
-                     NULL);
     sysbak_admin_extfs_ptf_async (sysbak);
 }    
 static void sysbak_admin_fatfs (SysbakAdmin *sysbak) 
@@ -306,10 +295,6 @@ static void sysbak_admin_btrfs (SysbakAdmin *sysbak)
 }
 static void sysbak_admin_xfsfs (SysbakAdmin *sysbak) 
 {
-    g_signal_connect(sysbak, 
-                    "signal-progress", 
-                     G_CALLBACK(progress_cb),
-                     NULL);
     sysbak_admin_xfsfs_ptf_async (sysbak);
 }
 static void character_replace (char *str)
@@ -338,7 +323,6 @@ static void sysbak_admin_disk_data (SysbakAdmin  *sysbak,char *dir_name)
     char     *partition;
     char     *fs_type;
     char     *source,*target;	
-    SysbakAdmin  *tmp_sysbak;
     
     static sys_admin array_data [6] =
     {
@@ -370,15 +354,14 @@ static void sysbak_admin_disk_data (SysbakAdmin  *sysbak,char *dir_name)
         {
             if (g_strcmp0 (fs_type,array_data[j].fs_type) == 0)
             {
-                tmp_sysbak = sysbak_admin_new (); 
                 target = g_strdup_printf ("%s/%s.img",dir_name,partition);
                 character_replace (partition);
                 source = g_strdup_printf ("/dev/%s",partition);
 
-	            sysbak_admin_set_source (tmp_sysbak,source);
-	            sysbak_admin_set_target (tmp_sysbak,target);
-                sysbak_admin_set_option (tmp_sysbak,1);
-                array_data[j].sysbak_admin_type (tmp_sysbak);
+	            sysbak_admin_set_source (sysbak,source);
+	            sysbak_admin_set_target (sysbak,target);
+                sysbak_admin_set_option (sysbak,1);
+                array_data[j].sysbak_admin_type (sysbak);
                 g_free (source);
                 g_free (target);
             }    

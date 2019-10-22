@@ -37,13 +37,30 @@ static gboolean check_file_device (const char *path)
     
     return TRUE;
 }    
+static void call_sysbak_extfs_ptf (GObject      *source_object,
+                                   GAsyncResult *res,
+                                   gpointer      data)
+{
+	SysbakAdmin *sysbak = SYSBAK_ADMIN (data);
+	SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+	g_autofree gchar *error_message = NULL;
+	const char  *base_error = "Backup partition to file failed";
+	
+	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+	if (! sysbak_gdbus_call_sysbak_extfs_ptf_finish(proxy,res,&error))
+	{
+
+		error_message = g_strdup_printf ("%s %s",base_error,error->message);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
+	}
+}
 //Backup partition to image file 
 gboolean sysbak_admin_extfs_ptf_async (SysbakAdmin *sysbak)
 {
 	const char  *source,*target;
 	gboolean     overwrite;
 	SysbakGdbus *proxy;
-    g_autoptr(GError) error = NULL;
 	g_autofree gchar *error_message = NULL;
 	const char  *base_error = "Backup partition to file failed";
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
@@ -71,27 +88,40 @@ gboolean sysbak_admin_extfs_ptf_async (SysbakAdmin *sysbak)
 		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }   
-	if (!sysbak_gdbus_call_sysbak_extfs_ptf_sync (proxy,
-                                                  source,
-                                                  target,
-                                                  overwrite,
-											      NULL,
-											      &error))
-	{
-		
-		error_message = g_strdup_printf ("%s %s",base_error,error->message);
-		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
-		return FALSE;
-	}
+	sysbak_gdbus_call_sysbak_extfs_ptf (proxy,
+									    source,
+									    target,
+                                        overwrite,
+										NULL,
+								        (GAsyncReadyCallback) call_sysbak_extfs_ptf,
+										sysbak);
 
     return TRUE;      /// finish
 }
+static void call_sysbak_extfs_ptp (GObject      *source_object,
+                                   GAsyncResult *res,
+                                   gpointer      data)
+{
+	SysbakAdmin *sysbak = SYSBAK_ADMIN (data);
+	SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+	g_autofree gchar *error_message = NULL;
+	const char  *base_error = "Backup partition to partition failed";
+	
+	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+	if (! sysbak_gdbus_call_sysbak_extfs_ptp_finish(proxy,res,&error))
+	{
+
+		error_message = g_strdup_printf ("%s %s",base_error,error->message);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
+	}
+}
+
 gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak)
 {
 	const char  *source,*target;
 	gboolean     overwrite;
 	SysbakGdbus *proxy;
-    g_autoptr(GError) error = NULL;
 	g_autofree gchar *error_message = NULL;
 	const char  *base_error = "Backup partition to partition failed";
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
@@ -126,26 +156,39 @@ gboolean sysbak_admin_extfs_ptp_async (SysbakAdmin *sysbak)
         return FALSE;
     }    
 
-	if (!sysbak_gdbus_call_sysbak_extfs_ptp_sync (proxy,
-											      source,
-											      target,
-                                                  overwrite,
-											      NULL,
-											      &error))
-    {
-		error_message = g_strdup_printf ("%s %s",base_error,error->message);
-		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
-		return FALSE;
-    } 
+	sysbak_gdbus_call_sysbak_extfs_ptp (proxy,
+									    source,
+									    target,
+                                        overwrite,
+										NULL,
+								        (GAsyncReadyCallback) call_sysbak_extfs_ptp,
+										sysbak);
 
     return TRUE;      /// finish
+}
+static void call_sysbak_restore  (GObject      *source_object,
+                                  GAsyncResult *res,
+                                  gpointer      data)
+{
+	SysbakAdmin *sysbak = SYSBAK_ADMIN (data);
+	SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+	g_autofree gchar *error_message = NULL;
+	const char  *base_error = "Restore image to partition failed";
+	
+	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+	if (! sysbak_gdbus_call_sysbak_restore_finish(proxy,res,&error))
+	{
+
+		error_message = g_strdup_printf ("%s %s",base_error,error->message);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
+	}
 }
 gboolean sysbak_admin_restore_async (SysbakAdmin *sysbak)
 {
 	const char  *source,*target;
 	gboolean     overwrite;
 	SysbakGdbus *proxy;
-    g_autoptr(GError) error = NULL;
 	g_autofree gchar *error_message = NULL;
 	const char  *base_error = "Restore image to partition failed";
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
@@ -173,17 +216,13 @@ gboolean sysbak_admin_restore_async (SysbakAdmin *sysbak)
 		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }    
-	if (!sysbak_gdbus_call_sysbak_restore_sync (proxy,
-				                                source,
-										        target,
-                                                overwrite,
-											    NULL,
-										        &error))
-    {
-		error_message = g_strdup_printf ("%s %s",base_error,error->message);
-		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
-		return FALSE;
-    } 
+	sysbak_gdbus_call_sysbak_restore (proxy,
+								      source,
+									  target,
+                                      overwrite,
+									  NULL,
+								     (GAsyncReadyCallback) call_sysbak_restore,
+									  sysbak);
 
     return TRUE;      /// finish
 }

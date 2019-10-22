@@ -44,15 +44,6 @@ typedef struct
     sysbak_func  sysbak_admin_type;
 }sys_admin;
 
-static gboolean check_disk_device (const char *path)
-{
-    if (access (path,F_OK) == -1)
-    {
-        return FALSE;
-    }    
-    
-    return TRUE;
-}    
 static const char *execute_command_line (const char *disk_name)
 {
     const gchar *argv[7];
@@ -170,7 +161,7 @@ gboolean get_disk_info_config (const char *disk_name,const char *config_name)
     g_return_val_if_fail (config_name  != NULL,FALSE);
     g_return_val_if_fail (disk_name != NULL,FALSE);
     
-    if (!check_disk_device (disk_name))
+    if (!check_file_device (disk_name))
     {
         return FALSE;
     }    
@@ -209,7 +200,7 @@ gboolean get_disk_mbr (SysbakAdmin *sysbak)
     target = sysbak_admin_get_target (sysbak);
     proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
 
-    if (!check_disk_device (source))
+    if (!check_file_device (source))
     {
         return FALSE;
     }
@@ -239,7 +230,7 @@ gboolean get_disk_partition_table (SysbakAdmin *sysbak)
     target = sysbak_admin_get_target (sysbak);
     proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
 
-    if (!check_disk_device (source))
+    if (!check_file_device (source))
     {
         return FALSE;
     }
@@ -378,7 +369,7 @@ gboolean sysbak_admin_disk_to_file (SysbakAdmin  *sysbak)
     source = sysbak_admin_get_source (sysbak);
     target = sysbak_admin_get_target (sysbak);
 
-    if (!check_disk_device (source))
+    if (!check_file_device (source))
     {
         return FALSE;
     }

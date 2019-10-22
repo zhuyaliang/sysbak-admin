@@ -21,6 +21,8 @@
 #include <glib.h>
 #include <gio/gio.h>
 
-gboolean check_device_mount(const char* device);
+gboolean check_device_mount(const char *device);
+
+gboolean check_file_device (const char *path);
 
 #endif

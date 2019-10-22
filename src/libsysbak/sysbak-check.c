@@ -77,3 +77,12 @@ EXIT:
     }
     return isMounted;
 }
+gboolean check_file_device (const char *path)
+{
+    if (access (path,F_OK) == -1)
+    {
+        return FALSE;
+    }    
+    
+    return TRUE;
+}    

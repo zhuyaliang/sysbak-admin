@@ -28,15 +28,6 @@
 #include "sysbak-btrfs.h"
 #include "sysbak-admin-generated.h"
 
-static gboolean check_file_device (const char *path)
-{
-    if (access (path,F_OK) == -1)
-    {
-        return FALSE;
-    }    
-    
-    return TRUE;
-}    
 static void call_sysbak_btrfs_ptf (GObject      *source_object,
                                    GAsyncResult *res,
                                    gpointer      data)

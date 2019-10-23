@@ -259,7 +259,6 @@ gboolean get_disk_lvm_metadata (SysbakAdmin *sysbak)
     target = sysbak_admin_get_target (sysbak);
     proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
     
-    //g_print ("target = %s\r\n",target);
 	if (!sysbak_gdbus_call_backup_lvm_meta_sync (proxy,
                                                  target,
 											    &ret,
@@ -415,4 +414,163 @@ gboolean sysbak_admin_disk_to_file (SysbakAdmin  *sysbak)
     sysbak_admin_disk_data (sysbak,target);
 
     return TRUE;
+}
+/*
+ *  sfdisk source < /target
+ *
+ */
+gboolean set_disk_partition_table (SysbakAdmin *sysbak)
+{
+    const char  *source,*target;
+    SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+    gboolean     ret;
+    
+    g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
+
+    source = sysbak_admin_get_source (sysbak);
+    target = sysbak_admin_get_target (sysbak);
+    proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+
+    if (!check_file_device (source))
+    {
+        return FALSE;
+    }
+    if (!check_file_device (target))
+    {
+        return FALSE;
+    }
+	if (!sysbak_gdbus_call_restore_partition_table_sync (proxy,
+                                                         source,
+                                                         target,
+											             &ret,
+                                                         NULL,
+											             &error))
+	{
+		return FALSE;
+	}
+    
+    return ret;      /// finish
+}    
+/*
+ *  pvcreate --restorefile source --uuid uuid target
+ *
+ */
+gboolean create_lvm_pv (SysbakAdmin *sysbak,const char *uuid)
+{
+    const char  *source,*target;
+    SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+    gboolean     ret;
+    
+    g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
+    g_return_val_if_fail (uuid != NULL,FALSE);
+
+    source = sysbak_admin_get_source (sysbak);
+    target = sysbak_admin_get_target (sysbak);
+    proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+
+    if (!check_file_device (target))
+    {
+        return FALSE;
+    }
+    if (!check_file_device (source))
+    {
+        return FALSE;
+    }
+	if (!sysbak_gdbus_call_create_pv_sync (proxy,
+                                           source,
+                                           uuid,
+                                           target,
+										   &ret,
+                                           NULL,
+										   &error))
+	{
+		return FALSE;
+	}
+    
+    return ret;      /// finish
+}
+
+/*
+ *  vgcfgrestore -f source target
+ *
+ */
+gboolean set_disk_lvm_metadata (SysbakAdmin *sysbak)
+{
+    const char  *source,*target;
+    SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+    gboolean     ret;
+    char        *dev_path;
+    
+    g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
+
+    source = sysbak_admin_get_source (sysbak);
+    target = sysbak_admin_get_target (sysbak);
+    proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+
+    dev_path = g_strdup_printf ("/dev/%s",target);
+    if (!check_file_device (dev_path))
+    {
+        g_free (dev_path);
+        return FALSE;
+    }
+    if (!check_file_device (source))
+    {
+        g_free (dev_path);
+        return FALSE;
+    }
+	if (!sysbak_gdbus_call_restore_lvm_meta_sync (proxy,
+                                                  source,
+                                                  target,
+										          &ret,
+                                                  NULL,
+										          &error))
+	{
+        g_free (dev_path);
+		return FALSE;
+	}
+    
+    g_free (dev_path);
+    return ret;      /// finish
+}
+
+/*
+ *  vgchange -ay source 
+ *  lvchange -ay source 
+ */
+gboolean restart_lvm_vg (SysbakAdmin *sysbak)
+{
+    const char  *source;
+    SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+    gboolean     ret;
+    char        *dev_path;
+    
+    g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
+
+    source = sysbak_admin_get_source (sysbak);
+    proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+
+    dev_path = g_strdup_printf ("/dev/%s",source);
+    if (!check_file_device (dev_path))
+    {
+        g_free (dev_path);
+        return FALSE;
+    }
+	if (!sysbak_gdbus_call_restart_vg_sync (proxy,
+                                            source,
+										    &ret,
+                                            NULL,
+										    &error))
+    {
+        g_free (dev_path);
+        return FALSE;
+    }       
+
+    g_free (dev_path);
+
+    return TRUE;
+
 }    

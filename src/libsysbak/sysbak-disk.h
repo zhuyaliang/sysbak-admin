@@ -29,7 +29,17 @@ gboolean       get_disk_mbr                (SysbakAdmin *sysbak);
 
 gboolean       get_disk_partition_table    (SysbakAdmin *sysbak);
 
+gboolean       set_disk_partition_table    (SysbakAdmin *sysbak);
+
 gboolean       get_disk_lvm_metadata       (SysbakAdmin *sysbak);
 
+gboolean       set_disk_lvm_metadata       (SysbakAdmin *sysbak);
+
 gboolean       sysbak_admin_disk_to_file   (SysbakAdmin *sysbak);
+
+gboolean       create_lvm_pv               (SysbakAdmin *sysbak,
+                                            const char  *uuid);
+
+gboolean       restart_lvm_vg              (SysbakAdmin *sysbak);
+
 #endif

@@ -15,6 +15,12 @@
  *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/statvfs.h>
+#include <sys/ioctl.h>
+#include <stdio.h>
+#include <unistd.h>
 #include "gdbus-share.h"
 #include "gdbus-disk.h"
 
@@ -307,4 +313,31 @@ ERROR:
     g_error_free (error);
     return FALSE;
 
+}
+gboolean gdbus_get_disk_size (SysbakGdbus           *object,
+                              GDBusMethodInvocation *invocation,
+						      const gchar           *dev_name)
+{
+    int  fd;
+    ull  size;
+
+    fd = open(dev_name, O_RDONLY);
+    if (fd < 0)
+    {
+        goto ERROR;
+    }
+    size = get_partition_free_space (&fd);
+    if (size <= 0)
+    {
+        goto ERROR;
+    }   
+    sysbak_gdbus_complete_get_disk_size (object,invocation,size);
+    return TRUE;
+ERROR:
+    sysbak_gdbus_complete_get_disk_size (object,invocation,0);
+    sysbak_gdbus_emit_sysbak_error (object,
+                                    "get disk size failed",
+                                    1);
+    
+    return FALSE;
 }    

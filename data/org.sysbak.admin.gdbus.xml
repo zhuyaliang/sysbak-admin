@@ -138,6 +138,13 @@
         </arg>
     </method>
    
+    <method name="GetDiskSize">
+        <arg name="dev_name" direction="in" type="s">
+        </arg>
+        <arg name="size" direction="out" type="t">
+        </arg>
+    </method>
+
     <property name="Version" type="s" access="read">
     </property>
     

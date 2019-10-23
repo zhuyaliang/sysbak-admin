@@ -573,4 +573,13 @@ gboolean restart_lvm_vg (SysbakAdmin *sysbak)
 
     return TRUE;
 
-}    
+}
+
+gboolean sysbak_admin_restore_disk ()
+{
+    //step 1 check source target it exist? 
+    //setp 2 check source space size
+    //step 3 dd if write mbr
+    //step 4 sfdisk restaore pt
+    //step 5 read disk-info.ini create pv restore image vgcgfrestore lvm restart lvm
+} 

@@ -331,7 +331,7 @@ gboolean gdbus_get_disk_size (SysbakGdbus           *object,
     {
         goto ERROR;
     }   
-    sysbak_gdbus_complete_get_disk_size (object,invocation,size);
+    sysbak_gdbus_complete_get_disk_size (object,invocation,size/1024);
     return TRUE;
 ERROR:
     sysbak_gdbus_complete_get_disk_size (object,invocation,0);

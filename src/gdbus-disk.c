@@ -168,7 +168,6 @@ gboolean gdbus_backup_lvm_meta (SysbakGdbus           *object,
     argv[2] = s;
 	argv[3] = NULL;
     
-    g_print ("s = %s\r\n",s);
     if (!g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, &standard_error, &status, &error))
         goto ERROR;
 
@@ -191,3 +190,44 @@ ERROR:
     g_error_free (error);
     return FALSE;
 }  
+gboolean gdbus_create_pv (SysbakGdbus           *object,
+                          GDBusMethodInvocation *invocation,
+						  const gchar           *file,
+                          const gchar           *uuid,
+                          const gchar           *device)
+{
+    const gchar *argv[9];
+    gint         status;
+    GError      *error = NULL;
+    gchar       *standard_error;
+
+    argv[0] = "/sbin/pvcreate";
+    argv[1] = "--restorefile";
+    argv[2] = file;
+	argv[3] = "--uuid";
+    argv[4] = uuid;
+    argv[5] = device;
+    argv[6] = "-y";
+    argv[7] = NULL;
+    
+    if (!g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, &standard_error, &status, &error))
+        goto ERROR;
+
+    if (!g_spawn_check_exit_status (status, &error))
+        goto ERROR;
+
+    sysbak_gdbus_complete_create_pv (object,invocation,TRUE); 
+    sysbak_gdbus_emit_sysbak_finished (object,
+                                       0,
+                                       0,
+                                       0);
+    return TRUE;
+ERROR:
+    sysbak_gdbus_complete_create_pv (object,invocation,FALSE);
+    sysbak_gdbus_emit_sysbak_error (object,
+                                    standard_error,
+                                    1);
+    g_error_free (error);
+    return FALSE;
+
+}    

@@ -22,6 +22,11 @@
 #include <gio/gio.h>
 #include "sysbak-admin-generated.h"
 
+gboolean    gdbus_create_pv              (SysbakGdbus           *object,
+                                          GDBusMethodInvocation *invocation,
+						                  const gchar           *file,
+                                          const gchar           *uuid,
+                                          const gchar           *device);
 
 gboolean    gdbus_backup_partition_table (SysbakGdbus            *object,
                                           GDBusMethodInvocation  *invocation,

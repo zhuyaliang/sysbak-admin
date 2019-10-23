@@ -50,6 +50,7 @@ static void AcquiredCallback (GDBusConnection *Connection,
     iface->handle_sysbak_xfsfs_ptf  = gdbus_sysbak_xfsfs_ptf;
 	iface->handle_sysbak_xfsfs_ptp  = gdbus_sysbak_xfsfs_ptp;
 	iface->handle_sysbak_restore    = gdbus_sysbak_restore;
+    iface->handle_create_pv         = gdbus_create_pv;
     iface->handle_backup_partition_table = gdbus_backup_partition_table;
     iface->handle_restore_partition_table = gdbus_restore_partition_table;
     iface->handle_backup_disk_mbr   = gdbus_backup_disk_mbr;

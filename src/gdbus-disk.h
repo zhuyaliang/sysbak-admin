@@ -23,17 +23,22 @@
 #include "sysbak-admin-generated.h"
 
 
-gboolean    gdbus_backup_partition_table (SysbakGdbus           *object,
-                                          GDBusMethodInvocation *invocation,
-								          const gchar           *source,
-								          const gchar           *target);
+gboolean    gdbus_backup_partition_table (SysbakGdbus            *object,
+                                          GDBusMethodInvocation  *invocation,
+								          const gchar            *source,
+								          const gchar            *target);
 
-gboolean    gdbus_backup_disk_mbr        (SysbakGdbus           *object,
-                                          GDBusMethodInvocation *invocation,
-								          const gchar           *source,
-								          const gchar           *target);
+gboolean    gdbus_restore_partition_table (SysbakGdbus           *object,
+                                           GDBusMethodInvocation *invocation,
+				 				           const gchar           *source,
+								           const gchar           *target);
 
-gboolean    gdbus_backup_lvm_meta        (SysbakGdbus           *object,
-                                          GDBusMethodInvocation *invocation,
-							              const gchar           *target);
+gboolean    gdbus_backup_disk_mbr        (SysbakGdbus            *object,
+                                          GDBusMethodInvocation  *invocation,
+								          const gchar            *source,
+								          const gchar            *target);
+
+gboolean    gdbus_backup_lvm_meta        (SysbakGdbus            *object,
+                                          GDBusMethodInvocation  *invocation,
+							              const gchar            *target);
 #endif

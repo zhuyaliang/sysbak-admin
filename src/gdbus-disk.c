@@ -18,7 +18,51 @@
 #include "gdbus-share.h"
 #include "gdbus-disk.h"
 
-static const gchar *get_cmd_option (const char *s,const char *t)
+static const gchar *get_restore_cmd_option (const char *s,const char *t)
+{
+    return g_strdup_printf ("/usr/bin/sfdisk %s < %s",s,t);
+}    
+gboolean gdbus_restore_partition_table (SysbakGdbus           *object,
+                                        GDBusMethodInvocation *invocation,
+				 				        const gchar           *source,
+								        const gchar           *target)
+{
+    const gchar *argv[4];
+    gint         status;
+    GError      *error = NULL;
+    const gchar *cmd;
+    gchar       *standard_error;
+
+    cmd = get_restore_cmd_option (source,target);
+
+    argv[0] = "/usr/bin/bash";
+    argv[1] = "-c";
+    argv[2] = cmd;
+    argv[3] = NULL;
+    
+    if (!g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, &standard_error, &status, &error))
+        goto ERROR;
+
+    if (!g_spawn_check_exit_status (status, &error))
+        goto ERROR;
+
+    sysbak_gdbus_complete_restore_partition_table (object,invocation,TRUE); 
+    sysbak_gdbus_emit_sysbak_finished (object,
+                                       0,
+                                       0,
+                                       0);
+    g_free (cmd);
+    return TRUE;
+ERROR:
+    g_free (cmd);
+    sysbak_gdbus_complete_restore_partition_table (object,invocation,FALSE);
+    sysbak_gdbus_emit_sysbak_error (object,
+                                    standard_error,
+                                    1);
+    g_error_free (error);
+    return FALSE;
+}  
+static const gchar *get_backup_cmd_option (const char *s,const char *t)
 {
     return g_strdup_printf ("/usr/bin/sfdisk -d %s > %s",s,t);
 }    
@@ -33,7 +77,7 @@ gboolean gdbus_backup_partition_table (SysbakGdbus           *object,
     const gchar *cmd;
     gchar       *standard_error;
 
-    cmd = get_cmd_option (source,target);
+    cmd = get_backup_cmd_option (source,target);
 
     argv[0] = "/usr/bin/bash";
     argv[1] = "-c";

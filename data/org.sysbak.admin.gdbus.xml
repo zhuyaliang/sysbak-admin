@@ -123,6 +123,15 @@
     </method>
     <property name="Version" type="s" access="read">
     </property>
+    
+    <method name="RestorePartitionTable">
+        <arg name="source" direction="in" type="s">
+        </arg>
+        <arg name="target" direction="in" type="s">
+        </arg>
+        <arg name="ret" direction="out" type="b">
+        </arg>
+    </method>
 
     <signal name="SysbakFinished">
        <arg name="totalblock" type="t">

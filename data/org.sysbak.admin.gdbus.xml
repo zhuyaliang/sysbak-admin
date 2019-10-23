@@ -116,11 +116,28 @@
     </method>
     
     <method name="BackupLvmMeta">
-        <arg name="target" direction="in" type="s">
+        <arg name="prefix" direction="in" type="s">
         </arg>
         <arg name="ret" direction="out" type="b">
         </arg>
     </method>
+    
+    <method name="RestoreLvmMeta">
+        <arg name="file" direction="in" type="s">
+        </arg>
+        <arg name="vgname" direction="in" type="s">
+        </arg>
+        <arg name="ret" direction="out" type="b">
+        </arg>
+    </method>
+    
+    <method name="RestartVG">
+        <arg name="vgname" direction="in" type="s">
+        </arg>
+        <arg name="ret" direction="out" type="b">
+        </arg>
+    </method>
+   
     <property name="Version" type="s" access="read">
     </property>
     

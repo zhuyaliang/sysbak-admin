@@ -28,6 +28,10 @@ gboolean    gdbus_create_pv              (SysbakGdbus           *object,
                                           const gchar           *uuid,
                                           const gchar           *device);
 
+gboolean    gdbus_restart_vg             (SysbakGdbus           *object,
+                                          GDBusMethodInvocation *invocation,
+						                  const gchar           *vgname);
+
 gboolean    gdbus_backup_partition_table (SysbakGdbus            *object,
                                           GDBusMethodInvocation  *invocation,
 								          const gchar            *source,
@@ -46,4 +50,9 @@ gboolean    gdbus_backup_disk_mbr        (SysbakGdbus            *object,
 gboolean    gdbus_backup_lvm_meta        (SysbakGdbus            *object,
                                           GDBusMethodInvocation  *invocation,
 							              const gchar            *target);
+
+gboolean    gdbus_restore_lvm_meta       (SysbakGdbus           *object,
+                                          GDBusMethodInvocation *invocation,
+					 		              const gchar           *file,
+                                          const gchar           *vgname);
 #endif

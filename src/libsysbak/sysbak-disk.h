@@ -43,8 +43,11 @@ gboolean       create_lvm_pv               (SysbakAdmin *sysbak,
 
 gboolean       restart_lvm_vg              (SysbakAdmin *sysbak);
 
-guint64        get_source_space_size       (SysbakAdmin *sysbak);
+guint64        get_source_space_size       (SysbakAdmin *sysbak,
+                                            const char  *cfg_name);
 
-guint64        get_disk_space_size         (SysbakAdmin *sysbak);
+guint64        get_disk_space_size         (SysbakAdmin *sysbak,
+                                            const char  *dev_name);
 
+gboolean       sysbak_admin_restore_disk   (SysbakAdmin *sysbak);
 #endif

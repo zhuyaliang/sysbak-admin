@@ -53,10 +53,6 @@ gboolean gdbus_restore_partition_table (SysbakGdbus           *object,
         goto ERROR;
 
     sysbak_gdbus_complete_restore_partition_table (object,invocation,TRUE); 
-    sysbak_gdbus_emit_sysbak_finished (object,
-                                       0,
-                                       0,
-                                       0);
     g_free (cmd);
     return TRUE;
 ERROR:
@@ -97,10 +93,6 @@ gboolean gdbus_backup_partition_table (SysbakGdbus           *object,
         goto ERROR;
 
     sysbak_gdbus_complete_backup_partition_table (object,invocation,TRUE); 
-    sysbak_gdbus_emit_sysbak_finished (object,
-                                       0,
-                                       0,
-                                       0);
     g_free (cmd);
     return TRUE;
 ERROR:
@@ -140,10 +132,6 @@ gboolean gdbus_backup_disk_mbr (SysbakGdbus           *object,
 
 
     sysbak_gdbus_complete_backup_disk_mbr (object,invocation,TRUE); 
-    sysbak_gdbus_emit_sysbak_finished (object,
-                                       0,
-                                       0,
-                                       0);
     g_free (s);
     g_free (t);
     return TRUE;
@@ -162,33 +150,29 @@ gboolean gdbus_restore_lvm_meta (SysbakGdbus           *object,
 					 		     const gchar           *file,
                                  const gchar           *vgname)
 {
-    const gchar *argv[6];
+    const gchar *argv[7];
     gint         status;
     GError      *error = NULL;
-    gchar       *standard_error;
 
     argv[0] = "/sbin/vgcfgrestore";
     argv[1] = "-f";
     argv[2] = file;
 	argv[3] = vgname;
-    argv[4] = NULL;
+    argv[4] = "-y";
+    argv[5] = NULL;
     
-    if (!g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, &standard_error, &status, &error))
+    sysbak_gdbus_complete_restore_lvm_meta (object,invocation,TRUE); 
+    if (!g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL,NULL, &status, &error))
         goto ERROR;
 
     if (!g_spawn_check_exit_status (status, &error))
         goto ERROR;
-
-    sysbak_gdbus_complete_restore_lvm_meta (object,invocation,TRUE); 
-    sysbak_gdbus_emit_sysbak_finished (object,
-                                       0,
-                                       0,
-                                       0);
+    g_print ("vgcfgrestore end !!!!\r\n");
     return TRUE;
 ERROR:
     sysbak_gdbus_complete_restore_lvm_meta (object,invocation,FALSE);
     sysbak_gdbus_emit_sysbak_error (object,
-                                    standard_error,
+                                    "vgcfgrestore failed",
                                     1);
     g_error_free (error);
     return FALSE;
@@ -217,10 +201,6 @@ gboolean gdbus_backup_lvm_meta (SysbakGdbus           *object,
         goto ERROR;
 
     sysbak_gdbus_complete_backup_lvm_meta (object,invocation,TRUE); 
-    sysbak_gdbus_emit_sysbak_finished (object,
-                                       0,
-                                       0,
-                                       0);
     g_free (s);
     return TRUE;
 ERROR:
@@ -258,10 +238,6 @@ gboolean gdbus_create_pv (SysbakGdbus           *object,
         goto ERROR;
 
     sysbak_gdbus_complete_create_pv (object,invocation,TRUE); 
-    sysbak_gdbus_emit_sysbak_finished (object,
-                                       0,
-                                       0,
-                                       0);
     return TRUE;
 ERROR:
     sysbak_gdbus_complete_create_pv (object,invocation,FALSE);
@@ -285,6 +261,7 @@ gboolean gdbus_restart_vg (SysbakGdbus           *object,
     argv[2] = vgname;
     argv[3] = NULL;
     
+    sysbak_gdbus_complete_restart_vg (object,invocation,TRUE); 
     if (!g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, NULL, &status, &error))
         goto ERROR;
 
@@ -298,12 +275,7 @@ gboolean gdbus_restart_vg (SysbakGdbus           *object,
 
     if (!g_spawn_check_exit_status (status, &error))
         goto ERROR;
-
-    sysbak_gdbus_complete_restart_vg (object,invocation,TRUE); 
-    sysbak_gdbus_emit_sysbak_finished (object,
-                                       0,
-                                       0,
-                                       0);
+    g_print ("change end !!!!\r\n");
     return TRUE;
 ERROR:
     sysbak_gdbus_complete_restart_vg (object,invocation,FALSE);
@@ -392,7 +364,7 @@ gboolean gdbus_get_source_use_size (SysbakGdbus           *object,
 {
     ull    size;
     char  *data;
-    char **str;
+    char **str = NULL;
     int    start_size;
     int    sector_szie;
 

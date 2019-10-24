@@ -186,7 +186,7 @@ gboolean get_disk_info_config (const char *disk_name,const char *config_name)
     
     return TRUE;
 }
-
+// dd if=source of=target bs=2048 count=1
 gboolean get_disk_mbr (SysbakAdmin *sysbak)
 {
     const char  *source,*target;
@@ -492,6 +492,25 @@ gboolean create_lvm_pv (SysbakAdmin *sysbak,const char *uuid)
     return ret;      /// finish
 }
 
+static void call_restore_lvm_meta (GObject      *source_object,
+                                   GAsyncResult *res,
+                                   gpointer      data)
+{
+	SysbakAdmin *sysbak = SYSBAK_ADMIN (data);
+	SysbakGdbus *proxy;
+    gboolean     ret;
+    g_autoptr(GError) error = NULL;
+	g_autofree gchar *error_message = NULL;
+	const char  *base_error = "restore lvm meta failed";
+	
+	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+	if (! sysbak_gdbus_call_restore_lvm_meta_finish(proxy,&ret,NULL,&error))
+	{
+
+		error_message = g_strdup_printf ("%s %s",base_error,error->message);
+		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
+	}
+}
 /*
  *  vgcfgrestore -f source target
  *
@@ -501,8 +520,6 @@ gboolean set_disk_lvm_metadata (SysbakAdmin *sysbak)
     const char  *source,*target;
     SysbakGdbus *proxy;
     g_autoptr(GError) error = NULL;
-    gboolean     ret;
-    char        *dev_path;
     
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 
@@ -510,30 +527,19 @@ gboolean set_disk_lvm_metadata (SysbakAdmin *sysbak)
     target = sysbak_admin_get_target (sysbak);
     proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
 
-    dev_path = g_strdup_printf ("/dev/%s",target);
-    if (!check_file_device (dev_path))
-    {
-        g_free (dev_path);
-        return FALSE;
-    }
     if (!check_file_device (source))
     {
-        g_free (dev_path);
         return FALSE;
     }
-	if (!sysbak_gdbus_call_restore_lvm_meta_sync (proxy,
-                                                  source,
-                                                  target,
-										          &ret,
-                                                  NULL,
-										          &error))
-	{
-        g_free (dev_path);
-		return FALSE;
-	}
+	sysbak_gdbus_call_restore_lvm_meta (proxy,
+                                        source,
+                                        target,
+								        NULL,
+                                        NULL,NULL);
+                                       // (GAsyncReadyCallback) call_restore_lvm_meta,
+								       // sysbak);
     
-    g_free (dev_path);
-    return ret;      /// finish
+    return TRUE;      /// finish
 }
 
 /*
@@ -545,54 +551,36 @@ gboolean restart_lvm_vg (SysbakAdmin *sysbak)
     const char  *source;
     SysbakGdbus *proxy;
     g_autoptr(GError) error = NULL;
-    gboolean     ret;
-    char        *dev_path;
     
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 
     source = sysbak_admin_get_source (sysbak);
     proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
 
-    dev_path = g_strdup_printf ("/dev/%s",source);
-    if (!check_file_device (dev_path))
-    {
-        g_free (dev_path);
-        return FALSE;
-    }
-	if (!sysbak_gdbus_call_restart_vg_sync (proxy,
-                                            source,
-										    &ret,
-                                            NULL,
-										    &error))
-    {
-        g_free (dev_path);
-        return FALSE;
-    }       
-
-    g_free (dev_path);
-
+	sysbak_gdbus_call_restart_vg (proxy,
+                                  source,
+							      NULL,
+                                  NULL,
+								  NULL);
     return TRUE;
-
 }
 
-guint64 get_source_space_size (SysbakAdmin *sysbak)
+guint64 get_source_space_size (SysbakAdmin *sysbak,const char *config_path)
 {
-    const char  *source;
     SysbakGdbus *proxy;
     g_autoptr(GError) error = NULL;
     guint64      size;
     
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 
-    source = sysbak_admin_get_source (sysbak);
     proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
 
-    if (!check_file_device (source))
+    if (!check_file_device (config_path))
     {
         return 0;
     }
 	if (!sysbak_gdbus_call_get_source_use_size_sync(proxy,
-                                                    source,
+                                                    config_path,
 										            &size,
                                                     NULL,
 										            &error))
@@ -604,24 +592,22 @@ guint64 get_source_space_size (SysbakAdmin *sysbak)
 
 }
 
-guint64 get_disk_space_size (SysbakAdmin *sysbak)
+guint64 get_disk_space_size (SysbakAdmin *sysbak,const char *dev_name)
 {
-    const char  *source;
     SysbakGdbus *proxy;
     g_autoptr(GError) error = NULL;
     guint64      size;
     
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 
-    source = sysbak_admin_get_source (sysbak);
     proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
 
-    if (!check_file_device (source))
+    if (!check_file_device (dev_name))
     {
         return 0;
     }
 	if (!sysbak_gdbus_call_get_disk_size_sync(proxy,
-                                              source,
+                                              dev_name,
 										      &size,
                                                NULL,
 										      &error))
@@ -632,13 +618,260 @@ guint64 get_disk_space_size (SysbakAdmin *sysbak)
     return size;
 
 }
-/*
-gboolean sysbak_admin_restore_disk (void)
+static gboolean restore_partition_table (const char *source,const char *target)
 {
+    SysbakAdmin *sysbak;
+
+    sysbak = sysbak_admin_new ();
+    sysbak_admin_set_source (sysbak,target);//dev
+    sysbak_admin_set_target (sysbak,source);//pt
+
+    return set_disk_partition_table (sysbak);
+    
+}   
+static gboolean restore_disk_mbr (const char *source,const char *target)
+{
+    SysbakAdmin *sysbak;
+    char        *mbr;
+
+    mbr = g_strdup_printf ("%s/disk-mbr",source);
+    sysbak = sysbak_admin_new ();
+    sysbak_admin_set_source (sysbak,mbr);//mbr
+    sysbak_admin_set_target (sysbak,target);//dev
+    g_free (mbr);
+
+    return get_disk_mbr (sysbak); 
+
+}  
+static gboolean activation_lvm_pv (SysbakAdmin *sysbak,const char *dir_path)
+{
+    g_autoptr(GError) error = NULL;
+    g_autoptr(GDir)   dir;
+    const gchar      *fn;
+    dir = g_dir_open (dir_path, 0, &error);
+    if (dir == NULL)
+    {
+        return FALSE;
+    }
+    while ((fn = g_dir_read_name (dir)) != NULL)
+    {
+        if (g_str_has_prefix (fn, "lvm-"))
+        {
+            g_autofree gchar *filename = g_build_filename (dir_path, fn, NULL);
+            sysbak_admin_set_source (sysbak,filename);//vgcfg file
+            sysbak_admin_set_target (sysbak,&fn[4]);//vg name
+            set_disk_lvm_metadata (sysbak);
+            g_print ("restart_lvm_vg \r\n");
+            sysbak_admin_set_source (sysbak,&fn[4]);//vg name
+            restart_lvm_vg (sysbak);
+        }
+    }
+
+    return TRUE;
+}   
+static gboolean is_vg (const char *file_name,const char *uuid)
+{
+    int   fd;
+    char  buf[1024];
+
+    fd = open (file_name,O_RDONLY);
+    if (fd < 0 )
+    {
+        return FALSE;
+    }   
+    read (fd,buf,1024);
+    if (g_strrstr (buf,uuid) != NULL)
+    {
+        return TRUE;
+    }    
+    
+    return FALSE;
+}    
+static gboolean restore_lvm_pv (const char *dir_path,const char *dev_name,const char *uuid)
+{
+    SysbakAdmin      *sysbak;
+    g_autoptr(GError) error = NULL;
+    g_autoptr(GDir)   dir;
+    const gchar      *fn;
+    
+    dir = g_dir_open (dir_path, 0, &error);
+    if (dir == NULL)
+    {
+        return FALSE;
+    }
+    sysbak = sysbak_admin_new ();
+    while ((fn = g_dir_read_name (dir)) != NULL)
+    {
+        if (g_str_has_prefix (fn, "lvm-"))
+        {
+            g_autofree gchar *filename = g_build_filename (dir_path, fn, NULL);
+            if (is_vg (filename,uuid))
+            {    
+                sysbak_admin_set_source (sysbak,filename);//vgcfg file name
+                sysbak_admin_set_target (sysbak,dev_name);//vg name
+                if ( !create_lvm_pv (sysbak,uuid))
+                {
+                    return FALSE;
+                }    
+                return TRUE;
+            }    
+        }
+    }
+
+    return FALSE;
+
+}   
+
+static gboolean restore_disk_partition_data (SysbakAdmin *sysbak,
+                                             const char  *file_name,
+                                             const char  *dev_name,
+                                             const char  *fs_type)
+{
+    sysbak_admin_set_source (sysbak,file_name);
+	sysbak_admin_set_target (sysbak,dev_name);
+	sysbak_admin_set_option (sysbak,1);
+    return sysbak_admin_restore_async (sysbak);
+}    
+static gboolean is_lvm (const char *group)
+{
+    if (g_strrstr (group,"-") != NULL)
+    {
+        return TRUE;
+    }    
+    return FALSE;
+}    
+static gboolean read_cfg_file_restore (SysbakAdmin *sysbak,const char *source,const char *target)  
+{
+    GKeyFile     *kconfig = NULL;
+    char         *disk_info = NULL;
+    GError       *error = NULL;
+    g_auto(GStrv) groups = NULL;
+    gsize         length = 0;
+    char         *fs_type;
+    char         *uuid;
+    char         *dev_name;
+    char         *name;
+    char         *file_name;
+
+    kconfig = g_key_file_new();
+    if(kconfig == NULL)
+    {
+        goto EXIT;
+    }
+    disk_info = g_strdup_printf ("%s/disk-info.ini",source);
+    if (!check_file_device (disk_info))
+    {
+        goto EXIT;
+    }
+    if(!g_key_file_load_from_file(kconfig, disk_info, G_KEY_FILE_NONE, &error))
+    {
+        goto EXIT;
+    }
+    groups = g_key_file_get_groups(kconfig, &length);
+    for (int i = 0; i < (int)length; i++)
+    {
+        if (g_strcmp0 (groups[i],"end") == 0)
+        {
+            g_print ("read end \r\n");
+           
+            if (!activation_lvm_pv (sysbak,source))
+            {
+                return FALSE;
+            }
+
+            continue;
+        }    
+        fs_type = g_key_file_get_string(kconfig,
+                                        groups[i],
+                                       "fstype",
+                                       &error);
+        if (g_strcmp0 (fs_type,"LVM2_member") == 0)
+        {
+            uuid = g_key_file_get_string(kconfig,
+                                         groups[i],
+                                         "uuid",
+                                         &error);
+            dev_name = g_strconcat (target,groups[i],NULL);
+            g_print ("create pv \r\n");
+            restore_lvm_pv (source,dev_name,uuid);
+            g_free (dev_name);
+            continue;
+        }  
+        name = g_key_file_get_string(kconfig,
+                                     groups[i],
+                                     "name",
+                                     &error);
+        if (is_lvm (groups[i]))
+        {
+            character_replace (groups[i]);
+            dev_name = g_strconcat ("/dev/",groups[i],NULL); 
+        }
+        else
+        {    
+            dev_name = g_strconcat (target,groups[i],NULL);
+        }
+        file_name = g_strconcat (source,"/",name,".img",NULL);
+        restore_disk_partition_data (sysbak,file_name,dev_name,fs_type);
+        g_free (dev_name);
+        g_free (file_name);
+    }
+EXIT:    
+    if (kconfig != NULL)
+    {
+        g_key_file_free (kconfig);
+    }
+    if (disk_info != NULL)
+    {
+        g_free (disk_info);
+    }    
+    
+    return FALSE;
+}    
+gboolean sysbak_admin_restore_disk (SysbakAdmin *sysbak)
+{
+    const char  *source,*target;
+    guint64      needed_space,disk_space;
+    g_autoptr(GError) error = NULL;
+    char        *file_path;
+    
+    g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
+
+    source = sysbak_admin_get_source (sysbak);
+    target = sysbak_admin_get_target (sysbak);
+
+    if (!check_file_device (target))
+    {
+        return FALSE;
+    }
+    if (!check_file_device (source))
+    {
+        return FALSE;
+    }
+
+    file_path = g_strdup_printf ("%s/disk-table",source);
+    needed_space = get_source_space_size (sysbak,file_path);
+    disk_space = get_disk_space_size (sysbak,target);
+    if (disk_space < needed_space)
+    {
+        return FALSE;
+    }   
+    
+    if (!restore_disk_mbr(source,target))
+    {
+        return FALSE;
+    }
+    if (!restore_partition_table (file_path,target))
+    {    
+        g_free (file_path);
+    }    
+    g_free (file_path);
+    
+    read_cfg_file_restore (sysbak,source,target);
+    return TRUE;
     //step 1 check source target it exist? 
     //setp 2 check source space size
     //step 3 dd if write mbr
     //step 4 sfdisk restaore pt
     //step 5 read disk-info.ini create pv restore image vgcgfrestore lvm restart lvm
 } 
-*/
+

@@ -175,6 +175,23 @@ static void call_sysbak_restore  (GObject      *source_object,
 		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
 	}
 }
+static gboolean is_lvm (const char *dev_name)
+{
+    int i = 0;
+    int mode = 0;
+
+    while (dev_name[i] != '\0')
+    {
+        if (dev_name[i] == '/')
+            mode++;
+        i++;
+    }    
+    
+    if (mode == 1)
+        return FALSE;
+
+    return TRUE;
+}    
 gboolean sysbak_admin_restore_async (SysbakAdmin *sysbak)
 {
 	const char  *source,*target;
@@ -195,11 +212,14 @@ gboolean sysbak_admin_restore_async (SysbakAdmin *sysbak)
 		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }   
-    if (!check_file_device (target))
-    {
-		error_message = g_strdup_printf ("%s %s device does not exist",base_error,target);
-		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
-        return FALSE;
+    if (!is_lvm(target))
+    {    
+        if (!check_file_device (target))
+        {
+		    error_message = g_strdup_printf ("%s %s device does not exist",base_error,target);
+		    sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
+            return FALSE;
+        } 
     }    
     if (check_device_mount (target))
     {

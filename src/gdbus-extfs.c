@@ -856,6 +856,7 @@ static gboolean read_write_data_restore (SysbakGdbus      *object,
                 {
                     goto ERROR;
                 }
+                //fsync(*dfw);
             }
             blocks_written += blocks_write;
             block_id += blocks_write;
@@ -956,8 +957,6 @@ gboolean gdbus_sysbak_restore (SysbakGdbus           *object,
         e_code = 8;
         goto ERROR;
     } 
-
-    fsync(dfw);
     free(bitmap);
     close (dfw);
     close (dfr);

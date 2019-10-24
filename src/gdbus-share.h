@@ -26,7 +26,7 @@
 #include <stdarg.h>
 #include <sysbak-admin-generated.h>
 
-#define     DEFAULT_BUFFER_SIZE       1048576
+#define     DEFAULT_BUFFER_SIZE       1048576 * 1
 #define     CRC32_SIZE                4
 #define     IMAGE_MAGIC              "partclone-image"
 #define     IMAGE_MAGIC_SIZE          15

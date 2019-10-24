@@ -575,7 +575,7 @@ gboolean restart_lvm_vg (SysbakAdmin *sysbak)
 
 }
 
-gboolean sysbak_admin_restore_disk ()
+gboolean sysbak_admin_restore_disk (void)
 {
     //step 1 check source target it exist? 
     //setp 2 check source space size

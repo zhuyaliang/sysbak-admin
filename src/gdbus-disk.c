@@ -340,4 +340,83 @@ ERROR:
                                     1);
     
     return FALSE;
+}
+static char *get_file_last_line (const char *file_path)
+{
+    FILE *fp;
+    char *line;
+    line = malloc (1024);
+    if (line == NULL)
+    {
+        return NULL;
+    }    
+    fp = fopen(file_path, "r");
+    if (fp == NULL)
+    {
+        return NULL;
+    }    
+    while(!feof(fp))
+    {
+        fgets(line,1024,fp);
+        if(feof(fp))
+            break;
+   }
+   fclose(fp);
+
+   return line;
+
+}   
+
+static int get_spec_data (char *source,const char end)
+{
+    int   i = 0;
+    int len = strlen (source);
+
+    while (len --)
+    {
+        if (source[i] == end)
+            break;
+        i++;
+    }
+    if (len <= 0)
+    {
+        return 0;
+    }    
+    source[i] = '\0';
+    return atoi (source);
+}
+
+gboolean gdbus_get_source_use_size (SysbakGdbus           *object,
+                                    GDBusMethodInvocation *invocation,
+						            const gchar           *file_path)
+{
+    ull    size;
+    char  *data;
+    char **str;
+    int    start_size;
+    int    sector_szie;
+
+    data = get_file_last_line (file_path);
+    if (data == NULL)
+    {
+        goto ERROR;
+    }    
+    str = g_strsplit(data,"=",-1);
+    if (g_strv_length(str) < 2)
+    {
+        goto ERROR;
+    }   
+    start_size = get_spec_data (str[1],',');
+    sector_szie = get_spec_data (str[2],',');
+    
+    size = (start_size + sector_szie) / 2;
+    sysbak_gdbus_complete_get_source_use_size (object,invocation,size);
+    return TRUE;
+ERROR:
+    sysbak_gdbus_complete_get_source_use_size (object,invocation,0);
+    sysbak_gdbus_emit_sysbak_error (object,
+                                    "get source use size failed",
+                                    1);
+    
+    return FALSE;
 }    

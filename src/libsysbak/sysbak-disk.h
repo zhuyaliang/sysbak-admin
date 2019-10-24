@@ -22,6 +22,7 @@
 #include <gio/gio.h>
 #include "sysbak-gdbus.h"
 
+
 gboolean       get_disk_info_config        (const char  *disk_name,
                                             const char  *config_name);
 
@@ -41,5 +42,9 @@ gboolean       create_lvm_pv               (SysbakAdmin *sysbak,
                                             const char  *uuid);
 
 gboolean       restart_lvm_vg              (SysbakAdmin *sysbak);
+
+guint64        get_source_space_size       (SysbakAdmin *sysbak);
+
+guint64        get_disk_space_size         (SysbakAdmin *sysbak);
 
 #endif

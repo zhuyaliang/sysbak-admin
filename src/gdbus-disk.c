@@ -411,8 +411,10 @@ gboolean gdbus_get_source_use_size (SysbakGdbus           *object,
     
     size = (start_size + sector_szie) / 2;
     sysbak_gdbus_complete_get_source_use_size (object,invocation,size);
+    g_strfreev (str);
     return TRUE;
 ERROR:
+    g_strfreev (str);
     sysbak_gdbus_complete_get_source_use_size (object,invocation,0);
     sysbak_gdbus_emit_sysbak_error (object,
                                     "get source use size failed",

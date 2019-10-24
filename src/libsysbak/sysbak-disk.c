@@ -575,6 +575,64 @@ gboolean restart_lvm_vg (SysbakAdmin *sysbak)
 
 }
 
+guint64 get_source_space_size (SysbakAdmin *sysbak)
+{
+    const char  *source;
+    SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+    guint64      size;
+    
+    g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
+
+    source = sysbak_admin_get_source (sysbak);
+    proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+
+    if (!check_file_device (source))
+    {
+        return 0;
+    }
+	if (!sysbak_gdbus_call_get_source_use_size_sync(proxy,
+                                                    source,
+										            &size,
+                                                    NULL,
+										            &error))
+    {
+        return 0;
+    }       
+
+    return size;
+
+}
+
+guint64 get_disk_space_size (SysbakAdmin *sysbak)
+{
+    const char  *source;
+    SysbakGdbus *proxy;
+    g_autoptr(GError) error = NULL;
+    guint64      size;
+    
+    g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
+
+    source = sysbak_admin_get_source (sysbak);
+    proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+
+    if (!check_file_device (source))
+    {
+        return 0;
+    }
+	if (!sysbak_gdbus_call_get_disk_size_sync(proxy,
+                                              source,
+										      &size,
+                                               NULL,
+										      &error))
+    {
+        return 0;
+    }       
+
+    return size;
+
+}
+/*
 gboolean sysbak_admin_restore_disk (void)
 {
     //step 1 check source target it exist? 
@@ -583,3 +641,4 @@ gboolean sysbak_admin_restore_disk (void)
     //step 4 sfdisk restaore pt
     //step 5 read disk-info.ini create pv restore image vgcgfrestore lvm restart lvm
 } 
+*/

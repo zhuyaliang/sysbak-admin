@@ -23,7 +23,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
-#include <btrfs/crc32c.h>
+#include "crc32c.h"
 #include <btrfs/radix-tree.h>
 #include <btrfs/kerncompat.h>
 #include "ctree.h"

@@ -38,7 +38,7 @@
 #include <linux/magic.h>
 #include <getopt.h>
 #include <btrfs/radix-tree.h>
-#include <btrfs/crc32c.h>
+//#include <btrfs/crc32c.h>
 #include <btrfs/kerncompat.h>
 #include <btrfs/ioctl.h>
 

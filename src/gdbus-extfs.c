@@ -392,6 +392,7 @@ static gboolean read_write_data_ptf (SysbakGdbus      *object,
         {
             goto ERROR;
         }
+        fsync(*dfw);
 		//sysbak_gdbus_set_read_size (object,block_id);
     } while (1);
     if (blocks_in_cs > 0) 
@@ -498,7 +499,6 @@ gboolean gdbus_sysbak_extfs_ptf (SysbakGdbus           *object,
         goto ERROR;
     } 
 
-    fsync(dfw);
 	sysbak_gdbus_emit_sysbak_finished (object,
                                        fs_info.totalblock,
                                        fs_info.usedblocks,
@@ -856,7 +856,7 @@ static gboolean read_write_data_restore (SysbakGdbus      *object,
                 {
                     goto ERROR;
                 }
-                //fsync(*dfw);
+                fsync(*dfw);
             }
             blocks_written += blocks_write;
             block_id += blocks_write;

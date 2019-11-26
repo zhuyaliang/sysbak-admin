@@ -47,6 +47,7 @@ sources = files(
   'gdbus-btrfs.c',
   'gdbus-disk.c',
   'btrfs/ctree.c',
+  'btrfs/crc32c.c',
   'btrfs/disk-io.c',
   'btrfs/extent_io.c',
   'btrfs/extent-tree.c',

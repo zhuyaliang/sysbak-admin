@@ -128,6 +128,7 @@ uuid_dep = dependency('uuid')
 btrfs_dep = cc.find_library('btrfs')
 pth_dep = cc.find_library('pthread')
 jsonc_dep = dependency('json-c')
+lvmapp_dep = dependency('lvm2app')
 # Configure data
 policy_dir = polkit_gobject_dep.get_pkgconfig_variable('policydir', define_variable: ['prefix', sysbak_prefix])
 conf = configuration_data()

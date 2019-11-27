@@ -16,6 +16,8 @@
  */
 
 #include <fcntl.h>
+#define _BUILDING_LVM
+#include <lvm2app.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <sys/ioctl.h>
@@ -393,4 +395,92 @@ ERROR:
                                     1);
     
     return FALSE;
+}   
+static gboolean shell_cmd_remove_vg (const char *vgname)
+{
+    const gchar *argv[4];
+    gint         status;
+    GError      *error = NULL;
+
+    argv[0] = "/sbin/vgremove";
+    argv[1] = vgname;
+    argv[2] = "-y";
+    argv[3] = NULL;
+    
+    if (!g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, NULL, &status, &error))
+        goto ERROR;
+
+    if (!g_spawn_check_exit_status (status, &error))
+        goto ERROR;
+
+    return TRUE;
+ERROR:
+    g_error_free (error);
+    return FALSE;
+}    
+static gboolean shell_cmd_remove_pv (const char *pvname)
+{
+    const gchar *argv[4];
+    gint         status;
+    GError      *error = NULL;
+
+    argv[0] = "/sbin/pvremove";
+    argv[1] = pvname;
+    argv[2] = "-y";
+    argv[3] = NULL;
+    
+    if (!g_spawn_sync (NULL, (gchar**)argv, NULL, 0, NULL, NULL, NULL, NULL, &status, &error))
+        goto ERROR;
+
+    if (!g_spawn_check_exit_status (status, &error))
+        goto ERROR;
+
+    return TRUE;
+ERROR:
+    g_error_free (error);
+    return FALSE;
+}
+gboolean gdbus_remove_all_vg (SysbakGdbus           *object,
+                              GDBusMethodInvocation *invocation)
+{
+    lvm_t                libh;
+    struct dm_list      *vgnames;
+    struct lvm_str_list *vglist;
+    struct dm_list      *pvs;
+    struct lvm_pv_list  *pvlist;
+    const char          *name;
+    GPtrArray           *array;
+    gboolean             ret = TRUE;
+    uint i;
+    libh = lvm_init(NULL);
+
+    vgnames = lvm_list_vg_names(libh);
+    if (vgnames == NULL)
+    {
+        ret = FALSE;
+        goto EXITVG;
+    }   
+    pvs = lvm_list_pvs (libh);
+    array = g_ptr_array_new ();
+    dm_list_iterate_items(pvlist,pvs)
+    {
+        name = lvm_pv_get_name(pvlist->pv);
+        g_ptr_array_add (array, g_strdup (name));
+    }  
+    lvm_list_pvs_free (pvs);
+    dm_list_iterate_items(vglist, vgnames)
+    {
+        name = vglist->str;
+        ret = shell_cmd_remove_vg (name);
+    }
+    for (i = 0; i < array->len; i++)
+    { 
+        name = g_ptr_array_index (array,i);
+        shell_cmd_remove_pv (name); 
+    }
+    g_ptr_array_free (array, TRUE);
+EXITVG:
+    lvm_quit(libh);
+    sysbak_gdbus_complete_remove_all_vg (object,invocation,ret);
+    return ret;
 }    

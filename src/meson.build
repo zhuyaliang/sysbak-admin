@@ -79,6 +79,7 @@ deps = [
   uuid_dep,
   btrfs_dep,
   pth_dep,
+  lvmapp_dep
 ]
 
 executable(

@@ -59,7 +59,12 @@ gboolean    gdbus_restore_lvm_meta       (SysbakGdbus           *object,
 gboolean    gdbus_get_disk_size          (SysbakGdbus           *object,
                                           GDBusMethodInvocation *invocation,
 						                  const gchar           *dev_name);
-gboolean gdbus_get_source_use_size (SysbakGdbus           *object,
-                                    GDBusMethodInvocation *invocation,
-						            const gchar           *file_path);
+
+gboolean    gdbus_get_source_use_size    (SysbakGdbus           *object,
+                                          GDBusMethodInvocation *invocation,
+						                  const gchar           *file_path);
+
+gboolean    gdbus_remove_all_vg          (SysbakGdbus           *object,
+                                          GDBusMethodInvocation *invocation);
+
 #endif

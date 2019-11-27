@@ -358,6 +358,15 @@ static void sysbak_admin_disk_data (SysbakAdmin  *sysbak,char *dir_name)
         }    
     }
     g_free (disk_info);
+}   
+static gboolean create_target_dir (const char *target)
+{
+    if (access (target,F_OK) == -1)
+    {
+        return mkdir (target,S_IRWXU);
+    }
+    return -1;
+    
 }    
 gboolean sysbak_admin_disk_to_file (SysbakAdmin  *sysbak)
 {
@@ -372,10 +381,14 @@ gboolean sysbak_admin_disk_to_file (SysbakAdmin  *sysbak)
     {
         return FALSE;
     }
+
     // stp 1 Check if the file exists;
+    if (create_target_dir (target) < 0 )
+    {
+        return FALSE;
+    }    
     // stp 2 Check overwrite;
     // stp 3 Check disk space;
-
     lvm_meta = g_strdup_printf ("%s/lvm",target);
 	sysbak_admin_set_target (sysbak,lvm_meta);
     ret = get_disk_lvm_metadata (sysbak);
@@ -827,6 +840,13 @@ EXIT:
     
     return FALSE;
 }    
+static void remove_disk_old_lvm (SysbakAdmin *sysbak)
+{
+    SysbakGdbus *proxy;
+    
+    proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
+    sysbak_gdbus_call_remove_all_vg (proxy,NULL,NULL,NULL);
+}
 gboolean sysbak_admin_restore_disk (SysbakAdmin *sysbak)
 {
     const char  *source,*target;
@@ -847,7 +867,7 @@ gboolean sysbak_admin_restore_disk (SysbakAdmin *sysbak)
     {
         return FALSE;
     }
-
+    remove_disk_old_lvm (sysbak);
     file_path = g_strdup_printf ("%s/disk-table",source);
     needed_space = get_source_space_size (sysbak,file_path);
     disk_space = get_disk_space_size (sysbak,target);

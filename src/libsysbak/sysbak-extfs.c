@@ -172,7 +172,7 @@ static void call_sysbak_restore  (GObject      *source_object,
 	{
 
 		error_message = g_strdup_printf ("%s %s",base_error,error->message);
-		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
+//		sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
 	}
 }
 static gboolean is_lvm (const char *dev_name)

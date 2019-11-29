@@ -1087,7 +1087,6 @@ static inline u64 btrfs_node_blockptr(struct extent_buffer *eb, int nr)
 	unsigned long ptr;
 	ptr = offsetof(struct btrfs_node, ptrs) +
 		sizeof(struct btrfs_key_ptr) * nr;
-    printf ("ptr = %lu \r\n",ptr);
 	return btrfs_key_blockptr(eb, (struct btrfs_key_ptr *)ptr);
 }
 

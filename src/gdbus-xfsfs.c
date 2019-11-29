@@ -152,8 +152,7 @@ static gboolean fs_open(char* device)
 
     source_blocksize = mp->m_sb.sb_blocksize;
     source_sectorsize = mp->m_sb.sb_sectsize;
-
-    if (source_blocksize <= source_sectorsize)  
+    if (source_blocksize < source_sectorsize)  
     {
         return FALSE;
     }
@@ -529,7 +528,6 @@ gboolean gdbus_sysbak_xfsfs_ptf (SysbakGdbus           *object,
     uint             buffer_capacity;
     int              e_code;
     gint             dfr = 0,dfw = 0;
-    g_print ("source = %s\r\n",source);
     dfr = open_source_device(source,BACK_PTF);
     if (dfr <= 0 ) 
     {

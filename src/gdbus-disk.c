@@ -169,7 +169,6 @@ gboolean gdbus_restore_lvm_meta (SysbakGdbus           *object,
 
     if (!g_spawn_check_exit_status (status, &error))
         goto ERROR;
-    g_print ("vgcfgrestore end !!!!\r\n");
     return TRUE;
 ERROR:
     sysbak_gdbus_complete_restore_lvm_meta (object,invocation,FALSE);
@@ -277,7 +276,6 @@ gboolean gdbus_restart_vg (SysbakGdbus           *object,
 
     if (!g_spawn_check_exit_status (status, &error))
         goto ERROR;
-    g_print ("change end !!!!\r\n");
     return TRUE;
 ERROR:
     sysbak_gdbus_complete_restart_vg (object,invocation,FALSE);

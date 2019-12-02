@@ -509,3 +509,30 @@ EXITVG:
     sysbak_gdbus_complete_remove_all_vg (object,invocation,ret);
     return ret;
 }    
+
+gboolean gdbus_search_file_data (SysbakGdbus           *object,
+                                 GDBusMethodInvocation *invocation,
+                                 const char            *filepath,
+                                 const char            *data)
+{
+    int   fd;
+    char  buf[1024];
+    int   ret = TRUE;
+
+    fd = open (filepath,O_RDONLY);
+    if (fd < 0 )
+    {   
+        ret = FALSE;
+        goto SEXIT;
+    }   
+    read (fd,buf,1024);
+    if (g_strrstr (buf,data) == NULL)
+    {
+        ret = FALSE;
+    }
+    close (fd);
+SEXIT:
+    sysbak_gdbus_complete_search_file_data (object,invocation,ret);
+    
+    return ret;
+}    

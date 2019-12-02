@@ -60,6 +60,7 @@ static void AcquiredCallback (GDBusConnection *Connection,
 	iface->handle_backup_lvm_meta   = gdbus_backup_lvm_meta;
 	iface->handle_restore_lvm_meta  = gdbus_restore_lvm_meta;
     iface->handle_remove_all_vg     = gdbus_remove_all_vg;
+    iface->handle_search_file_data  = gdbus_search_file_data;
 
     iface->handle_get_extfs_device_info   = gdbus_get_extfs_device_info;
     iface->handle_get_fs_image_info = gdbus_get_fs_image_info; 

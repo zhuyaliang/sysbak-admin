@@ -68,4 +68,9 @@ gboolean    gdbus_remove_all_vg          (SysbakGdbus           *object,
                                           GDBusMethodInvocation *invocation,
                                           const char            *disk_name);
 
+gboolean    gdbus_search_file_data       (SysbakGdbus           *object,
+                                          GDBusMethodInvocation *invocation,
+                                          const char            *filepath,
+                                          const char            *data);
+
 #endif

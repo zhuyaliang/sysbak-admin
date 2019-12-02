@@ -179,6 +179,14 @@
         <arg name="ret" direction="out" type="b">
         </arg>
     </method>
+    <method name="SearchFileData">
+        <arg name="filepath" direction="in" type="s">
+        </arg>
+        <arg name="data" direction="in" type="s">
+        </arg>
+        <arg name="ret" direction="out" type="b">
+        </arg>
+    </method>
 
     <signal name="SysbakFinished">
        <arg name="totalblock" type="t">

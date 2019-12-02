@@ -680,30 +680,29 @@ static gboolean activation_lvm_pv (SysbakAdmin *sysbak,const char *dir_path)
 
     return TRUE;
 }   
-static gboolean is_vg (const char *file_name,const char *uuid)
+static gboolean is_vg (SysbakGdbus *proxy,const char *file_name,const char *uuid)
 {
-    int   fd;
-    char  buf[1024];
+    gboolean ret;
 
-    fd = open (file_name,O_RDONLY);
-    if (fd < 0 )
+	if (!sysbak_gdbus_call_search_file_data_sync (proxy,
+                                                  file_name,
+                                                  uuid,
+                                                  &ret,
+                                                  NULL,
+                                                  NULL))
     {
         return FALSE;
-    }   
-    read (fd,buf,1024);
-    if (g_strrstr (buf,uuid) != NULL)
-    {
-        return TRUE;
-    }    
-    
-    return FALSE;
+    }
+    return ret;
 }    
 static gboolean restore_lvm_pv (const char *dir_path,const char *dev_name,const char *uuid)
 {
     SysbakAdmin      *sysbak;
+    
     g_autoptr(GError) error = NULL;
     g_autoptr(GDir)   dir;
     const gchar      *fn;
+    SysbakGdbus      *proxy;
     
     dir = g_dir_open (dir_path, 0, &error);
     if (dir == NULL)
@@ -711,12 +710,13 @@ static gboolean restore_lvm_pv (const char *dir_path,const char *dev_name,const 
         return FALSE;
     }
     sysbak = sysbak_admin_new ();
+    proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
     while ((fn = g_dir_read_name (dir)) != NULL)
     {
         if (g_str_has_prefix (fn, "lvm-"))
         {
             g_autofree gchar *filename = g_build_filename (dir_path, fn, NULL);
-            if (is_vg (filename,uuid))
+            if (is_vg (proxy,filename,uuid))
             {    
                 sysbak_admin_set_source (sysbak,filename);//vgcfg file name
                 sysbak_admin_set_target (sysbak,dev_name);//vg name

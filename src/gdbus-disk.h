@@ -65,6 +65,7 @@ gboolean    gdbus_get_source_use_size    (SysbakGdbus           *object,
 						                  const gchar           *file_path);
 
 gboolean    gdbus_remove_all_vg          (SysbakGdbus           *object,
-                                          GDBusMethodInvocation *invocation);
+                                          GDBusMethodInvocation *invocation,
+                                          const char            *disk_name);
 
 #endif

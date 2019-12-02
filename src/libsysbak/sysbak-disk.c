@@ -406,7 +406,6 @@ gboolean sysbak_admin_disk_to_file (SysbakAdmin  *sysbak)
         return FALSE;
     }    
     
-    
     disk_table = g_strdup_printf ("%s/disk-table",target);
     sysbak_admin_set_target (sysbak,disk_table);
     ret = get_disk_partition_table (sysbak);
@@ -674,7 +673,6 @@ static gboolean activation_lvm_pv (SysbakAdmin *sysbak,const char *dir_path)
             sysbak_admin_set_source (sysbak,filename);//vgcfg file
             sysbak_admin_set_target (sysbak,&fn[4]);//vg name
             set_disk_lvm_metadata (sysbak);
-            g_print ("restart_lvm_vg \r\n");
             sysbak_admin_set_source (sysbak,&fn[4]);//vg name
             restart_lvm_vg (sysbak);
         }
@@ -725,7 +723,7 @@ static gboolean restore_lvm_pv (const char *dir_path,const char *dev_name,const 
                 if ( !create_lvm_pv (sysbak,uuid))
                 {
                     return FALSE;
-                }    
+                }   
                 return TRUE;
             }    
         }
@@ -785,8 +783,6 @@ static gboolean read_cfg_file_restore (SysbakAdmin *sysbak,const char *source,co
     {
         if (g_strcmp0 (groups[i],"end") == 0)
         {
-            g_print ("read end \r\n");
-           
             if (!activation_lvm_pv (sysbak,source))
             {
                 return FALSE;
@@ -805,7 +801,6 @@ static gboolean read_cfg_file_restore (SysbakAdmin *sysbak,const char *source,co
                                          "uuid",
                                          &error);
             dev_name = g_strconcat (target,groups[i],NULL);
-            g_print ("create pv \r\n");
             restore_lvm_pv (source,dev_name,uuid);
             g_free (dev_name);
             continue;
@@ -840,12 +835,12 @@ EXIT:
     
     return FALSE;
 }    
-static void remove_disk_old_lvm (SysbakAdmin *sysbak)
+static void remove_disk_old_lvm (SysbakAdmin *sysbak,const char *disk_name)
 {
     SysbakGdbus *proxy;
     
     proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
-    sysbak_gdbus_call_remove_all_vg (proxy,NULL,NULL,NULL);
+    sysbak_gdbus_call_remove_all_vg (proxy,disk_name,NULL,NULL,NULL);
 }
 gboolean sysbak_admin_restore_disk (SysbakAdmin *sysbak)
 {
@@ -867,7 +862,7 @@ gboolean sysbak_admin_restore_disk (SysbakAdmin *sysbak)
     {
         return FALSE;
     }
-    remove_disk_old_lvm (sysbak);
+    remove_disk_old_lvm (sysbak,target);
     file_path = g_strdup_printf ("%s/disk-table",source);
     needed_space = get_source_space_size (sysbak,file_path);
     disk_space = get_disk_space_size (sysbak,target);

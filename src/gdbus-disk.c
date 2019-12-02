@@ -438,47 +438,74 @@ ERROR:
     g_error_free (error);
     return FALSE;
 }
-gboolean gdbus_remove_all_vg (SysbakGdbus           *object,
-                              GDBusMethodInvocation *invocation)
+static GPtrArray *get_vg_pvs (lvm_t lvm, vg_t vg,const char *disk_name)
 {
-    lvm_t                libh;
-    struct dm_list      *vgnames;
-    struct lvm_str_list *vglist;
-    struct dm_list      *pvs;
-    struct lvm_pv_list  *pvlist;
-    const char          *name;
-    GPtrArray           *array;
-    gboolean             ret = TRUE;
-    uint i;
-    libh = lvm_init(NULL);
+    struct dm_list *pvs;
+    struct lvm_pv_list *pvl;
+    const char     *pvname;
+    GPtrArray      *array;
+    if (!vg)
+    {
+        return NULL;
+    }    
+    array = g_ptr_array_new ();
+    pvs = lvm_vg_list_pvs(vg);
+    if (!pvs)
+    {
+        return NULL;
+    }    
+    dm_list_iterate_items(pvl, pvs) 
+    {
+        pvname = lvm_pv_get_name(pvl->pv);
+        if (strstr (pvname,disk_name) != NULL)
+        {
+            g_ptr_array_add (array, g_strdup (pvname));
+        }    
 
-    vgnames = lvm_list_vg_names(libh);
+    }
+    return array;
+}    
+gboolean gdbus_remove_all_vg (SysbakGdbus           *object,
+                              GDBusMethodInvocation *invocation,
+                              const char            *disk_name)
+{
+    lvm_t                lvm;
+    struct dm_list      *vgnames;
+    vg_t                 vg;
+    struct lvm_str_list *vglist;
+    const char          *name;
+    const char          *pvname;
+    gboolean             ret = TRUE;
+    GPtrArray           *array;
+    uint                 i;
+    
+    lvm = lvm_init(NULL);
+    vgnames = lvm_list_vg_names(lvm);
     if (vgnames == NULL)
     {
         ret = FALSE;
         goto EXITVG;
-    }   
-    pvs = lvm_list_pvs (libh);
-    array = g_ptr_array_new ();
-    dm_list_iterate_items(pvlist,pvs)
-    {
-        name = lvm_pv_get_name(pvlist->pv);
-        g_ptr_array_add (array, g_strdup (name));
     }  
-    lvm_list_pvs_free (pvs);
     dm_list_iterate_items(vglist, vgnames)
     {
         name = vglist->str;
-        ret = shell_cmd_remove_vg (name);
+        vg = lvm_vg_open(lvm, name, "r", 0);
+        array = get_vg_pvs(lvm,vg,disk_name); 
+        lvm_vg_close(vg);
+        if (array->len > 0)
+        {   
+            shell_cmd_remove_vg (name);
+            for (i = 0; i < array->len; i++)
+            { 
+                pvname = g_ptr_array_index (array,i);
+                shell_cmd_remove_pv (pvname);
+            }
+            g_ptr_array_free (array, TRUE);
+        }
     }
-    for (i = 0; i < array->len; i++)
-    { 
-        name = g_ptr_array_index (array,i);
-        shell_cmd_remove_pv (name); 
-    }
-    g_ptr_array_free (array, TRUE);
+
 EXITVG:
-    lvm_quit(libh);
+    lvm_quit(lvm);
     sysbak_gdbus_complete_remove_all_vg (object,invocation,ret);
     return ret;
 }    

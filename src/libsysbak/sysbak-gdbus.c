@@ -117,6 +117,7 @@ static void sysbak_admin_init (SysbakAdmin *sysbak)
                                                DBS_NAME,
                                                NULL,
                                               &error);
+    g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (priv->proxy),G_MAXINT);
 	if (!priv->proxy)
 	{
 		g_warning ("proxy_new_sync failed %s\r\n",error->message);

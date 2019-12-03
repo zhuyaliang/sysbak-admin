@@ -589,7 +589,7 @@ gboolean gdbus_sysbak_xfsfs_ptf (SysbakGdbus           *object,
     }    
     write_image_bitmap(&dfw, fs_info, bitmap);
     copied_count = 0;
-    sysbak_gdbus_complete_sysbak_xfsfs_ptf (object,invocation); 
+//    sysbak_gdbus_complete_sysbak_xfsfs_ptf (object,invocation); 
     if (!read_write_data_ptf (object,&fs_info,&img_opt,bitmap,&dfr,&dfw))
     {
         e_code = 8;
@@ -603,6 +603,8 @@ gboolean gdbus_sysbak_xfsfs_ptf (SysbakGdbus           *object,
     free(bitmap);
     close (dfw);
     close (dfr);
+    g_print ("sysbak_gdbus_complete_sysbak_xfsfs_ptf \r\n");
+    sysbak_gdbus_complete_sysbak_xfsfs_ptf (object,invocation); 
     return TRUE;
 ERROR:
 	sysbak_gdbus_complete_sysbak_xfsfs_ptf (object,invocation); 

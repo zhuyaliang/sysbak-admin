@@ -86,7 +86,6 @@ gboolean sysbak_admin_xfsfs_ptf_async (SysbakAdmin *sysbak)
 										NULL,
 								        (GAsyncReadyCallback) call_sysbak_xfsfs_ptf,
 										sysbak);
-
     return TRUE;      /// finish
 }
 static void call_sysbak_xfsfs_ptp (GObject      *source_object,

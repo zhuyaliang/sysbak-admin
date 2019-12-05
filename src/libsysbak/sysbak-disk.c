@@ -287,10 +287,28 @@ static void sysbak_admin_xfsfs (SysbakAdmin *sysbak)
 {
     sysbak_admin_xfsfs_ptf_async (sysbak);
 }
-static void character_replace (char *str)
+static char *get_dev_path (char *str)
 {
     int i = 0;
+    const char *normal_path = "/dev/";
+    const char *lvm_path = "/dev/mapper/";
 
+    char *dev_name;
+    
+    dev_name = g_strconcat(normal_path,str,NULL);
+    while (str[i] != '\0')
+    {
+        if (str[i] == '-')
+        { 
+            g_free (dev_name);
+            dev_name = g_strconcat(lvm_path,str,NULL);
+            break;
+        }
+        i++;
+    }
+
+    return dev_name;
+/*
     while (str[i] != '\0')
     {
         if (str[i] == '-')
@@ -299,7 +317,8 @@ static void character_replace (char *str)
             break;
         }
         i++;
-    }    
+    } 
+  */  
 }   
 
 static void sysbak_admin_disk_data (SysbakAdmin  *sysbak,char *dir_name)
@@ -345,8 +364,8 @@ static void sysbak_admin_disk_data (SysbakAdmin  *sysbak,char *dir_name)
             if (g_strcmp0 (fs_type,array_data[j].fs_type) == 0)
             {
                 target = g_strdup_printf ("%s/%s.img",dir_name,partition);
-                character_replace (partition);
-                source = g_strdup_printf ("/dev/%s",partition);
+                source = get_dev_path (partition);
+                //source = g_strdup_printf ("/dev/%s",partition);
 
 	            sysbak_admin_set_source (sysbak,source);
 	            sysbak_admin_set_target (sysbak,target);
@@ -811,8 +830,7 @@ static gboolean read_cfg_file_restore (SysbakAdmin *sysbak,const char *source,co
                                      &error);
         if (is_lvm (groups[i]))
         {
-            character_replace (groups[i]);
-            dev_name = g_strconcat ("/dev/",groups[i],NULL); 
+            dev_name = g_strconcat ("/dev/mapper/",groups[i],NULL); 
         }
         else
         {    
@@ -834,6 +852,71 @@ EXIT:
     }    
     
     return FALSE;
+}   
+static gboolean check_dev_is_mount (const char *source)
+{
+    GKeyFile     *kconfig = NULL;
+    char         *disk_info = NULL;
+    GError       *error = NULL;
+    g_auto(GStrv) groups = NULL;
+    gsize         length = 0;
+    char         *name;
+    char         *dev_name = NULL;
+    gboolean      ret = TRUE;
+
+    kconfig = g_key_file_new();
+    if(kconfig == NULL)
+    {
+        goto EXIT;
+    }
+    disk_info = g_strdup_printf ("%s/disk-info.ini",source);
+    if (!check_file_device (disk_info))
+    {
+        goto EXIT;
+    }
+    if(!g_key_file_load_from_file(kconfig, disk_info, G_KEY_FILE_NONE, &error))
+    {
+        goto EXIT;
+    }
+    groups = g_key_file_get_groups(kconfig, &length);
+    for (int i = 0; i < (int)length; i++)
+    {
+        name = g_key_file_get_string(kconfig,
+                                     groups[i],
+                                     "name",
+                                     &error);
+        if (g_strcmp0 (name,"lvm") == 0)
+        {
+            break;
+        }   
+        if (is_lvm (name))
+        {
+            dev_name = g_strconcat ("/dev/mapper/",name,NULL); 
+        }
+        else
+        {    
+            dev_name = g_strconcat ("/dev/",name,NULL);
+        }
+        if (check_device_mount (dev_name))
+        {
+            g_free (dev_name);
+            goto EXIT; 
+        }    
+        g_free (dev_name);
+        dev_name = NULL;
+    }
+    ret = FALSE;
+EXIT:    
+    if (kconfig != NULL)
+    {
+        g_key_file_free (kconfig);
+    }
+    if (disk_info != NULL)
+    {
+        g_free (disk_info);
+    }    
+    return ret;
+    
 }    
 static void remove_disk_old_lvm (SysbakAdmin *sysbak,const char *disk_name)
 {
@@ -845,6 +928,7 @@ static void remove_disk_old_lvm (SysbakAdmin *sysbak,const char *disk_name)
 gboolean sysbak_admin_restore_disk (SysbakAdmin *sysbak)
 {
     const char  *source,*target;
+	SysbakGdbus *proxy;
     guint64      needed_space,disk_space;
     g_autoptr(GError) error = NULL;
     char        *file_path;
@@ -853,6 +937,7 @@ gboolean sysbak_admin_restore_disk (SysbakAdmin *sysbak)
 
     source = sysbak_admin_get_source (sysbak);
     target = sysbak_admin_get_target (sysbak);
+	proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
 
     if (!check_file_device (target))
     {
@@ -862,25 +947,32 @@ gboolean sysbak_admin_restore_disk (SysbakAdmin *sysbak)
     {
         return FALSE;
     }
+    if (check_dev_is_mount (source))
+    {   
+        sysbak_gdbus_emit_sysbak_error (proxy,"Device not unmount",-1);
+        return FALSE;
+    }    
     remove_disk_old_lvm (sysbak,target);
     file_path = g_strdup_printf ("%s/disk-table",source);
     needed_space = get_source_space_size (sysbak,file_path);
     disk_space = get_disk_space_size (sysbak,target);
     if (disk_space < needed_space)
     {
+        g_free (file_path);
         return FALSE;
     }   
     
     if (!restore_disk_mbr(source,target))
     {
+        g_free (file_path);
         return FALSE;
     }
     if (!restore_partition_table (file_path,target))
     {    
         g_free (file_path);
+        return FALSE;
     }    
     g_free (file_path);
-    
     read_cfg_file_restore (sysbak,source,target);
     return TRUE;
     //step 1 check source target it exist? 

@@ -28,7 +28,7 @@
 
 static const gchar *get_restore_cmd_option (const char *s,const char *t)
 {
-    return g_strdup_printf ("/usr/bin/sfdisk %s < %s",s,t);
+    return g_strdup_printf ("/usr/bin/sfdisk %s < %s --force",s,t);
 }    
 gboolean gdbus_restore_partition_table (SysbakGdbus           *object,
                                         GDBusMethodInvocation *invocation,

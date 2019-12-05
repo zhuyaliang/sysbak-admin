@@ -853,7 +853,7 @@ EXIT:
     
     return FALSE;
 }   
-static gboolean check_dev_is_mount (const char *source)
+static gboolean check_dev_is_mount (const char *source,char **error_message)
 {
     GKeyFile     *kconfig = NULL;
     char         *disk_info = NULL;
@@ -870,12 +870,19 @@ static gboolean check_dev_is_mount (const char *source)
         goto EXIT;
     }
     disk_info = g_strdup_printf ("%s/disk-info.ini",source);
+    if (!check_file_permission (disk_info))
+    {
+        *error_message = "source dir Permission denied";
+        goto EXIT;
+    }    
     if (!check_file_device (disk_info))
     {
+        *error_message = "source dir Non-existent";
         goto EXIT;
     }
     if(!g_key_file_load_from_file(kconfig, disk_info, G_KEY_FILE_NONE, &error))
     {
+        *error_message = error->message; 
         goto EXIT;
     }
     groups = g_key_file_get_groups(kconfig, &length);
@@ -899,6 +906,7 @@ static gboolean check_dev_is_mount (const char *source)
         }
         if (check_device_mount (dev_name))
         {
+            *error_message = "Device in use";
             g_free (dev_name);
             goto EXIT; 
         }    
@@ -932,6 +940,7 @@ gboolean sysbak_admin_restore_disk (SysbakAdmin *sysbak)
     guint64      needed_space,disk_space;
     g_autoptr(GError) error = NULL;
     char        *file_path;
+    char        *error_message = NULL;
     
     g_return_val_if_fail (IS_SYSBAK_ADMIN (sysbak),FALSE);
 
@@ -941,15 +950,17 @@ gboolean sysbak_admin_restore_disk (SysbakAdmin *sysbak)
 
     if (!check_file_device (target))
     {
+        sysbak_gdbus_emit_sysbak_error (proxy,"Device does not exist",-1);
         return FALSE;
     }
     if (!check_file_device (source))
     {
+        sysbak_gdbus_emit_sysbak_error (proxy,"File does not exist",-1);
         return FALSE;
     }
-    if (check_dev_is_mount (source))
+    if (check_dev_is_mount (source,&error_message))
     {   
-        sysbak_gdbus_emit_sysbak_error (proxy,"Device not unmount",-1);
+        sysbak_gdbus_emit_sysbak_error (proxy,error_message,-1);
         return FALSE;
     }    
     remove_disk_old_lvm (sysbak,target);
@@ -959,12 +970,14 @@ gboolean sysbak_admin_restore_disk (SysbakAdmin *sysbak)
     if (disk_space < needed_space)
     {
         g_free (file_path);
+        sysbak_gdbus_emit_sysbak_error (proxy,"Insufficient storage space",-1);
         return FALSE;
     }   
     
     if (!restore_disk_mbr(source,target))
     {
         g_free (file_path);
+        sysbak_gdbus_emit_sysbak_error (proxy,"Failed to recover the hard disk MBR",-1);
         return FALSE;
     }
     if (!restore_partition_table (file_path,target))

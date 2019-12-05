@@ -25,4 +25,6 @@ gboolean check_device_mount(const char *device);
 
 gboolean check_file_device (const char *path);
 
+gboolean check_file_permission (const char *path);
+
 #endif

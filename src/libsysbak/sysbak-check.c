@@ -77,6 +77,16 @@ EXIT:
     }
     return isMounted;
 }
+
+gboolean check_file_permission (const char *path)
+{
+    if (access (path,R_OK) == -1)
+    {
+        return FALSE;
+    }    
+    
+    return TRUE;
+}    
 gboolean check_file_device (const char *path)
 {
     if (access (path,F_OK) == -1)

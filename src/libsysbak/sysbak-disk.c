@@ -344,6 +344,7 @@ static void sysbak_admin_disk_data (SysbakAdmin  *sysbak,char *dir_name)
     char     *partition;
     char     *fs_type;
     char     *source,*target;	
+    SysbakGdbus *proxy;
     
     static sys_admin array_data [6] =
     {
@@ -359,6 +360,7 @@ static void sysbak_admin_disk_data (SysbakAdmin  *sysbak,char *dir_name)
     keyfile = g_key_file_new();
     g_key_file_load_from_file(keyfile,disk_info, G_KEY_FILE_NONE, &error);
     groups = g_key_file_get_groups(keyfile, &length);
+    proxy  = (SysbakGdbus*)sysbak_admin_get_proxy (sysbak);
     for(i = 0; i < (int)length; i++)
     {
         partition = g_key_file_get_string (keyfile,
@@ -377,7 +379,6 @@ static void sysbak_admin_disk_data (SysbakAdmin  *sysbak,char *dir_name)
             {
                 target = g_strdup_printf ("%s/%s.img",dir_name,partition);
                 source = get_dev_path (partition);
-                //source = g_strdup_printf ("/dev/%s",partition);
 
 	            sysbak_admin_set_source (sysbak,source);
 	            sysbak_admin_set_target (sysbak,target);
@@ -385,7 +386,9 @@ static void sysbak_admin_disk_data (SysbakAdmin  *sysbak,char *dir_name)
                 array_data[j].sysbak_admin_type (sysbak);
                 g_free (source);
                 g_free (target);
-            }    
+            }   
+		    sysbak_gdbus_emit_sysbak_error (proxy,"There are unsupported file systems",-1);
+            
         }    
     }
     g_free (disk_info);
@@ -397,7 +400,6 @@ static gboolean create_target_dir (const char *target)
         return mkdir (target,S_IRWXU);
     }
     return -1;
-    
 }    
 gboolean sysbak_admin_disk_to_file (SysbakAdmin  *sysbak)
 {

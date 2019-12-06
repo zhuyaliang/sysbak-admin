@@ -73,6 +73,7 @@ static const char *group_name;
 static void record_standard_disk_info (json_object * jvalue,GKeyFile *Kconfig)
 {
     const char *value;
+    const char *object_string;
 
     json_object_object_foreach(jvalue, key, vale)
     {
@@ -85,11 +86,22 @@ static void record_standard_disk_info (json_object * jvalue,GKeyFile *Kconfig)
             }
             group_name = &value[3];
         }
-
-        g_key_file_set_string(Kconfig,
-                              group_name,
-                              key,
-                              json_object_get_string(vale));
+        object_string = json_object_get_string (vale);
+        if (object_string == NULL)
+        {
+            g_key_file_set_string(Kconfig,
+                                  group_name,
+                                  key,
+                                 "free");
+            
+        }    
+        else
+        {    
+            g_key_file_set_string(Kconfig,
+                                  group_name,
+                                  key,
+                                  json_object_get_string(vale));
+        }
     }
 }
 static void record_lvm_disk_info (json_object * jvalue,GKeyFile *Kconfig)
@@ -823,7 +835,12 @@ static gboolean read_cfg_file_restore (SysbakAdmin *sysbak,const char *source,co
             restore_lvm_pv (source,dev_name,uuid);
             g_free (dev_name);
             continue;
-        }  
+        } 
+
+        if (g_strcmp0 (fs_type,"free") == 0)
+        {
+            continue;
+        }    
         name = g_key_file_get_string(kconfig,
                                      groups[i],
                                      "name",
